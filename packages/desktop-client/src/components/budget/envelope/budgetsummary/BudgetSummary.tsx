@@ -69,6 +69,9 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
     : SvgArrowButtonUp1;
 
   const displayMonth = monthUtils.format(month, "MMMM ''yy", locale);
+  const thisMonth = monthUtils.currentMonth();
+  const isColoredMonth =
+    month === thisMonth || month === monthUtils.nextMonth(thisMonth);
   const { t } = useTranslation();
 
   const toggleButton = (
@@ -304,7 +307,16 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 onBudgetAction={onBudgetAction}
                 isCollapsed
                 labelPosition="below"
-                amountStyle={{ fontSize: 24.5, fontWeight: 700, lineHeight: 1 }}
+                amountStyle={{
+                  fontSize: 24.5,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  // Like YNAB 4, only this month and next are colored
+                  ...(!isColoredMonth && {
+                    color: theme.budgetSummaryText,
+                    ':hover': { borderColor: theme.budgetSummaryText },
+                  }),
+                }}
               />
             </View>
             <View
