@@ -82,8 +82,8 @@ const budgetInputClassName = css({
 
 const headerLabelStyle: CSSProperties = {
   flex: 1,
-  padding: '0 5px',
-  textAlign: 'center',
+  padding: '0 6px',
+  textAlign: 'right',
 };
 
 const headerSeparatorStyle: CSSProperties = {
@@ -111,8 +111,8 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         lineHeight: 1.25,
         backgroundColor: theme.budgetTotalsBackground,
         border: '1px solid ' + theme.budgetMonthOutline,
-        borderBottomWidth: 0,
-        borderRadius: '5px 5px 0 0',
+        borderRadius: 5,
+        marginBottom: 3,
       }}
     >
       <View style={headerLabelStyle}>

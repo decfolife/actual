@@ -266,9 +266,10 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
     return (
       <View
         style={{
-          backgroundColor: theme.budgetCurrentMonth, // match budget colors, not generic table colors.
+          // The panel shows around the rounded tops of the columns
+          backgroundColor: theme.budgetPagePanel,
           overflow: 'hidden',
-          boxShadow: styles.cardShadow,
+          boxShadow: `var(--budget-table-shadow, ${styles.cardShadow})`,
           borderRadius: '0 0 4px 4px',
           flex: 1,
           position: 'relative',
@@ -289,6 +290,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
             zIndex: 2,
           }}
         />
+        <BudgetGridTop />
         {items.map((item, idx) => {
           let content;
           switch (item.type) {
@@ -482,6 +484,35 @@ function BudgetGridFiller() {
       />
       <RenderMonths style={{ backgroundColor: theme.budgetCurrentMonth }}>
         {null}
+      </RenderMonths>
+    </View>
+  );
+}
+
+// Rounded, outlined tops of the category column and each month, like YNAB 4
+function BudgetGridTop() {
+  const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
+  const categoryExpandedState = categoryExpandedStatePref ?? 0;
+
+  return (
+    <View style={{ height: 4, flexShrink: 0, flexDirection: 'row' }}>
+      <View
+        style={{
+          width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
+          backgroundColor: theme.budgetCurrentMonth,
+          borderRadius: '4px 4px 0 0',
+        }}
+      />
+      <RenderMonths style={{ boxShadow: 'none' }}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.budgetCurrentMonth,
+            border: '1px solid ' + theme.budgetMonthOutline,
+            borderBottomWidth: 0,
+            borderRadius: '4px 4px 0 0',
+          }}
+        />
       </RenderMonths>
     </View>
   );
