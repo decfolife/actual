@@ -121,8 +121,8 @@ export function ToBudgetAmount({
           style={{
             fontSize: 13,
             fontWeight: 700,
-            lineHeight: 1.2,
-            marginTop: 2,
+            lineHeight: 1.15,
+            marginTop: 1,
           }}
         >
           {isNegative ? t('Overbudgeted') : t('Available to Budget')}

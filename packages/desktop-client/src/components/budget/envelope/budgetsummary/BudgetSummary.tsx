@@ -258,7 +258,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             style={{
               flexDirection: 'row',
               alignItems: 'stretch',
-              minHeight: 49,
+              minHeight: 43,
             }}
           >
             <View
@@ -282,9 +282,9 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               </div>
               <div
                 className={css({
-                  fontSize: 12,
+                  fontSize: 12.5,
                   fontWeight: 700,
-                  lineHeight: 1.25,
+                  lineHeight: 1.2,
                   color: 'var(--budget-card-subtext, inherit)',
                 })}
               >

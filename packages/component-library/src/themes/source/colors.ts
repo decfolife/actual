@@ -754,6 +754,11 @@ export const colors = {
     all: { ref: 'tableBorder' },
     description: 'Lines between the columns in the column header boxes',
   },
+  budgetTotalsLabel: {
+    all: { ref: 'budgetTotalsText' },
+    description:
+      'Column names (Budgeted, Outflows, Balance) above the budget table',
+  },
   budgetTotalsText: {
     all: { ref: 'tableHeaderText' },
     description: 'Text in the column header row above the budget table',
