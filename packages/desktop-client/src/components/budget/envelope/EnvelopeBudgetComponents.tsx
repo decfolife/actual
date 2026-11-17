@@ -93,7 +93,7 @@ const headerSeparatorStyle: CSSProperties = {
 const cellStyle: CSSProperties = {
   color: theme.budgetTotalsText,
   fontSize: 14,
-  fontWeight: 600,
+  fontWeight: 650,
 };
 
 export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
@@ -122,7 +122,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           style={{
             color: theme.budgetTotalsLabel,
             fontSize: 13.5,
-            fontWeight: 600,
+            fontWeight: 650,
           }}
         >
           <Trans>Budgeted</Trans>
@@ -146,7 +146,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           style={{
             color: theme.budgetTotalsLabel,
             fontSize: 13.5,
-            fontWeight: 600,
+            fontWeight: 650,
           }}
         >
           <Trans>Outflows</Trans>
@@ -166,7 +166,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           style={{
             color: theme.budgetTotalsLabel,
             fontSize: 13.5,
-            fontWeight: 600,
+            fontWeight: 650,
           }}
         >
           <Trans>Balance</Trans>
