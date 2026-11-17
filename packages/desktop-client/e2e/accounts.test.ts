@@ -486,7 +486,7 @@ test.describe('Accounts', () => {
     });
 
     test('creates a transfer from two existing transactions', async () => {
-      accountPage = await navigation.goToAccountPage('On budget');
+      accountPage = await navigation.goToAccountPage('Budget Accounts');
       await accountPage.waitFor();
 
       await expect(accountPage.accountName).toHaveText('On Budget Accounts');

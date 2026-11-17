@@ -17,7 +17,7 @@ import * as monthUtils from '@actual-app/core/shared/months';
 import { css } from '@emotion/css';
 
 import { BalanceWithCarryover } from '#components/budget/BalanceWithCarryover';
-import { makeAmountGrey } from '#components/budget/util';
+import { hideZeroAmount } from '#components/budget/util';
 import { NotesButton } from '#components/NotesButton';
 import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
 import { Field, Row, SheetCell } from '#components/table';
@@ -69,7 +69,7 @@ const headerLabelStyle: CSSProperties = {
 };
 
 const cellStyle: CSSProperties = {
-  color: theme.tableHeaderText,
+  color: theme.budgetTotalsText,
   fontWeight: 600,
 };
 
@@ -82,11 +82,11 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         marginRight: styles.monthRightPadding,
         paddingTop: 10,
         paddingBottom: 10,
-        backgroundColor: theme.budgetCurrentMonth,
+        backgroundColor: theme.budgetTotalsBackground,
       }}
     >
       <View style={headerLabelStyle}>
-        <Text style={{ color: theme.tableHeaderText }}>
+        <Text style={{ color: theme.budgetTotalsText }}>
           <Trans>Budgeted</Trans>
         </Text>
         <EnvelopeCellValue
@@ -94,20 +94,24 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           type="financial"
         >
           {props => (
-            <CellValueText {...props} value={-props.value} style={cellStyle} />
+            <CellValueText
+              {...props}
+              value={-props.value || 0}
+              style={cellStyle}
+            />
           )}
         </EnvelopeCellValue>
       </View>
       <View style={headerLabelStyle}>
-        <Text style={{ color: theme.tableHeaderText }}>
-          <Trans>Spent</Trans>
+        <Text style={{ color: theme.budgetTotalsText }}>
+          <Trans>Outflows</Trans>
         </Text>
         <EnvelopeCellValue binding={envelopeBudget.totalSpent} type="financial">
           {props => <CellValueText {...props} style={cellStyle} />}
         </EnvelopeCellValue>
       </View>
       <View style={headerLabelStyle}>
-        <Text style={{ color: theme.tableHeaderText }}>
+        <Text style={{ color: theme.budgetTotalsText }}>
           <Trans>Balance</Trans>
         </Text>
         <EnvelopeCellValue
@@ -404,7 +408,8 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
             cursor: 'default',
             margin: 1,
             padding: '0 4px',
-            borderRadius: 4,
+            borderRadius: 2,
+            boxShadow: 'inset 0 0 0 1px ' + theme.budgetCellBorder,
             ':hover': {
               boxShadow: 'inset 0 0 0 1px ' + theme.pageTextSubdued, //remove mobile color variable
               backgroundColor: theme.budgetCurrentMonth,
@@ -413,7 +418,7 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
           valueProps={{
             binding: envelopeBudget.catBudgeted(category.id),
             type: 'financial',
-            getValueStyle: makeAmountGrey,
+            getValueStyle: hideZeroAmount,
             formatExpr: format.forEdit,
             unformatExpr: format.fromEdit,
           }}
@@ -482,7 +487,7 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
                 className={css({
                   cursor: 'pointer',
                   ':hover': { textDecoration: 'underline' },
-                  ...makeAmountGrey(props.value),
+                  ...hideZeroAmount(props.value),
                 })}
               />
             )}

@@ -163,6 +163,10 @@ export const colors = {
     all: { ref: 'sidebarItemText' },
     description: 'Sidebar account balances below zero',
   },
+  sidebarAccountGroupBackground: {
+    all: { raw: 'transparent' },
+    description: 'Boxes around each group of accounts in the sidebar',
+  },
   sidebarBudgetName: { light: 'navy150', dark: 'navy300', midnight: 'gray300' },
   sidebarHeaderText: { light: 'white', dark: 'white', midnight: 'gray100' },
   sidebarTextSubdued: {
@@ -701,6 +705,54 @@ export const colors = {
   budgetSummaryText: {
     all: { ref: 'pageText' },
     description: 'Text on the month summary cards',
+  },
+  budgetSummaryCurrentMonthMarker: {
+    all: { raw: 'transparent' },
+    description: 'Corner marker on the current month summary card',
+  },
+  budgetPageFrame: {
+    all: { ref: 'pageBackground' },
+    description: 'Frame around the budget panel',
+  },
+  budgetPagePanel: {
+    all: { ref: 'pageBackground' },
+    description: 'Panel holding the month picker, cards and budget table',
+  },
+  budgetMonthStripBackground: {
+    all: { raw: 'transparent' },
+    description: 'Month picker tab strip',
+  },
+  budgetMonthStripYearBackground: {
+    all: { raw: 'transparent' },
+    description: 'Year label at the start of the month picker',
+  },
+  budgetMonthStripBorder: {
+    all: { raw: 'transparent' },
+    description: 'Lines between month picker tabs',
+  },
+  budgetMonthStripText: {
+    all: { ref: 'pageText' },
+    description: 'Month names in the month picker',
+  },
+  budgetMonthStripSelectedBackground: {
+    all: { ref: 'buttonPrimaryBackground' },
+    description: 'Months shown in the budget table',
+  },
+  budgetMonthStripSelectedText: {
+    all: { ref: 'buttonPrimaryText' },
+    description: 'Names of the months shown in the budget table',
+  },
+  budgetTotalsBackground: {
+    all: { ref: 'budgetCurrentMonth' },
+    description: 'Column header row above the budget table',
+  },
+  budgetTotalsText: {
+    all: { ref: 'tableHeaderText' },
+    description: 'Text in the column header row above the budget table',
+  },
+  budgetCellBorder: {
+    all: { raw: 'transparent' },
+    description: 'Box around each budgeted amount',
   },
 
   floatingActionBarBackground: {

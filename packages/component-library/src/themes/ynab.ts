@@ -1,68 +1,88 @@
-// YNAB 4-inspired theme: the Dark theme with a blue sidebar, red negatives,
-// striped and hover-highlighted budget rows and darker month cards.
-// Applied on top of the generated Dark theme CSS.
+// YNAB 4-inspired theme: the Light theme with a blue sidebar and frame, a
+// light-gray budget panel, a dark month strip and month cards, a pale green
+// column header row, light blue category group rows and boxed budget cells.
+// Applied on top of the generated Light theme CSS.
 const ynabOverrides: Record<string, string> = {
   // Sidebar
-  sidebarBackground: '#0f5f97',
+  sidebarBackground: '#0099ca',
+  sidebarAccountGroupBackground: '#0072a0',
   sidebarItemText: '#ffffff',
   sidebarItemTextSelected: '#ffffff',
-  sidebarItemTextNegative: '#ffa39c',
-  sidebarItemAccentSelected: '#7cc4f0',
-  sidebarItemBackgroundHover: '#0c5182',
+  sidebarItemTextNegative: '#ffb3ab',
+  sidebarItemAccentSelected: '#ffffff',
+  sidebarItemBackgroundSelected: '#00476c',
+  sidebarItemBackgroundHover: '#005f87',
   sidebarBudgetName: '#ffffff',
   sidebarHeaderText: '#ffffff',
-  sidebarTextSubdued: '#cfe6f6',
-  sidebarTextMuted: '#9cc9e8',
-  sidebarBorder: '#3a7fb0',
+  sidebarTextSubdued: '#d6f0fa',
+  sidebarTextMuted: '#a9dcef',
+  sidebarBorder: '#33add5',
 
   // Page
-  pageBackground: '#141d26',
-  pageText: '#e6edf3',
-  pageTextSubdued: '#8fa1b1',
-  pageTextLink: '#5bb4ea',
+  pageBackground: '#dbdbdb',
+  pageText: '#2b2b2b',
+  pageTextSubdued: '#6f6f6f',
+  pageTextLight: '#5c5c5c',
+  pageTextLink: '#0072a0',
 
-  // Budget grid
-  budgetCurrentMonth: '#1d2935',
-  budgetOtherMonth: '#1d2935',
-  budgetHeaderCurrentMonth: '#24384b',
-  budgetHeaderOtherMonth: '#24384b',
-  budgetRowBackgroundAlternate: '#22303e',
-  budgetRowBackgroundHover: '#2a4157',
+  // Budget page frame and panel
+  budgetPageFrame: '#0099ca',
+  budgetPagePanel: '#dbdbdb',
+
+  // Month strip
+  budgetMonthStripBackground: '#3b4a4e',
+  budgetMonthStripYearBackground: '#2c3536',
+  budgetMonthStripBorder: '#586b73',
+  budgetMonthStripText: '#ffffff',
+  budgetMonthStripSelectedBackground: '#186c89',
+  budgetMonthStripSelectedText: '#ffffff',
 
   // Month cards
-  budgetSummaryCurrentMonth: '#34404c',
-  budgetSummaryOtherMonth: '#34404c',
+  budgetSummaryCurrentMonth: '#3a464d',
+  budgetSummaryOtherMonth: '#3a464d',
   budgetSummaryText: '#ffffff',
+  budgetSummaryCurrentMonthMarker: '#f1d610',
+
+  // Column header row
+  budgetTotalsBackground: '#ecf5e7',
+  budgetTotalsText: '#4d4d4d',
+
+  // Budget grid
+  budgetCurrentMonth: '#ffffff',
+  budgetOtherMonth: '#ffffff',
+  budgetHeaderCurrentMonth: '#e4f5fd',
+  budgetHeaderOtherMonth: '#e4f5fd',
+  budgetRowBackgroundAlternate: '#ffffff',
+  budgetRowBackgroundHover: '#f0f9fd',
+  budgetCellBorder: '#c8c8c8',
 
   // Tables
-  tableBackground: '#1d2935',
-  tableRowBackgroundAlternate: '#22303e',
-  tableText: '#e6edf3',
-  tableTextSubdued: '#5f7384',
-  tableBorder: '#2c3d4e',
-  tableHeaderBackground: '#24384b',
-  tableHeaderText: '#9fc6e3',
-  tableBorderSelected: '#3aa0e0',
-  tableRowBackgroundHover: '#2a4157',
-  tableRowBackgroundHighlight: '#1f5a86',
-  tableRowBackgroundHighlightText: '#ffffff',
-  tableTextSelected: '#ffffff',
-  tableRowHeaderBackground: '#24384b',
-  tableRowHeaderText: '#e6edf3',
+  tableBackground: '#ffffff',
+  tableRowBackgroundAlternate: '#ffffff',
+  tableText: '#2b2b2b',
+  tableTextSubdued: '#9a9a9a',
+  tableBorder: '#d4d4d4',
+  tableHeaderBackground: '#ecf5e7',
+  tableHeaderText: '#4d4d4d',
+  tableBorderSelected: '#0099ca',
+  tableRowBackgroundHover: '#f0f9fd',
+  tableRowHeaderBackground: '#e4f5fd',
+  tableRowHeaderText: '#2b2b2b',
 
   // Numbers
-  numberPositive: '#e6edf3',
-  numberNegative: '#ff6b6b',
-  budgetNumberPositive: '#e6edf3',
-  budgetNumberNegative: '#ff6b6b',
-  budgetNumberZero: '#5f7384',
-  toBudgetPositive: '#8cc94f',
-  toBudgetZero: '#8cc94f',
-  toBudgetNegative: '#ff6b6b',
+  numberPositive: '#2b2b2b',
+  numberNegative: '#d43c3c',
+  budgetNumberPositive: '#2b2b2b',
+  budgetNumberNegative: '#d43c3c',
+  budgetNumberZero: '#a8a8a8',
+  toBudgetPositive: '#a4c666',
+  toBudgetZero: '#a4c666',
+  toBudgetNegative: '#eb8b8b',
 
   // Buttons
-  buttonPrimaryBackground: '#1b8fd2',
-  buttonPrimaryBackgroundHover: '#167bb8',
+  buttonPrimaryBackground: '#0099ca',
+  buttonPrimaryBackgroundHover: '#0086b2',
+  buttonPrimaryBorder: '#0086b2',
   buttonPrimaryText: '#ffffff',
 };
 

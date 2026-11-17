@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import type { CSSProperties } from 'react';
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -129,117 +129,102 @@ export const MonthPicker = ({
             />
           </View>
         </Link>
-        {range.map((month, idx) => {
-          const monthName = monthUtils.format(month, 'MMM', locale);
-          const selected =
-            idx >= firstSelectedIndex && idx <= lastSelectedIndex;
+        <View
+          style={{
+            flexDirection: 'row',
+            flex: 1,
+            maxWidth: size === 'big' ? range.length * 60 : undefined,
+            backgroundColor: theme.budgetMonthStripBackground,
+            borderRadius: 3,
+            overflow: 'hidden',
+          }}
+        >
+          {range.map((month, idx) => {
+            const monthName = monthUtils.format(month, 'MMM', locale);
+            const selected =
+              idx >= firstSelectedIndex && idx <= lastSelectedIndex;
 
-          const lastHoverId = hoverId + numDisplayed - 1;
-          const hovered =
-            hoverId === null ? false : idx >= hoverId && idx <= lastHoverId;
+            const lastHoverId = hoverId + numDisplayed - 1;
+            const hovered =
+              hoverId === null ? false : idx >= hoverId && idx <= lastHoverId;
 
-          const current = currentMonth === month;
-          const year = monthUtils.getYear(month);
+            const current = currentMonth === month;
+            const year = monthUtils.getYear(month);
 
-          let showYearHeader = false;
+            let showYearHeader = false;
 
-          if (!yearHeadersShown.includes(year)) {
-            yearHeadersShown.push(year);
-            showYearHeader = true;
-          }
+            if (!yearHeadersShown.includes(year)) {
+              yearHeadersShown.push(year);
+              showYearHeader = true;
+            }
 
-          const isMonthBudgeted =
-            month >= monthBounds.start && month <= monthBounds.end;
+            const isMonthBudgeted =
+              month >= monthBounds.start && month <= monthBounds.end;
 
-          return (
-            <View
-              key={month}
-              data-testid={selected ? 'selected-budget-month' : undefined}
-              data-month={selected ? month : undefined}
-              style={{
-                alignItems: 'center',
-                padding: '3px 3px',
-                width: size === 'big' ? '35px' : '20px',
-                textAlign: 'center',
-                userSelect: 'none',
-                cursor: 'default',
-                borderRadius: 2,
-                border: 'none',
-                ...(!isMonthBudgeted && {
-                  textDecoration: 'line-through',
-                  color: theme.pageTextSubdued,
-                }),
-                ...styles.smallText,
-                ...(selected && {
-                  backgroundColor: theme.buttonPrimaryBackground,
-                  color: theme.buttonPrimaryText,
-                }),
-                ...((hovered || selected) && {
-                  borderRadius: 0,
-                  cursor: 'pointer',
-                }),
-                ...(hoverId !== null &&
-                  !hovered &&
-                  selected && {
-                    filter: 'brightness(65%)',
-                  }),
-                ...(hovered &&
-                  !selected && {
-                    backgroundColor: theme.buttonBareBackgroundHover,
-                  }),
-                ...(!hovered &&
-                  !selected &&
-                  current && {
-                    backgroundColor: theme.buttonBareBackgroundHover,
-                    filter: 'brightness(120%)',
-                  }),
-                ...(hovered &&
-                  selected &&
-                  current && {
-                    filter: 'brightness(120%)',
-                  }),
-                ...(hovered &&
-                  selected && {
-                    backgroundColor: theme.buttonPrimaryBackground,
-                  }),
-                ...((idx === firstSelectedIndex ||
-                  (idx === hoverId && !selected)) && {
-                  borderTopLeftRadius: 2,
-                  borderBottomLeftRadius: 2,
-                }),
-                ...((idx === lastSelectedIndex ||
-                  (idx === lastHoverId && !selected)) && {
-                  borderTopRightRadius: 2,
-                  borderBottomRightRadius: 2,
-                }),
-                ...(current && { fontWeight: 'bold' }),
-              }}
-              onClick={() => onSelect(month)}
-              onMouseEnter={() => setHoverId(idx)}
-              onMouseLeave={() => setHoverId(null)}
-            >
-              <View>
-                {size === 'small' ? monthName[0] : monthName}
+            return (
+              <Fragment key={month}>
                 {showYearHeader && (
                   <View
                     style={{
-                      position: 'absolute',
-                      top: -16,
-                      left: 0,
-                      fontSize: 10,
+                      justifyContent: 'center',
+                      padding: '0 6px',
+                      backgroundColor: theme.budgetMonthStripYearBackground,
+                      color: theme.budgetMonthStripText,
+                      fontSize: 11,
                       fontWeight: 'bold',
-                      color: isMonthBudgeted
-                        ? theme.pageText
-                        : theme.pageTextSubdued,
+                      userSelect: 'none',
+                      opacity: isMonthBudgeted ? 1 : 0.5,
                     }}
                   >
-                    {year}
+                    {size === 'small' ? String(year).slice(2) : year}
                   </View>
                 )}
-              </View>
-            </View>
-          );
-        })}
+                <View
+                  data-testid={selected ? 'selected-budget-month' : undefined}
+                  data-month={selected ? month : undefined}
+                  style={{
+                    flex: 1,
+                    minWidth: size === 'big' ? 35 : 20,
+                    alignItems: 'center',
+                    padding: '4px 2px',
+                    textAlign: 'center',
+                    userSelect: 'none',
+                    cursor: 'pointer',
+                    color: theme.budgetMonthStripText,
+                    borderLeft:
+                      showYearHeader || idx === 0
+                        ? 'none'
+                        : '1px solid ' + theme.budgetMonthStripBorder,
+                    ...styles.smallText,
+                    ...(!isMonthBudgeted && {
+                      textDecoration: 'line-through',
+                      opacity: 0.5,
+                    }),
+                    ...(hovered &&
+                      !selected && {
+                        backgroundColor: `color-mix(in srgb, ${theme.budgetMonthStripSelectedBackground} 45%, transparent)`,
+                      }),
+                    ...(selected && {
+                      backgroundColor: theme.budgetMonthStripSelectedBackground,
+                      color: theme.budgetMonthStripSelectedText,
+                    }),
+                    ...(hoverId !== null &&
+                      !hovered &&
+                      selected && {
+                        filter: 'brightness(80%)',
+                      }),
+                    ...(current && { fontWeight: 'bold' }),
+                  }}
+                  onClick={() => onSelect(month)}
+                  onMouseEnter={() => setHoverId(idx)}
+                  onMouseLeave={() => setHoverId(null)}
+                >
+                  {size === 'small' ? monthName[0] : monthName}
+                </View>
+              </Fragment>
+            );
+          })}
+        </View>
         <Link
           variant="button"
           buttonVariant="bare"

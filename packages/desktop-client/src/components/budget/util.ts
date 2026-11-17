@@ -70,6 +70,14 @@ export function makeAmountGrey(value: number | string | null): CSSProperties {
     : null;
 }
 
+// Leaves a cell blank when its amount is zero, like YNAB 4. The text is made
+// transparent rather than removed so the cell keeps its size and hover target.
+export function hideZeroAmount(value: number | string | null): CSSProperties {
+  return value === 0 || value === '0' || value === '' || value == null
+    ? { color: 'transparent' }
+    : null;
+}
+
 // Converts an integer currency value to a normalized decimal amount.
 // First converts the integer to currency format, then to a decimal amount.
 // Uses integerToCurrency to display the value correctly according to user prefs

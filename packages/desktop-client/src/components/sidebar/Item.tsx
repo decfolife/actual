@@ -77,6 +77,7 @@ export function Item({
           borderLeft: '4px solid ' + theme.sidebarItemTextSelected,
           paddingLeft: 19 + indent - 4,
           color: theme.sidebarItemTextSelected,
+          backgroundColor: theme.sidebarItemBackgroundSelected,
         }}
         to={to}
         onClick={onClick}

@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { AlignedText } from '@actual-app/components/aligned-text';
+import { Button } from '@actual-app/components/button';
+import {
+  SvgCheveronDown,
+  SvgCheveronRight,
+} from '@actual-app/components/icons/v1';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 import type { AccountEntity } from '@actual-app/core/types/models';
 
 import { useMoveAccountMutation } from '#accounts';
 import { isAccountFailedSync } from '#accounts/syncStatus';
+import { CellValue } from '#components/spreadsheet/CellValue';
 import { useAccounts } from '#hooks/useAccounts';
 import { useClosedAccounts } from '#hooks/useClosedAccounts';
 import { useLocalPref } from '#hooks/useLocalPref';
@@ -16,8 +24,7 @@ import { useUpdatedAccounts } from '#hooks/useUpdatedAccounts';
 import { useSelector } from '#redux';
 import * as bindings from '#spreadsheet/bindings';
 
-import { Account } from './Account';
-import { SecondaryItem } from './SecondaryItem';
+import { Account, accountNameStyle } from './Account';
 
 const fontWeight = 600;
 
@@ -71,6 +78,17 @@ export function Accounts() {
     setShowClosedAccountsPref(!showClosedAccounts);
   };
 
+  const [collapsedGroups = {}, setCollapsedGroupsPref] = useLocalPref(
+    'ui.collapsedAccountGroups',
+  );
+
+  const toggleGroup = (group: string) => {
+    setCollapsedGroupsPref({
+      ...collapsedGroups,
+      [group]: !collapsedGroups[group],
+    });
+  };
+
   return (
     <View
       style={{
@@ -100,95 +118,163 @@ export function Accounts() {
         />
 
         {onBudgetAccounts.length > 0 && (
-          <Account
-            name={t('On budget')}
-            to="/accounts/onbudget"
-            query={bindings.onBudgetAccountBalance()}
-            style={{
-              fontWeight,
-              marginTop: 13,
-              marginBottom: 5,
-            }}
-            titleAccount
-            balanceTestId="sidebar-on-budget-balance"
-          />
+          <AccountGroupBox
+            isCollapsed={!!collapsedGroups.onbudget}
+            onToggle={() => toggleGroup('onbudget')}
+            toggleLabel={t('Toggle budget accounts')}
+            header={
+              <Account
+                name={t('Budget Accounts')}
+                to="/accounts/onbudget"
+                query={bindings.onBudgetAccountBalance()}
+                style={{ fontWeight, paddingLeft: 2, paddingRight: 8 }}
+                titleAccount
+                balanceTestId="sidebar-on-budget-balance"
+              />
+            }
+          >
+            {onBudgetAccounts.map((account, i) => (
+              <Account
+                key={account.id}
+                name={account.name}
+                account={account}
+                connected={!!account.bank}
+                pending={syncingAccountIds.includes(account.id)}
+                failed={isAccountFailedSync(account)}
+                updated={updatedAccounts.includes(account.id)}
+                to={getAccountPath(account)}
+                query={bindings.accountBalance(account.id)}
+                onDragChange={onDragChange}
+                onDrop={onReorder}
+                outerStyle={makeDropPadding(i)}
+              />
+            ))}
+          </AccountGroupBox>
         )}
-
-        {onBudgetAccounts.map((account, i) => (
-          <Account
-            key={account.id}
-            name={account.name}
-            account={account}
-            connected={!!account.bank}
-            pending={syncingAccountIds.includes(account.id)}
-            failed={isAccountFailedSync(account)}
-            updated={updatedAccounts.includes(account.id)}
-            to={getAccountPath(account)}
-            query={bindings.accountBalance(account.id)}
-            onDragChange={onDragChange}
-            onDrop={onReorder}
-            outerStyle={makeDropPadding(i)}
-          />
-        ))}
 
         {offbudgetAccounts.length > 0 && (
-          <Account
-            name={t('Off budget')}
-            to="/accounts/offbudget"
-            query={bindings.offBudgetAccountBalance()}
-            style={{
-              fontWeight,
-              marginTop: 13,
-              marginBottom: 5,
-            }}
-            titleAccount
-            balanceTestId="sidebar-off-budget-balance"
-          />
+          <AccountGroupBox
+            isCollapsed={!!collapsedGroups.offbudget}
+            onToggle={() => toggleGroup('offbudget')}
+            toggleLabel={t('Toggle off-budget accounts')}
+            header={
+              <Account
+                name={t('Off-Budget Accounts')}
+                to="/accounts/offbudget"
+                query={bindings.offBudgetAccountBalance()}
+                style={{ fontWeight, paddingLeft: 2, paddingRight: 8 }}
+                titleAccount
+                balanceTestId="sidebar-off-budget-balance"
+              />
+            }
+          >
+            {offbudgetAccounts.map((account, i) => (
+              <Account
+                key={account.id}
+                name={account.name}
+                account={account}
+                connected={!!account.bank}
+                pending={syncingAccountIds.includes(account.id)}
+                failed={isAccountFailedSync(account)}
+                updated={updatedAccounts.includes(account.id)}
+                to={getAccountPath(account)}
+                query={bindings.accountBalance(account.id)}
+                onDragChange={onDragChange}
+                onDrop={onReorder}
+                outerStyle={makeDropPadding(i)}
+              />
+            ))}
+          </AccountGroupBox>
         )}
-
-        {offbudgetAccounts.map((account, i) => (
-          <Account
-            key={account.id}
-            name={account.name}
-            account={account}
-            connected={!!account.bank}
-            pending={syncingAccountIds.includes(account.id)}
-            failed={isAccountFailedSync(account)}
-            updated={updatedAccounts.includes(account.id)}
-            to={getAccountPath(account)}
-            query={bindings.accountBalance(account.id)}
-            onDragChange={onDragChange}
-            onDrop={onReorder}
-            outerStyle={makeDropPadding(i)}
-          />
-        ))}
 
         {closedAccounts.length > 0 && (
-          <SecondaryItem
-            style={{ marginTop: 15 }}
-            title={
-              showClosedAccounts
-                ? t('Closed accounts')
-                : t('Closed accounts...')
+          <AccountGroupBox
+            isCollapsed={!showClosedAccounts}
+            onToggle={onToggleClosedAccounts}
+            toggleLabel={t('Toggle closed accounts')}
+            header={
+              <View
+                onClick={onToggleClosedAccounts}
+                style={{
+                  ...accountNameStyle,
+                  fontWeight,
+                  fontStyle: 'italic',
+                  cursor: 'pointer',
+                  paddingLeft: 2,
+                  paddingRight: 8,
+                  borderLeft: '4px solid transparent',
+                }}
+              >
+                <AlignedText
+                  left={t('Closed Accounts')}
+                  right={
+                    <CellValue<'account', 'closed-accounts-balance'>
+                      binding={bindings.closedAccountBalance()}
+                      type="financial"
+                    />
+                  }
+                />
+              </View>
             }
-            onClick={onToggleClosedAccounts}
-            bold
-          />
+          >
+            {closedAccounts.map(account => (
+              <Account
+                key={account.id}
+                name={account.name}
+                account={account}
+                to={getAccountPath(account)}
+                query={bindings.accountBalance(account.id)}
+                onDragChange={onDragChange}
+                onDrop={onReorder}
+              />
+            ))}
+          </AccountGroupBox>
         )}
-
-        {showClosedAccounts &&
-          closedAccounts.map(account => (
-            <Account
-              key={account.id}
-              name={account.name}
-              account={account}
-              to={getAccountPath(account)}
-              query={bindings.accountBalance(account.id)}
-              onDragChange={onDragChange}
-              onDrop={onReorder}
-            />
-          ))}
       </View>
+    </View>
+  );
+}
+
+type AccountGroupBoxProps = {
+  header: ReactNode;
+  isCollapsed: boolean;
+  onToggle: () => void;
+  toggleLabel: string;
+  children: ReactNode;
+};
+
+function AccountGroupBox({
+  header,
+  isCollapsed,
+  onToggle,
+  toggleLabel,
+  children,
+}: AccountGroupBoxProps) {
+  const ToggleIcon = isCollapsed ? SvgCheveronRight : SvgCheveronDown;
+
+  return (
+    <View
+      style={{
+        flexShrink: 0,
+        margin: '10px 8px 0',
+        padding: '3px 0',
+        borderRadius: 6,
+        backgroundColor: theme.sidebarAccountGroupBackground,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Button
+          variant="bare"
+          aria-label={toggleLabel}
+          aria-expanded={!isCollapsed}
+          onPress={onToggle}
+          style={{ padding: 2, marginLeft: 2, color: theme.sidebarItemText }}
+        >
+          <ToggleIcon width={12} height={12} />
+        </Button>
+        <View style={{ flex: 1, minWidth: 0 }}>{header}</View>
+      </View>
+      {!isCollapsed && children}
     </View>
   );
 }

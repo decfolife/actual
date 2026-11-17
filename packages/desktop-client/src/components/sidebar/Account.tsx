@@ -192,6 +192,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
             activeStyle={{
               borderColor: theme.sidebarItemAccentSelected,
               color: theme.sidebarItemTextSelected,
+              backgroundColor: theme.sidebarItemBackgroundSelected,
               // This is kind of a hack, but we don't ever want the account
               // that the user is looking at to be "bolded" which means it
               // has unread transactions. The system does mark is read and
@@ -236,12 +237,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
             </View>
 
             <AlignedText
-              style={
-                titleAccount && {
-                  borderBottom: `1.5px solid rgba(255,255,255,0.4)`,
-                  paddingBottom: '3px',
-                }
-              }
+              style={titleAccount && { fontStyle: 'italic' }}
               left={
                 isEditing ? (
                   <InitialFocus>

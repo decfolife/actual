@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 import React, { useEffect, useEffectEvent, useMemo, useState } from 'react';
 
 import { styles } from '@actual-app/components/styles';
+import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 import * as monthUtils from '@actual-app/core/shared/months';
 import type {
@@ -249,10 +250,21 @@ export function Budget() {
           ...styles.page,
           paddingLeft: 8,
           paddingRight: 8,
+          paddingBottom: 8,
           overflow: 'hidden',
+          backgroundColor: theme.budgetPageFrame,
         }}
       >
-        <View style={{ flex: 1 }}>{table}</View>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.budgetPagePanel,
+            borderRadius: 6,
+            overflow: 'hidden',
+          }}
+        >
+          {table}
+        </View>
       </View>
     </SheetNameProvider>
   );

@@ -114,7 +114,14 @@ export function ToBudgetAmount({
         </Tooltip>
       </View>
       {labelPosition === 'below' && (
-        <Block style={{ fontWeight: 600, marginTop: 2 }}>
+        <Block
+          style={{
+            fontSize: 12,
+            fontWeight: 600,
+            lineHeight: 1.2,
+            marginTop: 1,
+          }}
+        >
           {isNegative ? t('Overbudgeted') : t('Available to Budget')}
         </Block>
       )}
