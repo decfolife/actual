@@ -107,7 +107,7 @@ const ynabTextRendering = `body {
 }
 `;
 
-export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.14));\n  --budget-card-edge: #2a3338;\n  --budget-card-divider: #2c353b;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n  --budget-table-shadow: none;\n${Object.entries(
+export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(#4a5c63, #3d4b52 55%, #323d43);\n  --budget-card-edge: #22292b;\n  --budget-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.3);\n  --budget-card-divider: #2a353b;\n  --budget-card-divider-light: #56636a;\n  --budget-card-icon: #7f8d94;\n  --budget-card-subtext: #c9cfd2;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n  --budget-table-shadow: none;\n${Object.entries(
   ynabOverrides,
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)

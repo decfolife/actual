@@ -29,6 +29,10 @@ import { TotalsList } from './TotalsList';
 
 // Lines between the month, the amount and the icons on a collapsed card
 const cardDivider = '1px solid var(--budget-card-divider, transparent)';
+// The lighter half of YNAB 4's beveled divider lines
+const cardDividerLight = 'var(--budget-card-divider-light, transparent)';
+// Muted icons on the compact card
+const cardIconColor = `var(--budget-card-icon, ${theme.budgetSummaryText})`;
 
 type BudgetSummaryProps = {
   month: string;
@@ -93,7 +97,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
       width={iconSize}
       height={iconSize}
       tooltipPosition="bottom right"
-      defaultColor={theme.budgetSummaryText}
+      defaultColor={collapsed ? cardIconColor : theme.budgetSummaryText}
       // Always shown on the compact card, like YNAB 4
       showPlaceholder={collapsed}
     />
@@ -112,7 +116,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
           <SvgBolt
             width={iconSize}
             height={iconSize}
-            style={{ color: theme.budgetSummaryText }}
+            style={{ color: cardIconColor }}
           />
         ) : (
           <SvgDotsHorizontalTriple
@@ -215,7 +219,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
         color: theme.budgetSummaryText,
         backgroundImage: 'var(--budget-card-gradient, none)',
         border: '1px solid var(--budget-card-edge, transparent)',
-        boxShadow: styles.cardShadow,
+        boxShadow: `var(--budget-card-shadow, ${styles.cardShadow})`,
         borderRadius: collapsed ? 4 : 6,
         marginLeft: 0,
         marginRight: 0,
@@ -254,16 +258,17 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             style={{
               flexDirection: 'row',
               alignItems: 'stretch',
-              minHeight: 48,
+              minHeight: 49,
             }}
           >
             <View
               style={{
                 justifyContent: 'center',
-                alignItems: 'flex-start',
-                padding: '0 10px',
-                minWidth: 64,
+                alignItems: 'center',
+                padding: '0 9px',
+                minWidth: 62,
                 borderRight: cardDivider,
+                boxShadow: `1px 0 0 ${cardDividerLight}`,
               }}
             >
               <div
@@ -278,8 +283,9 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               <div
                 className={css({
                   fontSize: 13,
-                  fontWeight: 600,
-                  lineHeight: 1.3,
+                  fontWeight: 700,
+                  lineHeight: 1.25,
+                  color: 'var(--budget-card-subtext, inherit)',
                 })}
               >
                 {monthUtils.format(month, 'yyyy', locale)}
@@ -298,25 +304,38 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 onBudgetAction={onBudgetAction}
                 isCollapsed
                 labelPosition="below"
-                amountStyle={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}
+                amountStyle={{ fontSize: 27, fontWeight: 700, lineHeight: 1 }}
               />
             </View>
             <View
               style={{
-                width: 24,
-                padding: '3px 0',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                width: 26,
                 userSelect: 'none',
                 borderLeft: cardDivider,
+                boxShadow: `inset 1px 0 0 ${cardDividerLight}`,
               }}
             >
               <View
-                style={{ '& [data-placeholder="true"]': { opacity: 0.85 } }}
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderBottom: cardDivider,
+                  boxShadow: `0 1px 0 ${cardDividerLight}`,
+                  '& [data-placeholder="true"]': { opacity: 1 },
+                }}
               >
                 {notesButton}
               </View>
-              <View>{menuButton}</View>
+              <View
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {menuButton}
+              </View>
             </View>
           </View>
         ) : (
