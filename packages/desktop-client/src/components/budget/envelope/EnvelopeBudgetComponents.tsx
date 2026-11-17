@@ -260,8 +260,6 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
     crossOffset: 0,
     offset: 0,
   });
-  const resetBudgetPosition = (crossOffset = 0, offset = 0) =>
-    setBudgetPosition({ crossOffset, offset });
 
   const handleBudgetContextMenu = (e: MouseEvent) => {
     e.preventDefault();
@@ -382,22 +380,6 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
                 justifyContent: 'center',
               }}
             >
-              <Button
-                variant="bare"
-                onPress={() => {
-                  resetBudgetPosition(2, -4);
-                  setBudgetMenuOpen(true);
-                }}
-                style={{
-                  padding: 3,
-                }}
-              >
-                <SvgCheveronDown
-                  width={14}
-                  height={14}
-                  className="hover-visible"
-                />
-              </Button>
               <Popover
                 triggerRef={budgetMenuTriggerRef}
                 placement="bottom left"

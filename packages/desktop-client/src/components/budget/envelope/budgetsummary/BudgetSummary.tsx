@@ -94,6 +94,8 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
       height={iconSize}
       tooltipPosition="bottom right"
       defaultColor={theme.budgetSummaryText}
+      // Always shown on the compact card, like YNAB 4
+      showPlaceholder={collapsed}
     />
   );
 
@@ -255,9 +257,6 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               minHeight: 48,
             }}
           >
-            <View style={{ position: 'absolute', left: 0, bottom: 0 }}>
-              {toggleButton}
-            </View>
             <View
               style={{
                 justifyContent: 'center',
@@ -312,7 +311,11 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 borderLeft: cardDivider,
               }}
             >
-              <View>{notesButton}</View>
+              <View
+                style={{ '& [data-placeholder="true"]': { opacity: 0.85 } }}
+              >
+                {notesButton}
+              </View>
               <View>{menuButton}</View>
             </View>
           </View>
