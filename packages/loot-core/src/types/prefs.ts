@@ -120,8 +120,8 @@ export type LocalPrefs = Partial<{
   'bankSync.lastAutomaticRun': number;
 }>;
 
-export type Theme = 'light' | 'dark' | 'auto' | 'midnight' | string;
-export type DarkTheme = 'dark' | 'midnight';
+export type Theme = 'light' | 'dark' | 'auto' | 'midnight' | 'ynab' | string;
+export type DarkTheme = 'dark' | 'midnight' | 'ynab';
 
 // GlobalPrefs are the parsed global-store.json values
 export type GlobalPrefs = Partial<{

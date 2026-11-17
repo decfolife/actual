@@ -68,8 +68,9 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
       style={{
         backgroundColor:
           month === currentMonth
-            ? theme.budgetCurrentMonth
-            : theme.budgetOtherMonth,
+            ? theme.budgetSummaryCurrentMonth
+            : theme.budgetSummaryOtherMonth,
+        color: theme.budgetSummaryText,
         boxShadow: styles.cardShadow,
         borderRadius: 6,
         marginLeft: 0,
@@ -121,20 +122,22 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             </Button>
           </View>
 
-          <div
-            className={css([
-              {
-                textAlign: 'center',
-                marginTop: 3,
-                fontSize: 18,
-                fontWeight: 500,
-                textDecorationSkip: 'ink',
-              },
-              currentMonth === month && { fontWeight: 'bold' },
-            ])}
-          >
-            {monthUtils.format(month, 'MMMM', locale)}
-          </div>
+          {!collapsed && (
+            <div
+              className={css([
+                {
+                  textAlign: 'center',
+                  marginTop: 3,
+                  fontSize: 18,
+                  fontWeight: 500,
+                  textDecorationSkip: 'ink',
+                },
+                currentMonth === month && { fontWeight: 'bold' },
+              ])}
+            >
+              {monthUtils.format(month, 'MMMM', locale)}
+            </div>
+          )}
 
           <View
             style={{
@@ -251,19 +254,49 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
         {collapsed ? (
           <View
             style={{
-              alignItems: 'center',
-              padding: '10px 20px',
-              justifyContent: 'space-between',
-              backgroundColor: theme.budgetCurrentMonth,
-              borderTop: '1px solid ' + theme.tableBorder,
+              flexDirection: 'row',
+              alignItems: 'stretch',
+              padding: '6px 40px 8px 12px',
             }}
           >
-            <ToBudget
-              prevMonthName={prevMonthName}
-              month={month}
-              onBudgetAction={onBudgetAction}
-              isCollapsed
-            />
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                minWidth: 56,
+                paddingRight: 12,
+                borderRight: '1px solid ' + theme.tableBorder,
+              }}
+            >
+              <div
+                className={css({
+                  fontSize: 22,
+                  fontWeight: 700,
+                  letterSpacing: 0.5,
+                  lineHeight: 1.1,
+                })}
+              >
+                {monthUtils.format(month, 'MMM', locale).toUpperCase()}
+              </div>
+              <div className={css({ fontSize: 13, opacity: 0.8 })}>
+                {monthUtils.format(month, 'yyyy', locale)}
+              </div>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <ToBudget
+                prevMonthName={prevMonthName}
+                month={month}
+                onBudgetAction={onBudgetAction}
+                isCollapsed
+                labelPosition="below"
+              />
+            </View>
           </View>
         ) : (
           <>

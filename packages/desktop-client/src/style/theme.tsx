@@ -5,6 +5,7 @@ import {
   lightThemeCss,
   midnightThemeCss,
   paletteCss,
+  ynabThemeCss,
 } from '@actual-app/components/themes';
 import sidebarRedesignLightCss from '@actual-app/components/themes/sidebar-redesign-light.css?inline';
 import type { DarkTheme, Theme } from '@actual-app/core/types/prefs';
@@ -23,6 +24,7 @@ const themes = {
   light: { name: 'Light', colors: lightThemeCss },
   dark: { name: 'Dark', colors: darkThemeCss },
   midnight: { name: 'Midnight', colors: midnightThemeCss },
+  ynab: { name: 'YNAB', colors: ynabThemeCss },
   auto: { name: 'System default' },
 } as const;
 
@@ -33,10 +35,11 @@ export const themeOptions = Object.entries(themes).map(
 export const darkThemeOptions = Object.entries({
   dark: themes.dark,
   midnight: themes.midnight,
+  ynab: themes.ynab,
 }).map(([key, { name }]) => [key, name] as [DarkTheme, string]);
 
 export function useTheme() {
-  const [theme = 'auto', setThemePref] = useGlobalPref('theme');
+  const [theme = 'ynab', setThemePref] = useGlobalPref('theme');
   return [theme, setThemePref] as const;
 }
 

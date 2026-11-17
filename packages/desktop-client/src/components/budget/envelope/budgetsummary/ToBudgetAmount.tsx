@@ -27,6 +27,7 @@ type ToBudgetAmountProps = {
   onClick?: () => void;
   onContextMenu?: MouseEventHandler;
   isTotalsListTooltipDisabled?: boolean;
+  labelPosition?: 'above' | 'below';
 };
 
 export function ToBudgetAmount({
@@ -36,6 +37,7 @@ export function ToBudgetAmount({
   onClick,
   isTotalsListTooltipDisabled = false,
   onContextMenu,
+  labelPosition = 'above',
 }: ToBudgetAmountProps) {
   const { t } = useTranslation();
   const sheetName = useEnvelopeSheetName(envelopeBudget.toBudget);
@@ -56,7 +58,9 @@ export function ToBudgetAmount({
 
   return (
     <View style={{ alignItems: 'center', ...style }}>
-      <Block>{isNegative ? t('Overbudgeted:') : t('To Budget:')}</Block>
+      {labelPosition === 'above' && (
+        <Block>{isNegative ? t('Overbudgeted:') : t('To Budget:')}</Block>
+      )}
       <View>
         <Tooltip
           content={
@@ -109,6 +113,11 @@ export function ToBudgetAmount({
           </PrivacyFilter>
         </Tooltip>
       </View>
+      {labelPosition === 'below' && (
+        <Block style={{ fontWeight: 600, marginTop: 2 }}>
+          {isNegative ? t('Overbudgeted') : t('Available to Budget')}
+        </Block>
+      )}
     </View>
   );
 }

@@ -1,4 +1,5 @@
 import type { CSSProperties } from '@actual-app/components/styles';
+import { theme } from '@actual-app/components/theme';
 
 import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
 import type { Binding, SheetFields } from '#spreadsheet';
@@ -20,7 +21,12 @@ export function SidebarBalance<FieldName extends SheetFields<'account'>>({
         <CellValueText<'account', FieldName>
           {...props}
           data-testid={testId ?? props.name}
-          style={{ textAlign: 'right', ...style }}
+          style={{
+            textAlign: 'right',
+            ...(typeof props.value === 'number' &&
+              props.value < 0 && { color: theme.sidebarItemTextNegative }),
+            ...style,
+          }}
         />
       )}
     </CellValue>

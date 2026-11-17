@@ -234,6 +234,21 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
       }
     }
 
+    // Stripe every other category row, restarting under each group heading.
+    const isAlternateRow: boolean[] = [];
+    let rowInGroup = 0;
+    for (const item of items) {
+      const isCategory =
+        item.type === 'expense-category' || item.type === 'income-category';
+      if (!isCategory) {
+        rowInGroup = 0;
+      }
+      isAlternateRow.push(isCategory && rowInGroup % 2 === 1);
+      if (isCategory) {
+        rowInGroup++;
+      }
+    }
+
     return (
       <View
         style={{
@@ -387,13 +402,17 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
               value={pos}
             >
               <View
-                style={
-                  dragState
-                    ? {}
-                    : {
-                        ':hover': { backgroundColor: theme.budgetCurrentMonth },
-                      }
-                }
+                style={{
+                  ...(isAlternateRow[idx] &&
+                    budgetRowColors(theme.budgetRowBackgroundAlternate)),
+                  ...(!dragState && {
+                    ':hover':
+                      item.type === 'expense-category' ||
+                      item.type === 'income-category'
+                        ? budgetRowColors(theme.budgetRowBackgroundHover)
+                        : { backgroundColor: theme.budgetCurrentMonth },
+                  }),
+                }}
               >
                 {content}
               </View>
@@ -406,3 +425,12 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
 );
 
 BudgetCategories.displayName = 'BudgetCategories';
+
+// Rows paint their cells with the budget month colors, so recoloring a row
+// means pointing those colors at another token for that row only.
+function budgetRowColors(color: string) {
+  return {
+    '--color-budgetCurrentMonth': color,
+    '--color-budgetOtherMonth': color,
+  };
+}

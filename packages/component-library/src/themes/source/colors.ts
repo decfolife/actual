@@ -159,6 +159,10 @@ export const colors = {
   sidebarItemText: { light: 'navy150', dark: 'navy150', midnight: 'gray100' },
   sidebarItemTextUpdated: { all: { ref: 'sidebarItemText' } },
   sidebarItemTextSelected: { all: 'purple200' },
+  sidebarItemTextNegative: {
+    all: { ref: 'sidebarItemText' },
+    description: 'Sidebar account balances below zero',
+  },
   sidebarBudgetName: { light: 'navy150', dark: 'navy300', midnight: 'gray300' },
   sidebarHeaderText: { light: 'white', dark: 'white', midnight: 'gray100' },
   sidebarTextSubdued: {
@@ -677,6 +681,26 @@ export const colors = {
     light: 'gray80',
     dark: 'navy800',
     midnight: 'gray800',
+  },
+  budgetRowBackgroundAlternate: {
+    all: { ref: 'budgetCurrentMonth' },
+    description: 'Every other category row on the budget screen',
+  },
+  budgetRowBackgroundHover: {
+    all: { ref: 'budgetCurrentMonth' },
+    description: 'Category row on the budget screen under the pointer',
+  },
+  budgetSummaryCurrentMonth: {
+    all: { ref: 'budgetCurrentMonth' },
+    description: 'Month summary card for the current month',
+  },
+  budgetSummaryOtherMonth: {
+    all: { ref: 'budgetOtherMonth' },
+    description: 'Month summary cards for other months',
+  },
+  budgetSummaryText: {
+    all: { ref: 'pageText' },
+    description: 'Text on the month summary cards',
   },
 
   floatingActionBarBackground: {
