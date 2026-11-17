@@ -120,7 +120,7 @@ export function ToBudgetAmount({
         <Block
           style={{
             fontSize: 14,
-            fontWeight: 700,
+            fontWeight: 600,
             lineHeight: 1.2,
             marginTop: 2,
           }}

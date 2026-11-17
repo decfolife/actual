@@ -64,7 +64,7 @@ export function Sidebar() {
             query={bindings.allAccountBalance()}
             style={{
               fontSize: 16,
-              fontWeight: 700,
+              fontWeight: 600,
               paddingTop: 8,
               paddingBottom: 8,
               paddingLeft: 15,

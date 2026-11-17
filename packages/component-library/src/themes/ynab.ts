@@ -96,8 +96,16 @@ const ynabOverrides: Record<string, string> = {
 const ynabFontFamily =
   "'Myriad Pro', 'Source Sans 3 Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
+// Chrome on macOS thickens text, most visibly light text on dark
+// backgrounds; YNAB 4 drew it thinner
+const ynabTextRendering = `body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+`;
+
 export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(rgba(255, 255, 255, 0.07), rgba(0, 0, 0, 0.14));\n  --budget-card-edge: #2a3338;\n  --budget-card-divider: #2c353b;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n${Object.entries(
   ynabOverrides,
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)
-  .join('\n')}\n}\n`;
+  .join('\n')}\n}\n${ynabTextRendering}`;

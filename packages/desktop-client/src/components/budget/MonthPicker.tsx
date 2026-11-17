@@ -89,7 +89,7 @@ export const MonthPicker = ({
             backgroundColor: theme.budgetMonthStripYearBackground,
             color: theme.budgetMonthStripText,
             fontSize: 14,
-            fontWeight: 700,
+            fontWeight: 600,
             opacity: 0.75,
             userSelect: 'none',
           }}
@@ -123,7 +123,7 @@ export const MonthPicker = ({
                 cursor: 'pointer',
                 color: theme.budgetMonthStripText,
                 fontSize: 14,
-                fontWeight: 700,
+                fontWeight: 600,
                 whiteSpace: 'nowrap',
                 borderLeft:
                   idx === 0

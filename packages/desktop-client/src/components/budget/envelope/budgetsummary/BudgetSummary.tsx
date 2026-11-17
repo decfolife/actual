@@ -270,7 +270,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               <div
                 className={css({
                   fontSize: 22,
-                  fontWeight: 700,
+                  fontWeight: 600,
                   lineHeight: 1,
                 })}
               >
@@ -293,7 +293,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 onBudgetAction={onBudgetAction}
                 isCollapsed
                 labelPosition="below"
-                amountStyle={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}
+                amountStyle={{ fontSize: 26, fontWeight: 600, lineHeight: 1 }}
               />
             </View>
             <View
