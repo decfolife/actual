@@ -13,6 +13,7 @@ import type {
   CategoryGroupEntity,
 } from '@actual-app/core/types/models';
 
+import { CATEGORY_COLUMN_WIDTH } from '#components/budget/util';
 import { InputCell } from '#components/table';
 import { useContextMenu } from '#hooks/useContextMenu';
 import { useGlobalPref } from '#hooks/useGlobalPref';
@@ -125,7 +126,7 @@ export function SidebarCategory({
     <View
       innerRef={innerRef}
       style={{
-        width: 200 + 100 * categoryExpandedState,
+        width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
         overflow: 'hidden',
         '& .hover-visible': {
           display: 'none',

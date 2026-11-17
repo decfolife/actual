@@ -363,7 +363,7 @@ export function TitlebarActions({ style }: TitlebarActionsProps) {
   const isTestEnv = useIsTestEnv();
 
   return (
-    <SpaceBetween gap={10} style={{ flexWrap: 'wrap', ...style }}>
+    <SpaceBetween gap={6} style={{ flexWrap: 'wrap', ...style }}>
       <UncategorizedButton />
       {isDevelopmentEnvironment() && !isTestEnv && <ThemeSelector />}
       <PrivacyButton />

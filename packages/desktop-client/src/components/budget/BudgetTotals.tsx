@@ -19,7 +19,7 @@ import { View } from '@actual-app/components/view';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
 import { RenderMonths } from './RenderMonths';
-import { getScrollbarWidth } from './util';
+import { CATEGORY_COLUMN_WIDTH, getScrollbarWidth } from './util';
 
 import { useBudgetComponents } from '.';
 
@@ -84,7 +84,7 @@ export const BudgetTotals = memo(function BudgetTotals({
     >
       <View
         style={{
-          width: 200 + 100 * categoryExpandedState,
+          width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
           color: theme.budgetTotalsText,
           justifyContent: 'center',
           paddingLeft: 5,

@@ -75,8 +75,8 @@ export function Item({
             : {
                 fontSize: 16,
                 fontWeight: 600,
-                paddingTop: 8,
-                paddingBottom: 8,
+                paddingTop: 6,
+                paddingBottom: 6,
               }),
           paddingLeft: 19 + indent,
           paddingRight: 10,

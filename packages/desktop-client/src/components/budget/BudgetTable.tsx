@@ -22,6 +22,7 @@ import { BudgetTotals } from './BudgetTotals';
 import { MonthsProvider } from './MonthsContext';
 import type { MonthBounds } from './MonthsContext';
 import {
+  CATEGORY_COLUMN_WIDTH,
   findSortDown,
   findSortUp,
   getScrollbarWidth,
@@ -274,7 +275,9 @@ export function BudgetTable(props: BudgetTableProps) {
           paddingRight: 5 + getScrollbarWidth(),
         }}
       >
-        <View style={{ width: 200 + 100 * categoryExpandedState }} />
+        <View
+          style={{ width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState }}
+        />
         <MonthsProvider
           startMonth={prewarmStartMonth}
           numMonths={numMonths}

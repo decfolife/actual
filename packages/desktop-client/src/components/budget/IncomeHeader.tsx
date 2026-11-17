@@ -4,6 +4,7 @@ import { Trans } from 'react-i18next';
 import { Button } from '@actual-app/components/button';
 import { View } from '@actual-app/components/view';
 
+import { CATEGORY_COLUMN_WIDTH } from '#components/budget/util';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
 import { RenderMonths } from './RenderMonths';
@@ -22,7 +23,7 @@ export function IncomeHeader({ onShowNewGroup }: IncomeHeaderProps) {
     <View style={{ flexDirection: 'row', flex: 1 }}>
       <View
         style={{
-          width: 200 + 100 * categoryExpandedState,
+          width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
         }}

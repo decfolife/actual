@@ -51,7 +51,7 @@ export function Sidebar() {
         <View
           style={{
             flexShrink: 0,
-            margin: '0 8px',
+            margin: '0 6px',
             borderRadius: 6,
             overflow: 'hidden',
             backgroundColor: theme.sidebarAccountGroupBackground,
@@ -65,8 +65,8 @@ export function Sidebar() {
             style={{
               fontSize: 16,
               fontWeight: 600,
-              paddingTop: 8,
-              paddingBottom: 8,
+              paddingTop: 6,
+              paddingBottom: 6,
               paddingLeft: 15,
               marginTop: 0,
               marginBottom: 0,

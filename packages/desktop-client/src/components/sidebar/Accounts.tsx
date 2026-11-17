@@ -106,7 +106,7 @@ export function Accounts() {
                 showCurrencySymbol
                 to="/accounts/onbudget"
                 query={bindings.onBudgetAccountBalance()}
-                style={{ fontWeight, paddingLeft: 2, paddingRight: 8 }}
+                style={{ fontWeight, paddingLeft: 0, paddingRight: 10 }}
                 titleAccount
                 balanceTestId="sidebar-on-budget-balance"
               />
@@ -142,7 +142,7 @@ export function Accounts() {
                 showCurrencySymbol
                 to="/accounts/offbudget"
                 query={bindings.offBudgetAccountBalance()}
-                style={{ fontWeight, paddingLeft: 2, paddingRight: 8 }}
+                style={{ fontWeight, paddingLeft: 0, paddingRight: 10 }}
                 titleAccount
                 balanceTestId="sidebar-off-budget-balance"
               />
@@ -180,8 +180,8 @@ export function Accounts() {
                   fontWeight,
                   fontStyle: 'italic',
                   cursor: 'pointer',
-                  paddingLeft: 2,
-                  paddingRight: 8,
+                  paddingLeft: 0,
+                  paddingRight: 10,
                   borderLeft: '4px solid transparent',
                 }}
               >
@@ -248,8 +248,8 @@ function AccountGroupBox({
     <View
       style={{
         flexShrink: 0,
-        margin: '10px 8px 0',
-        padding: '3px 0',
+        margin: '8px 6px 0',
+        padding: '2px 0',
         borderRadius: 6,
         backgroundColor: theme.sidebarAccountGroupBackground,
       }}
@@ -260,9 +260,9 @@ function AccountGroupBox({
           aria-label={toggleLabel}
           aria-expanded={!isCollapsed}
           onPress={onToggle}
-          style={{ padding: 2, marginLeft: 2, color: theme.sidebarItemText }}
+          style={{ padding: 0, marginLeft: 4, color: theme.sidebarItemText }}
         >
-          <ToggleIcon width={12} height={12} />
+          <ToggleIcon width={10} height={10} />
         </Button>
         <View style={{ flex: 1, minWidth: 0 }}>{header}</View>
       </View>

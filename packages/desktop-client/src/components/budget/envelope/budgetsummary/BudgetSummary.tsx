@@ -252,7 +252,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             style={{
               flexDirection: 'row',
               alignItems: 'stretch',
-              minHeight: 54,
+              minHeight: 48,
             }}
           >
             <View style={{ position: 'absolute', left: 0, bottom: 0 }}>

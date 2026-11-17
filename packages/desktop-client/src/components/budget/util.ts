@@ -78,6 +78,9 @@ export function withTotalSymbol(
   return sign + '$' + formatted.slice(sign.length);
 }
 
+// Width of the category name column, narrow like YNAB 4
+export const CATEGORY_COLUMN_WIDTH = 180;
+
 // Row height of the budget table, compact like YNAB 4.
 export const BUDGET_ROW_HEIGHT = 23;
 

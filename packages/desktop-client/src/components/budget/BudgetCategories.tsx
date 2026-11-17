@@ -8,7 +8,10 @@ import type {
   CategoryGroupEntity,
 } from '@actual-app/core/types/models';
 
-import { BUDGET_ROW_HEIGHT } from '#components/budget/util';
+import {
+  BUDGET_ROW_HEIGHT,
+  CATEGORY_COLUMN_WIDTH,
+} from '#components/budget/util';
 import { DropHighlightPosContext } from '#components/sort';
 import type { DragState, OnDropCallback } from '#components/sort';
 import { Row } from '#components/table';
@@ -89,6 +92,8 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
     const [collapsedGroupIds = [], setCollapsedGroupIdsPref] =
       useLocalPref('budget.collapsed');
     const [showHiddenCategories] = useLocalPref('budget.showHiddenCategories');
+    const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
+    const categoryExpandedState = categoryExpandedStatePref ?? 0;
     function onCollapse(value: Array<CategoryGroupEntity['id']>) {
       setCollapsedGroupIdsPref(value);
     }
@@ -266,8 +271,24 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
           boxShadow: styles.cardShadow,
           borderRadius: '0 0 4px 4px',
           flex: 1,
+          position: 'relative',
         }}
       >
+        <View
+          aria-hidden
+          style={{
+            // Outline the category column as its own panel, like YNAB 4
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
+            border: '1px solid ' + theme.budgetMonthOutline,
+            borderRadius: '4px 4px 0 0',
+            pointerEvents: 'none',
+            zIndex: 2,
+          }}
+        />
         {items.map((item, idx) => {
           let content;
           switch (item.type) {
@@ -455,7 +476,7 @@ function BudgetGridFiller() {
     <View style={{ flex: 1, minHeight: 20, flexDirection: 'row' }}>
       <View
         style={{
-          width: 200 + 100 * categoryExpandedState,
+          width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
           backgroundColor: theme.budgetCurrentMonth,
         }}
       />

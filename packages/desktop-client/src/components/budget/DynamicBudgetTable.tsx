@@ -7,6 +7,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { View } from '@actual-app/components/view';
 import * as monthUtils from '@actual-app/core/shared/months';
 
+import { CATEGORY_COLUMN_WIDTH } from '#components/budget/util';
 import { FeatureErrorFallback } from '#components/FeatureErrorFallback';
 import { useFeatureFlag } from '#hooks/useFeatureFlag';
 import { useGlobalPref } from '#hooks/useGlobalPref';
@@ -59,10 +60,11 @@ const DynamicBudgetTable = ({
 
   const numPossible = getNumPossibleMonths(
     width,
-    200 + 100 * categoryExpandedState,
+    CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
   );
   const numMonths = Math.min(numPossible, maxMonths);
-  const maxWidth = 200 + 100 * categoryExpandedState + 500 * numMonths;
+  const maxWidth =
+    CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState + 500 * numMonths;
 
   // Every displayed column must stay inside the bounds, so the first
   // column can go no later than `numMonths - 1` months before the end.

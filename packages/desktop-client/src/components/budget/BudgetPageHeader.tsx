@@ -8,7 +8,7 @@ import { BudgetMonthCountSelector } from '#components/Titlebar';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
 import { MonthPicker } from './MonthPicker';
-import { getScrollbarWidth } from './util';
+import { CATEGORY_COLUMN_WIDTH, getScrollbarWidth } from './util';
 
 type BudgetPageHeaderProps = {
   startMonth: string;
@@ -27,7 +27,11 @@ export const BudgetPageHeader = memo<BudgetPageHeaderProps>(
       <View style={{ flexDirection: 'row', flexShrink: 0 }}>
         <View
           style={{
-            width: 200 + 100 * categoryExpandedState + 5 - offsetMultipleMonths,
+            width:
+              CATEGORY_COLUMN_WIDTH +
+              100 * categoryExpandedState +
+              5 -
+              offsetMultipleMonths,
             paddingLeft: 12,
             paddingTop: 5,
             justifyContent: 'center',
