@@ -1,6 +1,7 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 
+import { SvgCalculator } from '@actual-app/components/icons/v1';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 import { send } from '@actual-app/core/platform/client/connection';
@@ -9,6 +10,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { FinancialText } from '#components/FinancialText';
 import { useFormat } from '#hooks/useFormat';
+
+import { BudgetCalculator } from './BudgetCalculator';
 
 type QuickBudgetMenuProps = {
   categoryId: string;
@@ -28,6 +31,7 @@ export function QuickBudgetMenu({
 }: QuickBudgetMenuProps) {
   const { t } = useTranslation();
   const format = useFormat();
+  const [showCalculator, setShowCalculator] = useState(false);
   const { data: values } = useQuery({
     queryKey: ['quick-budget-values', categoryId, month],
     queryFn: (): Promise<QuickBudgetValues> =>
@@ -61,6 +65,16 @@ export function QuickBudgetMenu({
       amount: values?.balanceToZero,
     },
   ];
+
+  if (showCalculator) {
+    return (
+      <BudgetCalculator
+        initialAmount={values?.budgeted ?? 0}
+        onApply={onSelect}
+        onCancel={() => setShowCalculator(false)}
+      />
+    );
+  }
 
   return (
     <View
@@ -97,6 +111,27 @@ export function QuickBudgetMenu({
           </FinancialText>
         </View>
       ))}
+      <View
+        role="menuitem"
+        onClick={() => setShowCalculator(true)}
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: 6,
+          padding: '3px 12px 3px 24px',
+          cursor: 'pointer',
+          ':hover': {
+            backgroundColor: theme.menuItemBackgroundHover,
+            color: theme.menuItemTextHover,
+          },
+        }}
+      >
+        <span>
+          <Trans>Show calculator</Trans>
+        </span>
+        <SvgCalculator width={14} height={14} />
+      </View>
     </View>
   );
 }

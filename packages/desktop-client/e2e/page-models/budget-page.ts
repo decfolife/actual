@@ -176,6 +176,8 @@ export class BudgetPage {
       .getByTestId('row')
       .nth(idx)
       .getByTestId('category-month-spent')
+      // Only the amount itself opens the transactions
+      .locator('[data-cellname]')
       .click();
     return new AccountPage(this.page);
   }
@@ -201,7 +203,7 @@ export class BudgetPage {
           rect.top >= containerRect.top &&
           rect.bottom <= containerRect.bottom
         ) {
-          cell.click();
+          (cell.querySelector<HTMLElement>('[data-cellname]') ?? cell).click();
           return true;
         }
       }

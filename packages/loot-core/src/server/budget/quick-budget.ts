@@ -16,6 +16,7 @@ export type QuickBudgetValues = {
   averageOutflows12Months: number;
   scheduledOutflowsThisMonth: number;
   balanceToZero: number;
+  budgeted: number;
 };
 
 type ScheduleRow = {
@@ -72,6 +73,7 @@ export async function getQuickBudgetValues({
     averageOutflows12Months: toOutflow(average12),
     scheduledOutflowsThisMonth: await getScheduledOutflows(month, category),
     balanceToZero: budgeted - balance,
+    budgeted,
   };
 }
 

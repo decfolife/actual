@@ -543,7 +543,6 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
       <Field name="spent" width="flex" style={{ textAlign: 'right' }}>
         <View
           data-testid="category-month-spent"
-          onClick={() => onShowActivity(category.id, month)}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -583,16 +582,29 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
             binding={envelopeBudget.catSumAmount(category.id)}
             type="financial"
           >
-            {props => (
-              <CellValueText
-                {...props}
-                className={css({
-                  cursor: 'pointer',
-                  ':hover': { textDecoration: 'underline' },
-                  ...hideZeroAmount(props.value),
-                })}
-              />
-            )}
+            {props => {
+              // Only a non-zero amount opens the category's transactions,
+              // so clicking an empty cell does nothing
+              const hasActivity =
+                typeof props.value === 'number' && props.value !== 0;
+              return (
+                <CellValueText
+                  {...props}
+                  onClick={
+                    hasActivity
+                      ? () => onShowActivity(category.id, month)
+                      : undefined
+                  }
+                  className={css({
+                    ...(hasActivity && {
+                      cursor: 'pointer',
+                      ':hover': { textDecoration: 'underline' },
+                    }),
+                    ...hideZeroAmount(props.value),
+                  })}
+                />
+              );
+            }}
           </EnvelopeCellValue>
         </View>
       </Field>
