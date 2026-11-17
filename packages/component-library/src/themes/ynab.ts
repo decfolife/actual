@@ -4,13 +4,13 @@
 // Applied on top of the generated Light theme CSS.
 const ynabOverrides: Record<string, string> = {
   // Sidebar
-  sidebarBackground: '#0099ca',
-  sidebarAccountGroupBackground: '#0072a0',
+  sidebarBackground: '#0098cb',
+  sidebarAccountGroupBackground: '#0070a0',
   sidebarItemText: '#ffffff',
   sidebarItemTextSelected: '#ffffff',
   sidebarItemTextNegative: '#ffb3ab',
-  sidebarItemAccentSelected: '#ffffff',
-  sidebarItemBackgroundSelected: '#00476c',
+  sidebarItemAccentSelected: 'transparent',
+  sidebarItemBackgroundSelected: '#00446d',
   sidebarItemBackgroundHover: '#005f87',
   sidebarBudgetName: '#ffffff',
   sidebarHeaderText: '#ffffff',
@@ -53,7 +53,7 @@ const ynabOverrides: Record<string, string> = {
   budgetHeaderCurrentMonth: '#e4f5fd',
   budgetHeaderOtherMonth: '#e4f5fd',
   budgetRowBackgroundAlternate: '#ffffff',
-  budgetRowBackgroundHover: '#f0f9fd',
+  budgetRowBackgroundHover: '#c8d9e1',
   budgetCellBorder: '#8fd0e2',
   budgetMonthGap: '#dbdbdb',
   budgetMonthOutline: '#a5a5a5',
@@ -67,7 +67,7 @@ const ynabOverrides: Record<string, string> = {
   tableHeaderBackground: '#ecf5e7',
   tableHeaderText: '#4d4d4d',
   tableBorderSelected: '#0099ca',
-  tableRowBackgroundHover: '#f0f9fd',
+  tableRowBackgroundHover: '#c8d9e1',
   tableRowHeaderBackground: '#e4f5fd',
   tableRowHeaderText: '#2b2b2b',
 
@@ -93,7 +93,7 @@ const ynabOverrides: Record<string, string> = {
 const ynabFontFamily =
   "'Myriad Pro', 'Source Sans 3 Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
-export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --budget-grid-style: dotted;\n${Object.entries(
+export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-grid-style: dotted;\n${Object.entries(
   ynabOverrides,
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)

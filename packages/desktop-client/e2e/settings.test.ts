@@ -48,7 +48,7 @@ test.describe('Settings', () => {
       .locator('label[for="toggle-sidebar-item-schedules"]')
       .click();
 
-    const sidebar = page.getByTestId('sidebar-primary-buttons');
+    const sidebar = page.getByTestId('sidebar-more-buttons');
     await expect(sidebar.getByRole('link', { name: 'Payees' })).toBeVisible();
     await expect(sidebar.getByRole('link', { name: 'Schedules' })).toHaveCount(
       0,

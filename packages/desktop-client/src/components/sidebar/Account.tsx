@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import React, { useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { ComponentType, CSSProperties, SVGProps } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AlignedText } from '@actual-app/components/aligned-text';
@@ -13,6 +13,7 @@ import { InitialFocus } from '@actual-app/components/initial-focus';
 import { Input } from '@actual-app/components/input';
 import { SpaceBetween } from '@actual-app/components/space-between';
 import { styles } from '@actual-app/components/styles';
+import type { CSSProperties as StyleProperties } from '@actual-app/components/styles';
 import { Text } from '@actual-app/components/text';
 import { theme } from '@actual-app/components/theme';
 import { Tooltip } from '@actual-app/components/tooltip';
@@ -39,7 +40,7 @@ import { useDispatch, useSelector } from '#redux';
 import type { Binding, SheetFields } from '#spreadsheet';
 import { isTouchDevice } from '#util/isTouchDevice';
 
-export const accountNameStyle: CSSProperties = {
+export const accountNameStyle: StyleProperties = {
   marginTop: -2,
   marginBottom: 2,
   paddingTop: 4,
@@ -49,7 +50,8 @@ export const accountNameStyle: CSSProperties = {
   textDecoration: 'none',
   color: theme.sidebarItemText,
   ':hover': { backgroundColor: theme.sidebarItemBackgroundHover },
-  ...styles.smallText,
+  fontSize: 14,
+  fontWeight: 600,
 };
 
 type AccountProps<FieldName extends SheetFields<'account'>> = {
@@ -67,6 +69,8 @@ type AccountProps<FieldName extends SheetFields<'account'>> = {
   onDrop?: OnDropCallback;
   titleAccount?: boolean;
   showCurrencySymbol?: boolean;
+  Icon?: ComponentType<SVGProps<SVGSVGElement>>;
+  iconColor?: string;
   isExactPathMatch?: boolean;
   balanceTestId?: string;
 };
@@ -86,6 +90,8 @@ export function Account<FieldName extends SheetFields<'account'>>({
   onDrop,
   titleAccount,
   showCurrencySymbol = false,
+  Icon,
+  iconColor,
   isExactPathMatch,
   balanceTestId,
 }: AccountProps<FieldName>) {
@@ -274,6 +280,19 @@ export function Account<FieldName extends SheetFields<'account'>>({
                       defaultValue={name}
                     />
                   </InitialFocus>
+                ) : Icon ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Icon
+                      width={18}
+                      height={18}
+                      style={{
+                        color: iconColor,
+                        marginRight: 9,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {name}
+                  </View>
                 ) : (
                   name
                 )

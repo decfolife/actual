@@ -27,6 +27,8 @@ type ItemProps = {
   onClick?: ComponentProps<typeof ItemContent>['onClick'];
   forceHover?: boolean;
   forceActive?: boolean;
+  iconColor?: string;
+  compact?: boolean;
 };
 
 export function Item({
@@ -39,6 +41,8 @@ export function Item({
   indent = 0,
   forceHover = false,
   forceActive = false,
+  iconColor,
+  compact = false,
 }: ItemProps) {
   const hoverStyle = {
     backgroundColor: theme.sidebarItemBackgroundHover,
@@ -49,11 +53,15 @@ export function Item({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        height: 20,
+        height: compact ? 16 : 20,
       }}
     >
-      <Icon width={15} height={15} />
-      <Block style={{ marginLeft: 8 }}>{title}</Block>
+      <Icon
+        width={compact ? 13 : 18}
+        height={compact ? 13 : 18}
+        style={iconColor ? { color: iconColor } : undefined}
+      />
+      <Block style={{ marginLeft: compact ? 7 : 9 }}>{title}</Block>
       <View style={{ flex: 1 }} />
     </View>
   );
@@ -62,9 +70,14 @@ export function Item({
     <View style={{ flexShrink: 0, ...style }}>
       <ItemContent
         style={{
-          ...styles.mediumText,
-          paddingTop: 9,
-          paddingBottom: 9,
+          ...(compact
+            ? { ...styles.smallText, paddingTop: 4, paddingBottom: 4 }
+            : {
+                fontSize: 16,
+                fontWeight: 700,
+                paddingTop: 8,
+                paddingBottom: 8,
+              }),
           paddingLeft: 19 + indent,
           paddingRight: 10,
           textDecoration: 'none',
@@ -74,7 +87,7 @@ export function Item({
         }}
         forceActive={forceActive}
         activeStyle={{
-          borderLeft: '4px solid ' + theme.sidebarItemTextSelected,
+          borderLeft: '4px solid ' + theme.sidebarItemAccentSelected,
           paddingLeft: 19 + indent - 4,
           color: theme.sidebarItemTextSelected,
           backgroundColor: theme.sidebarItemBackgroundSelected,

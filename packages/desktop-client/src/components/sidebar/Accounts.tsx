@@ -93,34 +93,8 @@ export function Accounts() {
   };
 
   return (
-    <View
-      style={{
-        flexGrow: 1,
-        '@media screen and (max-height: 480px)': {
-          minHeight: 'auto',
-        },
-      }}
-    >
-      <View
-        style={{
-          height: 1,
-          backgroundColor: theme.sidebarItemBackgroundHover,
-          marginTop: 15,
-          flexShrink: 0,
-        }}
-      />
-
-      <View style={{ overflow: 'auto' }}>
-        <Account
-          name={t('All accounts')}
-          showCurrencySymbol
-          to="/accounts"
-          query={bindings.allAccountBalance()}
-          style={{ fontWeight, marginTop: 15 }}
-          isExactPathMatch
-          balanceTestId="sidebar-all-accounts-balance"
-        />
-
+    <View style={{ flexShrink: 0 }}>
+      <View>
         {onBudgetAccounts.length > 0 && (
           <AccountGroupBox
             isCollapsed={!!collapsedGroups.onbudget}

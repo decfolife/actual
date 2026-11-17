@@ -19,15 +19,16 @@ import { clampMonth } from './MonthsContext';
 function getNumPossibleMonths(width: number, categoryWidth: number) {
   const estimatedTableWidth = width - categoryWidth;
 
-  if (estimatedTableWidth < 500) {
+  // About 230px per month, close to YNAB 4's month width
+  if (estimatedTableWidth < 460) {
     return 1;
-  } else if (estimatedTableWidth < 750) {
+  } else if (estimatedTableWidth < 690) {
     return 2;
-  } else if (estimatedTableWidth < 1000) {
+  } else if (estimatedTableWidth < 920) {
     return 3;
-  } else if (estimatedTableWidth < 1250) {
+  } else if (estimatedTableWidth < 1150) {
     return 4;
-  } else if (estimatedTableWidth < 1500) {
+  } else if (estimatedTableWidth < 1380) {
     return 5;
   }
 

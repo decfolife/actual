@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
@@ -21,9 +21,10 @@ import { useDispatch } from '#redux';
 
 type BudgetNameProps = {
   children?: ReactNode;
+  style?: CSSProperties;
 };
 
-export function BudgetName({ children }: BudgetNameProps) {
+export function BudgetName({ children, style }: BudgetNameProps) {
   const hasWindowButtons = !Platform.isBrowser && Platform.OS === 'mac';
 
   return (
@@ -42,6 +43,7 @@ export function BudgetName({ children }: BudgetNameProps) {
               justifyContent: 'flex-start',
             }
           : {}),
+        ...style,
       }}
     >
       <EditableBudgetName />
