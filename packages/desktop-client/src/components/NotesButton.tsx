@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { ComponentProps } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
 import { SvgCustomNotesPaper } from '@actual-app/components/icons/v2';
@@ -100,6 +100,27 @@ export function NotesButton({
         style={{ padding: 4 }}
       >
         <Notes notes={tempNotes} editable focused onChange={setTempNotes} />
+        {(hasNotes || tempNotes !== '') && (
+          <View style={{ alignItems: 'flex-end', paddingTop: 4 }}>
+            <Button
+              variant="bare"
+              onPress={() => {
+                setTempNotes('');
+                if (note !== '') {
+                  void send('notes-save', { id, note: '' });
+                }
+                setIsOpen(false);
+              }}
+              style={{
+                color: theme.errorText,
+                fontSize: 12,
+                padding: '2px 6px',
+              }}
+            >
+              <Trans>Delete note</Trans>
+            </Button>
+          </View>
+        )}
       </Popover>
     </Tooltip>
   );
