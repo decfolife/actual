@@ -22,6 +22,7 @@ import { css, cx } from '@emotion/css';
 
 import { useReopenAccountMutation, useUpdateAccountMutation } from '#accounts';
 import { BalanceHistoryGraph } from '#components/accounts/BalanceHistoryGraph';
+import { withTotalSymbol } from '#components/budget/util';
 import { Link } from '#components/common/Link';
 import { Notes } from '#components/Notes';
 import { DropHighlight, useDraggable, useDroppable } from '#components/sort';
@@ -29,6 +30,7 @@ import type { OnDragChangeCallback, OnDropCallback } from '#components/sort';
 import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
 import { useContextMenu } from '#hooks/useContextMenu';
 import { useDragRef } from '#hooks/useDragRef';
+import { useFormat } from '#hooks/useFormat';
 import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useNotes } from '#hooks/useNotes';
 import { useSyncedPref } from '#hooks/useSyncedPref';
@@ -64,6 +66,7 @@ type AccountProps<FieldName extends SheetFields<'account'>> = {
   onDragChange?: OnDragChangeCallback<{ id: string }>;
   onDrop?: OnDropCallback;
   titleAccount?: boolean;
+  showCurrencySymbol?: boolean;
   isExactPathMatch?: boolean;
   balanceTestId?: string;
 };
@@ -82,6 +85,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
   onDragChange,
   onDrop,
   titleAccount,
+  showCurrencySymbol = false,
   isExactPathMatch,
   balanceTestId,
 }: AccountProps<FieldName>) {
@@ -124,11 +128,19 @@ export function Account<FieldName extends SheetFields<'account'>>({
   const reopenAccount = useReopenAccountMutation();
   const updateAccount = useUpdateAccountMutation();
 
+  const format = useFormat();
+
   const balanceCell = (
     <CellValue<'account', FieldName> binding={query} type="financial">
       {props => (
         <CellValueText<'account', FieldName>
           {...props}
+          formatter={
+            showCurrencySymbol
+              ? (value, valueType) =>
+                  withTotalSymbol(format(value, valueType), format.currency)
+              : undefined
+          }
           style={
             typeof props.value === 'number' && props.value < 0
               ? { color: theme.sidebarItemTextNegative }

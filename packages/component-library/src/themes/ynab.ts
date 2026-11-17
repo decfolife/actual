@@ -54,14 +54,16 @@ const ynabOverrides: Record<string, string> = {
   budgetHeaderOtherMonth: '#e4f5fd',
   budgetRowBackgroundAlternate: '#ffffff',
   budgetRowBackgroundHover: '#f0f9fd',
-  budgetCellBorder: '#c8c8c8',
+  budgetCellBorder: '#8fd0e2',
+  budgetMonthGap: '#dbdbdb',
+  budgetMonthOutline: '#a5a5a5',
 
   // Tables
   tableBackground: '#ffffff',
   tableRowBackgroundAlternate: '#ffffff',
   tableText: '#2b2b2b',
   tableTextSubdued: '#9a9a9a',
-  tableBorder: '#d4d4d4',
+  tableBorder: '#b5dfea',
   tableHeaderBackground: '#ecf5e7',
   tableHeaderText: '#4d4d4d',
   tableBorderSelected: '#0099ca',
@@ -86,11 +88,12 @@ const ynabOverrides: Record<string, string> = {
   buttonPrimaryText: '#ffffff',
 };
 
-// YNAB 4 on the Mac used Lucida Grande
+// YNAB 4 used Myriad Pro. Source Sans 3 is Adobe's free font from the same
+// design family and is bundled with the app; Myriad Pro is used if installed.
 const ynabFontFamily =
-  "'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+  "'Myriad Pro', 'Source Sans 3 Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif";
 
-export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n${Object.entries(
+export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --budget-grid-style: dotted;\n${Object.entries(
   ynabOverrides,
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)

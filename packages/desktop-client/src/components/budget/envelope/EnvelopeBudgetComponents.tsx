@@ -17,13 +17,18 @@ import * as monthUtils from '@actual-app/core/shared/months';
 import { css } from '@emotion/css';
 
 import { BalanceWithCarryover } from '#components/budget/BalanceWithCarryover';
-import { BUDGET_ROW_HEIGHT, hideZeroAmount } from '#components/budget/util';
+import {
+  BUDGET_ROW_HEIGHT,
+  hideZeroAmount,
+  withTotalSymbol,
+} from '#components/budget/util';
 import { NotesButton } from '#components/NotesButton';
 import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
 import { Field, Row, SheetCell } from '#components/table';
 import type { SheetCellProps } from '#components/table';
 import { useCategoryScheduleGoalTemplateIndicator } from '#hooks/useCategoryScheduleGoalTemplateIndicator';
 import { useFormat } from '#hooks/useFormat';
+import type { FormatType } from '#hooks/useFormat';
 import { useNavigate } from '#hooks/useNavigate';
 import { useSheetName } from '#hooks/useSheetName';
 import { useSheetValue } from '#hooks/useSheetValue';
@@ -74,6 +79,10 @@ const cellStyle: CSSProperties = {
 };
 
 export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
+  const format = useFormat();
+  const totalFormatter = (value: unknown, type?: FormatType) =>
+    withTotalSymbol(format(value, type), format.currency);
+
   return (
     <View
       style={{
@@ -100,6 +109,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
               {...props}
               value={-props.value || 0}
               style={cellStyle}
+              formatter={totalFormatter}
             />
           )}
         </EnvelopeCellValue>
@@ -109,7 +119,13 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           <Trans>Outflows</Trans>
         </Text>
         <EnvelopeCellValue binding={envelopeBudget.totalSpent} type="financial">
-          {props => <CellValueText {...props} style={cellStyle} />}
+          {props => (
+            <CellValueText
+              {...props}
+              style={cellStyle}
+              formatter={totalFormatter}
+            />
+          )}
         </EnvelopeCellValue>
       </View>
       <View style={headerLabelStyle}>
@@ -120,7 +136,13 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           binding={envelopeBudget.totalBalance}
           type="financial"
         >
-          {props => <CellValueText {...props} style={cellStyle} />}
+          {props => (
+            <CellValueText
+              {...props}
+              style={cellStyle}
+              formatter={totalFormatter}
+            />
+          )}
         </EnvelopeCellValue>
       </View>
     </View>

@@ -14,9 +14,11 @@ import type { AccountEntity } from '@actual-app/core/types/models';
 
 import { useMoveAccountMutation } from '#accounts';
 import { isAccountFailedSync } from '#accounts/syncStatus';
-import { CellValue } from '#components/spreadsheet/CellValue';
+import { withTotalSymbol } from '#components/budget/util';
+import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
 import { useAccounts } from '#hooks/useAccounts';
 import { useClosedAccounts } from '#hooks/useClosedAccounts';
+import { useFormat } from '#hooks/useFormat';
 import { useLocalPref } from '#hooks/useLocalPref';
 import { useOffBudgetAccounts } from '#hooks/useOffBudgetAccounts';
 import { useOnBudgetAccounts } from '#hooks/useOnBudgetAccounts';
@@ -30,6 +32,7 @@ const fontWeight = 600;
 
 export function Accounts() {
   const { t } = useTranslation();
+  const format = useFormat();
   const [isDragging, setIsDragging] = useState(false);
   const { data: accounts = [] } = useAccounts();
   const updatedAccounts = useUpdatedAccounts();
@@ -110,6 +113,7 @@ export function Accounts() {
       <View style={{ overflow: 'auto' }}>
         <Account
           name={t('All accounts')}
+          showCurrencySymbol
           to="/accounts"
           query={bindings.allAccountBalance()}
           style={{ fontWeight, marginTop: 15 }}
@@ -125,6 +129,7 @@ export function Accounts() {
             header={
               <Account
                 name={t('Budget Accounts')}
+                showCurrencySymbol
                 to="/accounts/onbudget"
                 query={bindings.onBudgetAccountBalance()}
                 style={{ fontWeight, paddingLeft: 2, paddingRight: 8 }}
@@ -160,6 +165,7 @@ export function Accounts() {
             header={
               <Account
                 name={t('Off-Budget Accounts')}
+                showCurrencySymbol
                 to="/accounts/offbudget"
                 query={bindings.offBudgetAccountBalance()}
                 style={{ fontWeight, paddingLeft: 2, paddingRight: 8 }}
@@ -211,7 +217,19 @@ export function Accounts() {
                     <CellValue<'account', 'closed-accounts-balance'>
                       binding={bindings.closedAccountBalance()}
                       type="financial"
-                    />
+                    >
+                      {props => (
+                        <CellValueText
+                          {...props}
+                          formatter={(value, valueType) =>
+                            withTotalSymbol(
+                              format(value, valueType),
+                              format.currency,
+                            )
+                          }
+                        />
+                      )}
+                    </CellValue>
                   }
                 />
               </View>

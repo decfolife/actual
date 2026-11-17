@@ -13,6 +13,7 @@ import {
   useEnvelopeSheetName,
   useEnvelopeSheetValue,
 } from '#components/budget/envelope/EnvelopeBudgetComponents';
+import { withTotalSymbol } from '#components/budget/util';
 import { FinancialText } from '#components/FinancialText';
 import { PrivacyFilter } from '#components/PrivacyFilter';
 import { useFormat } from '#hooks/useFormat';
@@ -108,7 +109,9 @@ export function ToBudgetAmount({
                 amountStyle,
               ])}
             >
-              <FinancialText>{format(num, 'financial')}</FinancialText>
+              <FinancialText>
+                {withTotalSymbol(format(num, 'financial'), format.currency)}
+              </FinancialText>
             </Block>
           </PrivacyFilter>
         </Tooltip>

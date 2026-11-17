@@ -91,6 +91,8 @@ export const Field = forwardRef<HTMLDivElement, FieldProps>(function Field(
         borderTopWidth: 1,
         borderBottomWidth: 1,
         borderColor: theme.tableBorder,
+        // Tables can switch to dotted lines (the YNAB budget does)
+        borderStyle: 'var(--table-border-style, solid)',
         ...styles.smallText,
         ...style,
       }}

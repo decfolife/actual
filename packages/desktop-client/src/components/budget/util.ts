@@ -64,6 +64,20 @@ export function separateGroups(categoryGroups: CategoryGroupEntity[]) {
   ] as const;
 }
 
+// Like YNAB 4, totals (month cards, column headers, sidebar group totals) show
+// a currency symbol even though individual amounts don't. When a currency is
+// chosen in Settings, the formatter already adds its symbol.
+export function withTotalSymbol(
+  formatted: string,
+  currency: { code: string },
+): string {
+  if (currency.code !== '') {
+    return formatted;
+  }
+  const sign = formatted.startsWith('-') ? '-' : '';
+  return sign + '$' + formatted.slice(sign.length);
+}
+
 // Row height of the budget table, compact like YNAB 4.
 export const BUDGET_ROW_HEIGHT = 23;
 

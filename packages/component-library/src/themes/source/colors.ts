@@ -750,6 +750,15 @@ export const colors = {
     all: { ref: 'tableHeaderText' },
     description: 'Text in the column header row above the budget table',
   },
+  budgetMonthGap: {
+    all: { ref: 'tableBorder' },
+    description:
+      'Space between months in the budget table (its width is --budget-month-gap)',
+  },
+  budgetMonthOutline: {
+    all: { raw: 'transparent' },
+    description: 'Outline along the sides of each month in the budget table',
+  },
   budgetCellBorder: {
     all: { raw: 'transparent' },
     description: 'Box around each budgeted amount',
