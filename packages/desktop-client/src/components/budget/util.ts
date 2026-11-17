@@ -64,6 +64,9 @@ export function separateGroups(categoryGroups: CategoryGroupEntity[]) {
   ] as const;
 }
 
+// Row height of the budget table, compact like YNAB 4.
+export const BUDGET_ROW_HEIGHT = 23;
+
 export function makeAmountGrey(value: number | string | null): CSSProperties {
   return value === 0 || value === '0' || value === '' || value == null
     ? { color: theme.budgetNumberZero }

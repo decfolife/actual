@@ -2,8 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SvgAdd } from '@actual-app/components/icons/v1';
+import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
+import { TitlebarActions } from '#components/Titlebar';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 import { replaceModal } from '#modals/modalsSlice';
 import { useDispatch } from '#redux';
@@ -62,6 +64,22 @@ export function Sidebar() {
           ]}
         />
       </View>
+
+      <TitlebarActions
+        style={{
+          flexShrink: 0,
+          padding: '8px 12px 10px',
+          borderTop: '1px solid ' + theme.sidebarBorder,
+          // Recolor the title bar controls for the sidebar
+          '--color-pageText': theme.sidebarItemText,
+          '--color-pageTextLight': theme.sidebarItemText,
+          '--color-buttonBareText': theme.sidebarItemText,
+          '--color-buttonBareTextHover': theme.sidebarItemText,
+          '--color-buttonBareBackgroundHover': theme.sidebarItemBackgroundHover,
+          '--color-buttonBareBackgroundActive':
+            theme.sidebarItemBackgroundHover,
+        }}
+      />
     </SidebarShell>
   );
 }

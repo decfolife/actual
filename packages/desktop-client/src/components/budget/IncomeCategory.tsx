@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 
 import type { CategoryEntity } from '@actual-app/core/types/models';
 
+import { BUDGET_ROW_HEIGHT } from '#components/budget/util';
 import { DropHighlight, useDraggable, useDroppable } from '#components/sort';
 import type { OnDragChangeCallback, OnDropCallback } from '#components/sort';
 import { Row } from '#components/table';
@@ -61,6 +62,7 @@ export function IncomeCategory({
     <Row
       innerRef={dropRef}
       collapsed
+      height={BUDGET_ROW_HEIGHT}
       style={{
         opacity: cat.hidden ? 0.5 : undefined,
       }}

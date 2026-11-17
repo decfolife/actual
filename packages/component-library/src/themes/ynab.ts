@@ -86,6 +86,12 @@ const ynabOverrides: Record<string, string> = {
   buttonPrimaryText: '#ffffff',
 };
 
-export const ynabOverridesCss = `:root {\n${Object.entries(ynabOverrides)
+// YNAB 4 on the Mac used Lucida Grande
+const ynabFontFamily =
+  "'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+
+export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n${Object.entries(
+  ynabOverrides,
+)
   .map(([name, value]) => `  --color-${name}: ${value};`)
   .join('\n')}\n}\n`;

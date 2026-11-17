@@ -4,6 +4,7 @@ import React from 'react';
 import { theme } from '@actual-app/components/theme';
 import type { CategoryGroupEntity } from '@actual-app/core/types/models';
 
+import { BUDGET_ROW_HEIGHT } from '#components/budget/util';
 import { Row } from '#components/table';
 
 import { RenderMonths } from './RenderMonths';
@@ -39,6 +40,7 @@ export function IncomeGroup({
   return (
     <Row
       collapsed
+      height={BUDGET_ROW_HEIGHT}
       style={{
         fontWeight: 600,
         backgroundColor: theme.budgetHeaderCurrentMonth, //use budget color

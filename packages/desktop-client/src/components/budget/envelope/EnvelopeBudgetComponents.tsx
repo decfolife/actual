@@ -17,7 +17,7 @@ import * as monthUtils from '@actual-app/core/shared/months';
 import { css } from '@emotion/css';
 
 import { BalanceWithCarryover } from '#components/budget/BalanceWithCarryover';
-import { hideZeroAmount } from '#components/budget/util';
+import { BUDGET_ROW_HEIGHT, hideZeroAmount } from '#components/budget/util';
 import { NotesButton } from '#components/NotesButton';
 import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
 import { Field, Row, SheetCell } from '#components/table';
@@ -80,8 +80,10 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         flex: 1,
         flexDirection: 'row',
         marginRight: styles.monthRightPadding,
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: 3,
+        paddingBottom: 3,
+        fontSize: 12,
+        lineHeight: 1.3,
         backgroundColor: theme.budgetTotalsBackground,
       }}
     >
@@ -128,6 +130,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
 export function IncomeHeaderMonth() {
   return (
     <Row
+      height={BUDGET_ROW_HEIGHT}
       style={{
         color: theme.tableHeaderText,
         alignItems: 'center',
@@ -294,6 +297,7 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
         style={{
           flex: 1,
           flexDirection: 'row',
+          position: 'relative',
         }}
         onContextMenu={e => {
           if (editing) return;
@@ -301,15 +305,23 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
         }}
       >
         {!editing && (
-          <>
+          // Overlaid on the left of the budget cell so showing the menu
+          // button on hover never squeezes the amount
+          <View
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              flexDirection: 'row',
+              zIndex: 1,
+            }}
+          >
             <View
               style={{
                 paddingLeft: 3,
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderTopWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: theme.tableBorder,
               }}
             >
               <NotesButton
@@ -325,9 +337,6 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
                 paddingLeft: 3,
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderTopWidth: 1,
-                borderBottomWidth: 1,
-                borderColor: theme.tableBorder,
               }}
             >
               <Button
@@ -394,7 +403,7 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
                 />
               </Popover>
             </View>
-          </>
+          </View>
         )}
         <EnvelopeSheetCell
           name="budget"

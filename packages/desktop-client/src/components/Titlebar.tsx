@@ -250,7 +250,7 @@ function ServerSyncButton({ style, isMobile = false }: ServerSyncButtonProps) {
   );
 }
 
-function BudgetTitlebar() {
+export function BudgetMonthCountSelector() {
   const [maxMonths, setMaxMonthsPref] = useGlobalPref('maxMonths');
 
   return (
@@ -273,11 +273,10 @@ export function Titlebar({ style }: TitlebarProps) {
   const location = useLocation();
   const sidebar = useSidebar();
   const { isNarrowWidth } = useResponsive();
-  const serverURL = useServerURL();
   const [floatingSidebar] = useGlobalPref('floatingSidebar');
-  const isTestEnv = useIsTestEnv();
+  const isTitlebarHidden = useIsTitlebarHidden();
 
-  return isNarrowWidth ? null : (
+  return isNarrowWidth || isTitlebarHidden ? null : (
     <View
       style={{
         flexDirection: 'row',
@@ -335,20 +334,44 @@ export function Titlebar({ style }: TitlebarProps) {
         />
 
         <Route path="/accounts/:id" element={<AccountSyncCheck />} />
-
-        <Route path="/budget" element={<BudgetTitlebar />} />
       </Routes>
-      <View style={{ flex: 1 }} />
-      <SpaceBetween gap={10}>
-        <UncategorizedButton />
-        {isDevelopmentEnvironment() && !isTestEnv && <ThemeSelector />}
-        <PrivacyButton />
-        <NotificationsButton />
-        {serverURL ? <ServerSyncButton /> : null}
-        <SharedArrayBufferWarning />
-        <LoggedInUser />
-        <HelpMenu />
-      </SpaceBetween>
     </View>
+  );
+}
+
+/**
+ * The budget page has no title bar, like YNAB 4. It still needs one while the
+ * sidebar floats, since the title bar holds the button that shows it.
+ */
+export function useIsTitlebarHidden() {
+  const location = useLocation();
+  const sidebar = useSidebar();
+  const [floatingSidebar] = useGlobalPref('floatingSidebar');
+
+  return (
+    location.pathname === '/budget' && !floatingSidebar && !sidebar.alwaysFloats
+  );
+}
+
+type TitlebarActionsProps = {
+  style?: CSSProperties;
+};
+
+/** The app-wide controls (privacy, notifications, sync, help), shown in the sidebar. */
+export function TitlebarActions({ style }: TitlebarActionsProps) {
+  const serverURL = useServerURL();
+  const isTestEnv = useIsTestEnv();
+
+  return (
+    <SpaceBetween gap={10} style={{ flexWrap: 'wrap', ...style }}>
+      <UncategorizedButton />
+      {isDevelopmentEnvironment() && !isTestEnv && <ThemeSelector />}
+      <PrivacyButton />
+      <NotificationsButton />
+      {serverURL ? <ServerSyncButton /> : null}
+      <SharedArrayBufferWarning />
+      <LoggedInUser />
+      <HelpMenu />
+    </SpaceBetween>
   );
 }

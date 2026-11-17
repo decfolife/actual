@@ -63,12 +63,13 @@ export const MonthPicker = ({
   const lastSelectedIndex = firstSelectedIndex + numDisplayed - 1;
 
   const [size, setSize] = useState('small');
+  const [useFullNames, setUseFullNames] = useState(false);
   const containerRef = useResizeObserver(
     rect => {
       setSize(rect.width <= 400 ? 'small' : 'big');
-      setTargetMonthCount(
-        Math.min(Math.max(Math.floor(rect.width / 50), 12), 24),
-      );
+      // Like YNAB 4: a year of months, with full names when they fit
+      setTargetMonthCount(12);
+      setUseFullNames(rect.width >= 13 * 80);
     },
     { measureOnAttach: true },
   );
@@ -133,14 +134,17 @@ export const MonthPicker = ({
           style={{
             flexDirection: 'row',
             flex: 1,
-            maxWidth: size === 'big' ? range.length * 60 : undefined,
             backgroundColor: theme.budgetMonthStripBackground,
             borderRadius: 3,
             overflow: 'hidden',
           }}
         >
           {range.map((month, idx) => {
-            const monthName = monthUtils.format(month, 'MMM', locale);
+            const monthName = monthUtils.format(
+              month,
+              useFullNames ? 'MMMM' : 'MMM',
+              locale,
+            );
             const selected =
               idx >= firstSelectedIndex && idx <= lastSelectedIndex;
 

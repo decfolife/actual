@@ -8,6 +8,7 @@ import type {
   CategoryGroupEntity,
 } from '@actual-app/core/types/models';
 
+import { BUDGET_ROW_HEIGHT } from '#components/budget/util';
 import { DropHighlightPosContext } from '#components/sort';
 import type { DragState, OnDropCallback } from '#components/sort';
 import { Row } from '#components/table';
@@ -266,6 +267,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
             case 'new-group':
               content = (
                 <Row
+                  height={BUDGET_ROW_HEIGHT}
                   style={{ backgroundColor: theme.budgetHeaderCurrentMonth }}
                 >
                   <SidebarGroup
@@ -281,7 +283,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
               break;
             case 'new-category':
               content = (
-                <Row>
+                <Row height={BUDGET_ROW_HEIGHT}>
                   <SidebarCategory
                     innerRef={null}
                     category={{

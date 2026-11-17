@@ -9,13 +9,14 @@ import type {
   CategoryGroupEntity,
 } from '@actual-app/core/types/models';
 
+import { BUDGET_ROW_HEIGHT } from '#components/budget/util';
 import { DropHighlight, useDraggable, useDroppable } from '#components/sort';
 import type {
   DragState,
   OnDragChangeCallback,
   OnDropCallback,
 } from '#components/sort';
-import { Row, ROW_HEIGHT } from '#components/table';
+import { Row } from '#components/table';
 import { useDragRef } from '#hooks/useDragRef';
 
 import { RenderMonths } from './RenderMonths';
@@ -92,6 +93,7 @@ export function ExpenseGroup({
   return (
     <Row
       collapsed
+      height={BUDGET_ROW_HEIGHT}
       style={{
         fontWeight: 600,
         opacity: group.hidden ? 0.33 : undefined,
@@ -106,8 +108,8 @@ export function ExpenseGroup({
             left: 0,
             right: 0,
             height: collapsed
-              ? ROW_HEIGHT - 1
-              : (1 + group.categories.length) * (ROW_HEIGHT - 1) + 1,
+              ? BUDGET_ROW_HEIGHT - 1
+              : (1 + group.categories.length) * (BUDGET_ROW_HEIGHT - 1) + 1,
             zIndex: 10000,
           }}
         >
