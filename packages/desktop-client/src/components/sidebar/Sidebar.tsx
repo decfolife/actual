@@ -63,11 +63,11 @@ export function Sidebar() {
             to="/accounts"
             query={bindings.allAccountBalance()}
             style={{
-              fontSize: 16,
+              fontSize: 16.5,
               fontWeight: 600,
-              paddingTop: 6,
-              paddingBottom: 6,
-              paddingLeft: 15,
+              paddingTop: 7,
+              paddingBottom: 7,
+              paddingLeft: 6,
               marginTop: 0,
               marginBottom: 0,
             }}

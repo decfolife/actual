@@ -53,15 +53,15 @@ export function Item({
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        height: compact ? 16 : 20,
+        height: compact ? 16 : 22,
       }}
     >
       <Icon
-        width={compact ? 13 : 18}
-        height={compact ? 13 : 18}
+        width={compact ? 13 : 21}
+        height={compact ? 13 : 21}
         style={iconColor ? { color: iconColor } : undefined}
       />
-      <Block style={{ marginLeft: compact ? 7 : 9 }}>{title}</Block>
+      <Block style={{ marginLeft: compact ? 7 : 8 }}>{title}</Block>
       <View style={{ flex: 1 }} />
     </View>
   );
@@ -73,12 +73,12 @@ export function Item({
           ...(compact
             ? { ...styles.smallText, paddingTop: 4, paddingBottom: 4 }
             : {
-                fontSize: 16,
+                fontSize: 16.5,
                 fontWeight: 600,
-                paddingTop: 6,
-                paddingBottom: 6,
+                paddingTop: 7,
+                paddingBottom: 7,
               }),
-          paddingLeft: 19 + indent,
+          paddingLeft: (compact ? 19 : 10) + indent,
           paddingRight: 10,
           textDecoration: 'none',
           color: theme.sidebarItemText,
@@ -88,7 +88,7 @@ export function Item({
         forceActive={forceActive}
         activeStyle={{
           borderLeft: '4px solid ' + theme.sidebarItemAccentSelected,
-          paddingLeft: 19 + indent - 4,
+          paddingLeft: (compact ? 19 : 10) + indent - 4,
           color: theme.sidebarItemTextSelected,
           backgroundColor: theme.sidebarItemBackgroundSelected,
         }}

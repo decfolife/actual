@@ -86,16 +86,43 @@ export const BudgetTotals = memo(function BudgetTotals({
         style={{
           width: CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
           color: theme.budgetTotalsText,
-          justifyContent: 'center',
-          paddingLeft: 5,
-          paddingRight: 5,
+          // Like YNAB 4: on the left, just above the grid
+          paddingLeft: 7,
+          paddingRight: 3,
+          paddingBottom: 3,
           display: 'flex',
           flexDirection: 'row',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           userSelect: 'none',
           WebkitUserSelect: 'none',
         }}
       >
+        <View
+          style={{
+            flexGrow: '1',
+            flexDirection: 'row',
+            alignItems: 'center',
+            fontSize: 15.5,
+            fontWeight: 600,
+            color: theme.pageText,
+          }}
+        >
+          <Trans>Categories</Trans>
+          <Button
+            variant="bare"
+            aria-label={t('Add category group')}
+            onPress={onShowNewGroup}
+            style={{
+              marginLeft: 6,
+              padding: 1,
+              border: '1px solid ' + theme.budgetTotalsBorder,
+              borderRadius: 2,
+              color: 'currentColor',
+            }}
+          >
+            <SvgAdd width={9} height={9} />
+          </Button>
+        </View>
         <Button
           variant="bare"
           aria-label={getExpandStateLabel()}
@@ -104,7 +131,7 @@ export const BudgetTotals = memo(function BudgetTotals({
           style={{
             color: 'currentColor',
             padding: 3,
-            marginRight: 10,
+            marginRight: 2,
           }}
         >
           {categoryExpandedState === 0 ? (
@@ -130,32 +157,6 @@ export const BudgetTotals = memo(function BudgetTotals({
             />
           )}
         </Button>
-        <View
-          style={{
-            flexGrow: '1',
-            flexDirection: 'row',
-            alignItems: 'center',
-            fontSize: 15,
-            fontWeight: 600,
-            color: theme.pageText,
-          }}
-        >
-          <Trans>Categories</Trans>
-          <Button
-            variant="bare"
-            aria-label={t('Add category group')}
-            onPress={onShowNewGroup}
-            style={{
-              marginLeft: 6,
-              padding: 1,
-              border: '1px solid ' + theme.budgetTotalsBorder,
-              borderRadius: 2,
-              color: 'currentColor',
-            }}
-          >
-            <SvgAdd width={9} height={9} />
-          </Button>
-        </View>
         <Button
           ref={triggerRef}
           variant="bare"

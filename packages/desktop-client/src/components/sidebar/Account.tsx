@@ -285,11 +285,11 @@ export function Account<FieldName extends SheetFields<'account'>>({
                 ) : Icon ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Icon
-                      width={18}
-                      height={18}
+                      width={21}
+                      height={21}
                       style={{
                         color: iconColor,
-                        marginRight: 9,
+                        marginRight: 8,
                         flexShrink: 0,
                       }}
                     />
