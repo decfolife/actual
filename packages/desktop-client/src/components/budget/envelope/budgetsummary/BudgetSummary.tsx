@@ -273,7 +273,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             >
               <div
                 className={css({
-                  fontSize: 22,
+                  fontSize: 20.5,
                   fontWeight: 700,
                   lineHeight: 1,
                 })}
@@ -282,7 +282,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               </div>
               <div
                 className={css({
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: 700,
                   lineHeight: 1.25,
                   color: 'var(--budget-card-subtext, inherit)',
@@ -304,7 +304,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 onBudgetAction={onBudgetAction}
                 isCollapsed
                 labelPosition="below"
-                amountStyle={{ fontSize: 27, fontWeight: 700, lineHeight: 1 }}
+                amountStyle={{ fontSize: 24.5, fontWeight: 700, lineHeight: 1 }}
               />
             </View>
             <View

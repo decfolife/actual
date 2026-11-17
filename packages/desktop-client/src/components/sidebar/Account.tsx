@@ -69,6 +69,7 @@ type AccountProps<FieldName extends SheetFields<'account'>> = {
   onDrop?: OnDropCallback;
   titleAccount?: boolean;
   showCurrencySymbol?: boolean;
+  balanceStyle?: CSSProperties;
   Icon?: ComponentType<SVGProps<SVGSVGElement>>;
   iconColor?: string;
   isExactPathMatch?: boolean;
@@ -90,6 +91,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
   onDrop,
   titleAccount,
   showCurrencySymbol = false,
+  balanceStyle,
   Icon,
   iconColor,
   isExactPathMatch,
@@ -147,11 +149,11 @@ export function Account<FieldName extends SheetFields<'account'>>({
                   withTotalSymbol(format(value, valueType), format.currency)
               : undefined
           }
-          style={
-            typeof props.value === 'number' && props.value < 0
-              ? { color: theme.sidebarItemTextNegative }
-              : undefined
-          }
+          style={{
+            ...balanceStyle,
+            ...(typeof props.value === 'number' &&
+              props.value < 0 && { color: theme.sidebarItemTextNegative }),
+          }}
         />
       )}
     </CellValue>

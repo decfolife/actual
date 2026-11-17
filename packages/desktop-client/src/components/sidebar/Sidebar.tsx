@@ -75,6 +75,8 @@ export function Sidebar() {
             iconColor="#5fd3f3"
             isExactPathMatch
             showCurrencySymbol
+            // YNAB 4 showed the total smaller than the label
+            balanceStyle={{ fontSize: 13.5, fontWeight: 600 }}
             balanceTestId="sidebar-all-accounts-balance"
           />
         </View>
