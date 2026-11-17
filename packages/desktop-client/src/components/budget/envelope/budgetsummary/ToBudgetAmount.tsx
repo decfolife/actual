@@ -119,7 +119,7 @@ export function ToBudgetAmount({
       {labelPosition === 'below' && (
         <Block
           style={{
-            fontSize: 13,
+            fontSize: 12.85,
             fontWeight: 700,
             lineHeight: 1.15,
             marginTop: 1,

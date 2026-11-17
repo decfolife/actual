@@ -227,7 +227,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
         marginLeft: 0,
         marginRight: 0,
         marginTop: collapsed ? 4 : 5,
-        marginBottom: collapsed ? 4 : 5,
+        marginBottom: collapsed ? 5.5 : 5,
         flex: 1,
         cursor: 'default',
         overflow: 'hidden',
@@ -261,22 +261,22 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             style={{
               flexDirection: 'row',
               alignItems: 'stretch',
-              minHeight: 43,
+              minHeight: 48,
             }}
           >
             <View
               style={{
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: '0 9px',
-                minWidth: 62,
+                padding: '3px 6px 0',
+                minWidth: 51,
                 borderRight: cardDivider,
                 boxShadow: `1px 0 0 ${cardDividerLight}`,
               }}
             >
               <div
                 className={css({
-                  fontSize: 20.5,
+                  fontSize: 20.25,
                   fontWeight: 700,
                   lineHeight: 1,
                 })}
@@ -285,9 +285,9 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               </div>
               <div
                 className={css({
-                  fontSize: 12.5,
+                  fontSize: 13,
                   fontWeight: 700,
-                  lineHeight: 1.2,
+                  lineHeight: 1.05,
                   color: 'var(--budget-card-subtext, inherit)',
                 })}
               >
@@ -308,7 +308,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 isCollapsed
                 labelPosition="below"
                 amountStyle={{
-                  fontSize: 24.5,
+                  fontSize: 23.75,
                   fontWeight: 700,
                   lineHeight: 1,
                   // Like YNAB 4, only this month and next are colored
