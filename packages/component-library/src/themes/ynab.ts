@@ -45,7 +45,9 @@ const ynabOverrides: Record<string, string> = {
 
   // Column header row
   budgetTotalsBackground: '#ecf5e7',
-  budgetTotalsText: '#4d4d4d',
+  budgetTotalsText: '#555854',
+  budgetTotalsBorder: '#6a6d68',
+  budgetTotalsSeparator: '#848a7e',
 
   // Budget grid
   budgetCurrentMonth: '#ffffff',

@@ -136,6 +136,8 @@ export const BudgetTotals = memo(function BudgetTotals({
             flexDirection: 'row',
             alignItems: 'center',
             fontSize: 15,
+            fontWeight: 600,
+            color: theme.pageText,
           }}
         >
           <Trans>Categories</Trans>
@@ -146,7 +148,7 @@ export const BudgetTotals = memo(function BudgetTotals({
             style={{
               marginLeft: 6,
               padding: 1,
-              border: '1px solid ' + theme.budgetMonthOutline,
+              border: '1px solid ' + theme.budgetTotalsBorder,
               borderRadius: 2,
               color: 'currentColor',
             }}

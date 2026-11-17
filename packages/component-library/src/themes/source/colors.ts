@@ -746,6 +746,14 @@ export const colors = {
     all: { ref: 'budgetCurrentMonth' },
     description: 'Column header row above the budget table',
   },
+  budgetTotalsBorder: {
+    all: { ref: 'budgetMonthOutline' },
+    description: 'Outline of the column header boxes above the budget table',
+  },
+  budgetTotalsSeparator: {
+    all: { ref: 'tableBorder' },
+    description: 'Lines between the columns in the column header boxes',
+  },
   budgetTotalsText: {
     all: { ref: 'tableHeaderText' },
     description: 'Text in the column header row above the budget table',

@@ -87,12 +87,13 @@ const headerLabelStyle: CSSProperties = {
 };
 
 const headerSeparatorStyle: CSSProperties = {
-  borderLeft: '1px dotted ' + theme.tableBorder,
+  borderLeft: '1px dotted ' + theme.budgetTotalsSeparator,
 };
 
 const cellStyle: CSSProperties = {
   color: theme.budgetTotalsText,
   fontSize: 14,
+  fontWeight: 600,
 };
 
 export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
@@ -105,18 +106,19 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
       style={{
         flex: 1,
         flexDirection: 'row',
-        paddingTop: 2,
-        paddingBottom: 2,
-        fontSize: 13,
-        lineHeight: 1.25,
+        paddingTop: 1,
+        paddingBottom: 1,
+        fontSize: 14,
+        fontWeight: 600,
+        lineHeight: 1.15,
         backgroundColor: theme.budgetTotalsBackground,
-        border: '1px solid ' + theme.budgetMonthOutline,
+        border: '1px solid ' + theme.budgetTotalsBorder,
         borderRadius: 5,
         marginBottom: 3,
       }}
     >
       <View style={headerLabelStyle}>
-        <Text style={{ color: theme.pageTextSubdued }}>
+        <Text style={{ color: theme.budgetTotalsText }}>
           <Trans>Budgeted</Trans>
         </Text>
         <EnvelopeCellValue
@@ -134,7 +136,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         </EnvelopeCellValue>
       </View>
       <View style={{ ...headerLabelStyle, ...headerSeparatorStyle }}>
-        <Text style={{ color: theme.pageTextSubdued }}>
+        <Text style={{ color: theme.budgetTotalsText }}>
           <Trans>Outflows</Trans>
         </Text>
         <EnvelopeCellValue binding={envelopeBudget.totalSpent} type="financial">
@@ -148,7 +150,7 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         </EnvelopeCellValue>
       </View>
       <View style={{ ...headerLabelStyle, ...headerSeparatorStyle }}>
-        <Text style={{ color: theme.pageTextSubdued }}>
+        <Text style={{ color: theme.budgetTotalsText }}>
           <Trans>Balance</Trans>
         </Text>
         <EnvelopeCellValue
