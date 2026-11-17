@@ -54,7 +54,7 @@ const ynabOverrides: Record<string, string> = {
   budgetHeaderOtherMonth: '#e4f5fd',
   budgetRowBackgroundAlternate: '#ffffff',
   budgetRowBackgroundHover: '#c8d9e1',
-  budgetCellBorder: '#8fd0e2',
+  budgetCellBorder: '#00aed9',
   budgetCellSelection: '#b3ecfb',
   formInputBorderSelected: '#3cb2d0',
   formInputShadowSelected: 'transparent',
@@ -89,6 +89,9 @@ const ynabOverrides: Record<string, string> = {
   buttonPrimaryBackgroundHover: '#0086b2',
   buttonPrimaryBorder: '#0086b2',
   buttonPrimaryText: '#ffffff',
+
+  // Window title bar of the installed app (and the mobile status bar)
+  mobileViewTheme: '#ececec',
 };
 
 // YNAB 4 used Myriad Pro. Source Sans 3 is Adobe's free font from the same

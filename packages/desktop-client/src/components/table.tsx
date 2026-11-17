@@ -198,6 +198,7 @@ export function Cell({
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: theme.tableBorder,
+    borderStyle: 'var(--table-border-style, solid)',
     alignItems,
   };
 

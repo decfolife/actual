@@ -454,18 +454,18 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
           focused={editing}
           width="flex"
           onExpose={() => onEdit(category.id, month)}
-          style={{ ...(editing && { zIndex: 100 }), ...styles.tnum }}
+          // Like YNAB 4, the budget column is a plain grid of solid lines
+          style={{
+            ...(editing && { zIndex: 100 }),
+            ...styles.tnum,
+            borderColor: theme.budgetCellBorder,
+            borderStyle: 'solid',
+            borderRightWidth: 1,
+          }}
           textAlign="right"
           valueStyle={{
             cursor: 'default',
-            margin: 1,
             padding: '0 4px',
-            borderRadius: 2,
-            boxShadow: 'inset 0 0 0 1px ' + theme.budgetCellBorder,
-            ':hover': {
-              boxShadow: 'inset 0 0 0 1px ' + theme.pageTextSubdued, //remove mobile color variable
-              backgroundColor: theme.budgetCurrentMonth,
-            },
           }}
           valueProps={{
             binding: envelopeBudget.catBudgeted(category.id),
