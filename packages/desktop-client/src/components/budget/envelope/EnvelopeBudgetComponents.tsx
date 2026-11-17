@@ -82,7 +82,7 @@ const budgetInputClassName = css({
 
 const headerLabelStyle: CSSProperties = {
   flex: 1,
-  padding: '0 6px',
+  padding: '0 8px',
   textAlign: 'right',
 };
 
@@ -118,7 +118,13 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
       }}
     >
       <View style={headerLabelStyle}>
-        <Text style={{ color: theme.budgetTotalsLabel, fontSize: 13.5 }}>
+        <Text
+          style={{
+            color: theme.budgetTotalsLabel,
+            fontSize: 13.5,
+            fontWeight: 600,
+          }}
+        >
           <Trans>Budgeted</Trans>
         </Text>
         <EnvelopeCellValue
@@ -136,7 +142,13 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         </EnvelopeCellValue>
       </View>
       <View style={{ ...headerLabelStyle, ...headerSeparatorStyle }}>
-        <Text style={{ color: theme.budgetTotalsLabel, fontSize: 13.5 }}>
+        <Text
+          style={{
+            color: theme.budgetTotalsLabel,
+            fontSize: 13.5,
+            fontWeight: 600,
+          }}
+        >
           <Trans>Outflows</Trans>
         </Text>
         <EnvelopeCellValue binding={envelopeBudget.totalSpent} type="financial">
@@ -150,7 +162,13 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
         </EnvelopeCellValue>
       </View>
       <View style={{ ...headerLabelStyle, ...headerSeparatorStyle }}>
-        <Text style={{ color: theme.budgetTotalsLabel, fontSize: 13.5 }}>
+        <Text
+          style={{
+            color: theme.budgetTotalsLabel,
+            fontSize: 13.5,
+            fontWeight: 600,
+          }}
+        >
           <Trans>Balance</Trans>
         </Text>
         <EnvelopeCellValue

@@ -20,7 +20,7 @@ const ynabOverrides: Record<string, string> = {
 
   // Page
   pageBackground: '#dbdbdb',
-  pageText: '#2b2b2b',
+  pageText: '#3a3a3a',
   pageTextSubdued: '#6f6f6f',
   pageTextLight: '#5c5c5c',
   pageTextLink: '#0072a0',
@@ -46,7 +46,7 @@ const ynabOverrides: Record<string, string> = {
   // Column header row
   budgetTotalsBackground: '#ecf5e7',
   budgetTotalsText: '#555854',
-  budgetTotalsLabel: '#7a7e76',
+  budgetTotalsLabel: '#6c7069',
   budgetTotalsBorder: '#6a6d68',
   budgetTotalsSeparator: '#848a7e',
 
@@ -67,7 +67,7 @@ const ynabOverrides: Record<string, string> = {
   // Tables
   tableBackground: '#ffffff',
   tableRowBackgroundAlternate: '#ffffff',
-  tableText: '#2b2b2b',
+  tableText: '#3a3a3a',
   tableTextSubdued: '#9a9a9a',
   tableBorder: '#b5dfea',
   tableHeaderBackground: '#ecf5e7',
@@ -75,12 +75,12 @@ const ynabOverrides: Record<string, string> = {
   tableBorderSelected: '#0099ca',
   tableRowBackgroundHover: '#c8d9e1',
   tableRowHeaderBackground: '#e4f5fd',
-  tableRowHeaderText: '#2b2b2b',
+  tableRowHeaderText: '#3a3a3a',
 
   // Numbers
-  numberPositive: '#2b2b2b',
+  numberPositive: '#3a3a3a',
   numberNegative: '#d43c3c',
-  budgetNumberPositive: '#2b2b2b',
+  budgetNumberPositive: '#3a3a3a',
   budgetNumberNegative: '#d43c3c',
   budgetNumberZero: '#a8a8a8',
   toBudgetPositive: '#a4c666',
@@ -110,7 +110,7 @@ const ynabTextRendering = `body {
 }
 `;
 
-export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 8px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(#4a5c63, #3d4b52 55%, #323d43);\n  --budget-card-edge: #22292b;\n  --budget-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.3);\n  --budget-card-divider: #2a353b;\n  --budget-card-divider-light: #56636a;\n  --budget-card-icon: #7f8d94;\n  --budget-card-subtext: #c9cfd2;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n  --budget-table-shadow: none;\n${Object.entries(
+export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 5px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(#4a5c63, #3d4b52 55%, #323d43);\n  --budget-card-edge: #22292b;\n  --budget-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.3);\n  --budget-card-divider: #2a353b;\n  --budget-card-divider-light: #56636a;\n  --budget-card-icon: #7f8d94;\n  --budget-card-subtext: #c9cfd2;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n  --budget-table-shadow: none;\n${Object.entries(
   ynabOverrides,
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)
