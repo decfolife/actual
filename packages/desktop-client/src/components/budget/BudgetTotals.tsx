@@ -2,7 +2,10 @@ import React, { memo, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
-import { SvgDotsHorizontalTriple } from '@actual-app/components/icons/v1';
+import {
+  SvgAdd,
+  SvgDotsHorizontalTriple,
+} from '@actual-app/components/icons/v1';
 import {
   SvgArrowButtonLeft1,
   SvgArrowButtonRight1,
@@ -10,7 +13,6 @@ import {
 } from '@actual-app/components/icons/v2';
 import { Menu } from '@actual-app/components/menu';
 import { Popover } from '@actual-app/components/popover';
-import { styles } from '@actual-app/components/styles';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
 
@@ -25,12 +27,14 @@ type BudgetTotalsProps = {
   toggleHiddenCategories: () => void;
   expandAllCategories: () => void;
   collapseAllCategories: () => void;
+  onShowNewGroup: () => void;
 };
 
 export const BudgetTotals = memo(function BudgetTotals({
   toggleHiddenCategories,
   expandAllCategories,
   collapseAllCategories,
+  onShowNewGroup,
 }: BudgetTotalsProps) {
   const { t } = useTranslation();
   const [categoryExpandedStatePref, setCategoryExpandedStatePref] =
@@ -63,14 +67,12 @@ export const BudgetTotals = memo(function BudgetTotals({
     <View
       data-testid="budget-totals"
       style={{
-        backgroundColor: theme.budgetTotalsBackground, //use budget colors, not generic table colors
+        // Like YNAB 4: the category side is plain, and each month gets its
+        // own header box
         flexDirection: 'row',
         flexShrink: 0,
-        boxShadow: styles.cardShadow,
         marginLeft: 5,
         marginRight: 5 + getScrollbarWidth(),
-        borderRadius: '4px 4px 0 0',
-        borderBottom: '1px solid ' + theme.tableBorder,
         '& .hover-visible': {
           opacity: 0,
           transition: 'opacity .25s',
@@ -128,8 +130,29 @@ export const BudgetTotals = memo(function BudgetTotals({
             />
           )}
         </Button>
-        <View style={{ flexGrow: '1' }}>
-          <Trans>Category</Trans>
+        <View
+          style={{
+            flexGrow: '1',
+            flexDirection: 'row',
+            alignItems: 'center',
+            fontSize: 15,
+          }}
+        >
+          <Trans>Categories</Trans>
+          <Button
+            variant="bare"
+            aria-label={t('Add category group')}
+            onPress={onShowNewGroup}
+            style={{
+              marginLeft: 6,
+              padding: 1,
+              border: '1px solid ' + theme.budgetMonthOutline,
+              borderRadius: 2,
+              color: 'currentColor',
+            }}
+          >
+            <SvgAdd width={9} height={9} />
+          </Button>
         </View>
         <Button
           ref={triggerRef}
@@ -179,7 +202,7 @@ export const BudgetTotals = memo(function BudgetTotals({
           />
         </Popover>
       </View>
-      <RenderMonths>
+      <RenderMonths style={{ boxShadow: 'none' }}>
         <MonthComponent />
       </RenderMonths>
     </View>

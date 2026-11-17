@@ -165,7 +165,7 @@ const DynamicBudgetTable = ({
         opacity: width <= 0 || height <= 0 ? 0 : 1,
       }}
     >
-      <View style={{ width: '100%', maxWidth }}>
+      <View style={{ width: '100%', maxWidth, flex: 1, minHeight: 0 }}>
         <ErrorBoundary FallbackComponent={FeatureErrorFallback}>
           <BudgetPageHeader
             startMonth={prewarmStartMonth}

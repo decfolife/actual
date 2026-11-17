@@ -18,6 +18,7 @@ import * as cleanupGroupActions from './cleanup-groups';
 import * as cleanupActions from './cleanup-template';
 import { storeNoteCleanups } from './cleanup-template-notes';
 import * as goalActions from './goal-template';
+import { getQuickBudgetValues } from './quick-budget';
 import { sortCategories } from './sort-categories';
 import * as goalNoteActions from './template-notes';
 
@@ -30,6 +31,7 @@ export type BudgetHandlers = {
   'budget/set-6month-avg': typeof actions.set6MonthAvg;
   'budget/set-12month-avg': typeof actions.set12MonthAvg;
   'budget/set-n-month-avg': typeof actions.setNMonthAvg;
+  'budget/get-quick-budget-values': typeof getQuickBudgetValues;
   'budget/check-templates': typeof goalActions.runCheckTemplates;
   'budget/apply-goal-template': typeof goalActions.applyTemplate;
   'budget/apply-multiple-templates': typeof goalActions.applyMultipleCategoryTemplates;
@@ -85,6 +87,7 @@ app.method('budget/set-3month-avg', mutator(undoable(actions.set3MonthAvg)));
 app.method('budget/set-6month-avg', mutator(undoable(actions.set6MonthAvg)));
 app.method('budget/set-12month-avg', mutator(undoable(actions.set12MonthAvg)));
 app.method('budget/set-n-month-avg', mutator(undoable(actions.setNMonthAvg)));
+app.method('budget/get-quick-budget-values', getQuickBudgetValues);
 app.method(
   'budget/check-templates',
   mutator(undoable(goalActions.runCheckTemplates)),

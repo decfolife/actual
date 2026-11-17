@@ -21,7 +21,9 @@ test.describe('Command bar', () => {
 
     // ensure page is loaded
     await expect(page.getByTestId('budget-table')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Add group' })).toBeVisible({
+    await expect(
+      page.getByRole('button', { name: 'Add category group' }),
+    ).toBeVisible({
       timeout: 10000,
     });
   });

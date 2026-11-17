@@ -40,6 +40,7 @@ import type { CategoryGroupMonthProps, CategoryMonthProps } from '..';
 import { BalanceMovementMenu } from './BalanceMovementMenu';
 import { BudgetMenu } from './BudgetMenu';
 import { IncomeMenu } from './IncomeMenu';
+import { QuickBudgetMenu } from './QuickBudgetMenu';
 
 export function useEnvelopeSheetName<
   FieldName extends SheetFields<'envelope-budget'>,
@@ -67,15 +68,31 @@ const EnvelopeSheetCell = <FieldName extends SheetFields<'envelope-budget'>>(
   return <SheetCell {...props} />;
 };
 
+// The amount being edited: highlighted like YNAB 4, with the cell's own
+// outline instead of the focus ring
+const budgetInputClassName = css({
+  '&[data-focused]': {
+    border: '1px solid ' + theme.budgetCellBorder,
+    boxShadow: 'none',
+  },
+  '::selection': {
+    backgroundColor: theme.budgetCellSelection,
+  },
+});
+
 const headerLabelStyle: CSSProperties = {
   flex: 1,
   padding: '0 5px',
-  textAlign: 'right',
+  textAlign: 'center',
+};
+
+const headerSeparatorStyle: CSSProperties = {
+  borderLeft: '1px dotted ' + theme.tableBorder,
 };
 
 const cellStyle: CSSProperties = {
   color: theme.budgetTotalsText,
-  fontWeight: 600,
+  fontSize: 14,
 };
 
 export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
@@ -88,16 +105,18 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
       style={{
         flex: 1,
         flexDirection: 'row',
-        marginRight: styles.monthRightPadding,
-        paddingTop: 3,
-        paddingBottom: 3,
-        fontSize: 12,
-        lineHeight: 1.3,
+        paddingTop: 2,
+        paddingBottom: 2,
+        fontSize: 13,
+        lineHeight: 1.25,
         backgroundColor: theme.budgetTotalsBackground,
+        border: '1px solid ' + theme.budgetMonthOutline,
+        borderBottomWidth: 0,
+        borderRadius: '5px 5px 0 0',
       }}
     >
       <View style={headerLabelStyle}>
-        <Text style={{ color: theme.budgetTotalsText }}>
+        <Text style={{ color: theme.pageTextSubdued }}>
           <Trans>Budgeted</Trans>
         </Text>
         <EnvelopeCellValue
@@ -114,8 +133,8 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           )}
         </EnvelopeCellValue>
       </View>
-      <View style={headerLabelStyle}>
-        <Text style={{ color: theme.budgetTotalsText }}>
+      <View style={{ ...headerLabelStyle, ...headerSeparatorStyle }}>
+        <Text style={{ color: theme.pageTextSubdued }}>
           <Trans>Outflows</Trans>
         </Text>
         <EnvelopeCellValue binding={envelopeBudget.totalSpent} type="financial">
@@ -128,8 +147,8 @@ export const BudgetTotalsMonth = memo(function BudgetTotalsMonth() {
           )}
         </EnvelopeCellValue>
       </View>
-      <View style={headerLabelStyle}>
-        <Text style={{ color: theme.budgetTotalsText }}>
+      <View style={{ ...headerLabelStyle, ...headerSeparatorStyle }}>
+        <Text style={{ color: theme.pageTextSubdued }}>
           <Trans>Balance</Trans>
         </Text>
         <EnvelopeCellValue
@@ -234,6 +253,8 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
 
   const budgetMenuTriggerRef = useRef(null);
   const balanceMenuTriggerRef = useRef(null);
+  const quickMenuTriggerRef = useRef(null);
+  const [quickMenuOpen, setQuickMenuOpen] = useState(false);
   const [budgetMenuOpen, setBudgetMenuOpen] = useState(false);
   const [budgetPosition, setBudgetPosition] = useState({
     crossOffset: 0,
@@ -457,6 +478,9 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
             onBlur: () => {
               onEdit(null);
             },
+            // Like YNAB 4, select the amount so typing replaces it
+            onFocus: e => e.currentTarget.select(),
+            className: budgetInputClassName,
             style: {
               backgroundColor: theme.budgetCurrentMonth,
             },
@@ -468,6 +492,51 @@ export const ExpenseCategoryMonth = memo(function ExpenseCategoryMonth({
             });
           }}
         />
+        {(editing || quickMenuOpen) && (
+          <Button
+            ref={quickMenuTriggerRef}
+            variant="bare"
+            aria-label={t('Budget suggestions')}
+            // Keep focus in the amount so it isn't saved and closed first
+            onMouseDown={e => e.preventDefault()}
+            onPress={() => setQuickMenuOpen(true)}
+            style={{
+              position: 'absolute',
+              right: -18,
+              top: 3,
+              width: 16,
+              height: 16,
+              padding: 0,
+              zIndex: 101,
+              borderRadius: 2,
+              border: '1px solid ' + theme.budgetMonthOutline,
+              backgroundColor: theme.budgetCurrentMonth,
+              color: theme.pageText,
+            }}
+          >
+            <SvgCheveronDown width={12} height={12} />
+          </Button>
+        )}
+        <Popover
+          triggerRef={quickMenuTriggerRef}
+          placement="bottom end"
+          isOpen={quickMenuOpen}
+          onOpenChange={() => setQuickMenuOpen(false)}
+          style={{ margin: 1 }}
+        >
+          <QuickBudgetMenu
+            categoryId={category.id}
+            month={month}
+            onSelect={amount => {
+              onBudgetAction(month, 'budget-amount', {
+                category: category.id,
+                amount,
+              });
+              setQuickMenuOpen(false);
+              onEdit(null);
+            }}
+          />
+        </Popover>
       </View>
       <Field name="spent" width="flex" style={{ textAlign: 'right' }}>
         <View

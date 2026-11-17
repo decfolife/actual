@@ -2,7 +2,10 @@ import React, { memo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
-import { SvgDotsHorizontalTriple } from '@actual-app/components/icons/v1';
+import {
+  SvgBolt,
+  SvgDotsHorizontalTriple,
+} from '@actual-app/components/icons/v1';
 import {
   SvgArrowButtonDown1,
   SvgArrowButtonUp1,
@@ -23,6 +26,9 @@ import { useUndo } from '#hooks/useUndo';
 import { BudgetMonthMenu } from './BudgetMonthMenu';
 import { ToBudget } from './ToBudget';
 import { TotalsList } from './TotalsList';
+
+// Lines between the month, the amount and the icons on a collapsed card
+const cardDivider = '1px solid var(--budget-card-divider, transparent)';
 
 type BudgetSummaryProps = {
   month: string;
@@ -100,11 +106,19 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
         onPress={onMenuOpen}
         style={collapsed ? { padding: 1 } : undefined}
       >
-        <SvgDotsHorizontalTriple
-          width={iconSize}
-          height={iconSize}
-          style={{ color: theme.budgetSummaryText }}
-        />
+        {collapsed ? (
+          <SvgBolt
+            width={iconSize}
+            height={iconSize}
+            style={{ color: theme.budgetSummaryText }}
+          />
+        ) : (
+          <SvgDotsHorizontalTriple
+            width={iconSize}
+            height={iconSize}
+            style={{ color: theme.budgetSummaryText }}
+          />
+        )}
       </Button>
 
       <Popover
@@ -197,8 +211,10 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
             ? theme.budgetSummaryCurrentMonth
             : theme.budgetSummaryOtherMonth,
         color: theme.budgetSummaryText,
+        backgroundImage: 'var(--budget-card-gradient, none)',
+        border: '1px solid var(--budget-card-edge, transparent)',
         boxShadow: styles.cardShadow,
-        borderRadius: collapsed ? 3 : 6,
+        borderRadius: collapsed ? 4 : 6,
         marginLeft: 0,
         marginRight: 0,
         marginTop: collapsed ? 4 : 5,
@@ -235,9 +251,8 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
           <View
             style={{
               flexDirection: 'row',
-              alignItems: 'center',
-              padding: '3px 22px 3px 10px',
-              minHeight: 42,
+              alignItems: 'stretch',
+              minHeight: 54,
             }}
           >
             <View style={{ position: 'absolute', left: 0, bottom: 0 }}>
@@ -247,21 +262,21 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
               style={{
                 justifyContent: 'center',
                 alignItems: 'flex-start',
-                minWidth: 40,
+                padding: '0 10px',
+                minWidth: 64,
+                borderRight: cardDivider,
               }}
             >
               <div
                 className={css({
-                  fontSize: 19,
+                  fontSize: 22,
                   fontWeight: 700,
                   lineHeight: 1,
                 })}
               >
                 {monthUtils.format(month, 'MMM', locale).toUpperCase()}
               </div>
-              <div
-                className={css({ fontSize: 10, lineHeight: 1.2, opacity: 0.8 })}
-              >
+              <div className={css({ fontSize: 13, lineHeight: 1.3 })}>
                 {monthUtils.format(month, 'yyyy', locale)}
               </div>
             </View>
@@ -278,18 +293,17 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 onBudgetAction={onBudgetAction}
                 isCollapsed
                 labelPosition="below"
-                amountStyle={{ fontSize: 22, fontWeight: 600, lineHeight: 1 }}
+                amountStyle={{ fontSize: 26, fontWeight: 700, lineHeight: 1 }}
               />
             </View>
             <View
               style={{
-                position: 'absolute',
-                right: 3,
-                top: 2,
-                bottom: 2,
+                width: 24,
+                padding: '3px 0',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 userSelect: 'none',
+                borderLeft: cardDivider,
               }}
             >
               <View>{notesButton}</View>

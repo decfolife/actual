@@ -12,6 +12,7 @@ import { BUDGET_ROW_HEIGHT } from '#components/budget/util';
 import { DropHighlightPosContext } from '#components/sort';
 import type { DragState, OnDropCallback } from '#components/sort';
 import { Row } from '#components/table';
+import { useGlobalPref } from '#hooks/useGlobalPref';
 import { useLocalPref } from '#hooks/useLocalPref';
 
 import { ExpenseCategory } from './ExpenseCategory';
@@ -19,6 +20,7 @@ import { ExpenseGroup } from './ExpenseGroup';
 import { IncomeCategory } from './IncomeCategory';
 import { IncomeGroup } from './IncomeGroup';
 import { IncomeHeader } from './IncomeHeader';
+import { RenderMonths } from './RenderMonths';
 import { SidebarCategory } from './SidebarCategory';
 import { SidebarGroup } from './SidebarGroup';
 import { separateGroups } from './util';
@@ -59,6 +61,9 @@ type BudgetCategoriesProps = {
   ) => void;
   onReorderCategory: OnDropCallback;
   onReorderGroup: OnDropCallback;
+  isAddingGroup: boolean;
+  onAddingGroupChange: (isAddingGroup: boolean) => void;
+  showIncome: boolean;
 };
 
 export const BudgetCategories = memo<BudgetCategoriesProps>(
@@ -77,6 +82,9 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
     onSortCategories,
     onReorderCategory,
     onReorderGroup,
+    isAddingGroup,
+    onAddingGroupChange,
+    showIncome,
   }) => {
     const [collapsedGroupIds = [], setCollapsedGroupIdsPref] =
       useLocalPref('budget.collapsed');
@@ -85,7 +93,6 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
       setCollapsedGroupIdsPref(value);
     }
 
-    const [isAddingGroup, setIsAddingGroup] = useState(false);
     const [newCategoryForGroup, setNewCategoryForGroup] = useState<
       string | null
     >(null);
@@ -129,7 +136,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
         items.push({ type: 'new-group' });
       }
 
-      if (incomeGroup) {
+      if (incomeGroup && showIncome) {
         const incomeCategoryItems: BudgetItem[] = [
           { type: 'income-separator' },
           { type: 'income-group', value: incomeGroup },
@@ -157,6 +164,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
       return items;
     }, [
       categoryGroups,
+      showIncome,
       collapsedGroupIds,
       newCategoryForGroup,
       isAddingGroup,
@@ -205,11 +213,11 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
     }
 
     function onShowNewGroup() {
-      setIsAddingGroup(true);
+      onAddingGroupChange(true);
     }
 
     function onHideNewGroup() {
-      setIsAddingGroup(false);
+      onAddingGroupChange(false);
     }
 
     function _onSaveGroup(group: CategoryGroupEntity) {
@@ -253,7 +261,6 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
     return (
       <View
         style={{
-          marginBottom: 10,
           backgroundColor: theme.budgetCurrentMonth, // match budget colors, not generic table colors.
           overflow: 'hidden',
           boxShadow: styles.cardShadow,
@@ -421,6 +428,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
             </DropHighlightPosContext.Provider>
           );
         })}
+        <BudgetGridFiller />
       </View>
     );
   },
@@ -435,4 +443,25 @@ function budgetRowColors(color: string) {
     '--color-budgetCurrentMonth': color,
     '--color-budgetOtherMonth': color,
   };
+}
+
+// Empty month columns below the last row, so the grid runs to the bottom of
+// the panel like YNAB 4
+function BudgetGridFiller() {
+  const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
+  const categoryExpandedState = categoryExpandedStatePref ?? 0;
+
+  return (
+    <View style={{ flex: 1, minHeight: 20, flexDirection: 'row' }}>
+      <View
+        style={{
+          width: 200 + 100 * categoryExpandedState,
+          backgroundColor: theme.budgetCurrentMonth,
+        }}
+      />
+      <RenderMonths style={{ backgroundColor: theme.budgetCurrentMonth }}>
+        {null}
+      </RenderMonths>
+    </View>
+  );
 }

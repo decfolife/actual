@@ -759,6 +759,10 @@ export const colors = {
     all: { raw: 'transparent' },
     description: 'Outline along the sides of each month in the budget table',
   },
+  budgetCellSelection: {
+    all: { ref: 'formInputBackgroundSelection' },
+    description: 'Highlight behind a budget amount being edited',
+  },
   budgetCellBorder: {
     all: { raw: 'transparent' },
     description: 'Box around each budgeted amount',

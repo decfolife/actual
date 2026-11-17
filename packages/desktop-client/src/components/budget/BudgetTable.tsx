@@ -86,6 +86,7 @@ export function BudgetTable(props: BudgetTableProps) {
   );
   const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
   const categoryExpandedState = categoryExpandedStatePref ?? 0;
+  const [isAddingGroup, setIsAddingGroup] = useState(false);
   const [editing, setEditing] = useState<{ id: string; cell: string } | null>(
     null,
   );
@@ -294,6 +295,7 @@ export function BudgetTable(props: BudgetTableProps) {
           toggleHiddenCategories={toggleHiddenCategories}
           expandAllCategories={expandAllCategories}
           collapseAllCategories={collapseAllCategories}
+          onShowNewGroup={() => setIsAddingGroup(true)}
         />
         <View
           ref={scrollContainerRef}
@@ -309,6 +311,8 @@ export function BudgetTable(props: BudgetTableProps) {
           <View
             style={{
               flexShrink: 0,
+              // Fill the panel so the grid reaches the bottom
+              flexGrow: 1,
             }}
             onKeyDown={onKeyDown}
           >
@@ -328,6 +332,10 @@ export function BudgetTable(props: BudgetTableProps) {
                 onShowActivity={_onShowActivity}
                 onApplyBudgetTemplatesInGroup={onApplyBudgetTemplatesInGroup}
                 onSortCategories={onSortCategories}
+                isAddingGroup={isAddingGroup}
+                onAddingGroupChange={setIsAddingGroup}
+                // YNAB 4 showed income in Available to Budget, not the grid
+                showIncome={type !== 'envelope'}
               />
             </SchedulesProvider>
           </View>

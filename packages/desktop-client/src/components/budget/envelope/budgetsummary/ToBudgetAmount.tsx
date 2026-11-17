@@ -119,10 +119,10 @@ export function ToBudgetAmount({
       {labelPosition === 'below' && (
         <Block
           style={{
-            fontSize: 12,
-            fontWeight: 600,
+            fontSize: 14,
+            fontWeight: 700,
             lineHeight: 1.2,
-            marginTop: 1,
+            marginTop: 2,
           }}
         >
           {isNegative ? t('Overbudgeted') : t('Available to Budget')}
