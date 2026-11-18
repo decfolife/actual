@@ -43,6 +43,7 @@ import { SpreadsheetProvider } from '#hooks/useSpreadsheet';
 import { createTestQueryClient, TestProviders } from '#mocks';
 import * as modalsSlice from '#modals/modalsSlice';
 import { payeeQueries } from '#payees';
+import type * as StyleModule from '#style';
 import { tagQueries } from '#tags/queries';
 
 import {
@@ -287,6 +288,13 @@ function initBasicServer() {
     'schedule/create': createScheduleMock,
   });
 }
+
+// These tests cover the standard register; the YNAB theme (this fork's
+// default) changes clicking and labels, so use the light theme here
+vi.mock('#style', async importOriginal => ({
+  ...(await importOriginal<typeof StyleModule>()),
+  useTheme: () => ['light', vi.fn()],
+}));
 
 beforeEach(() => {
   schedules = [];
@@ -635,11 +643,11 @@ describe('Transactions', () => {
       expect(queryField(container, 'notes', 'div', idx).textContent).toBe(
         transaction.notes,
       );
-      // The YNAB theme (the default) shows "Group: Category"
-      const category = categories.find(c => c.id === transaction.category);
-      const group = categoryGroups.find(g => g.id === category?.group);
       expect(queryField(container, 'category', 'div', idx).textContent).toBe(
-        category ? `${group?.name}: ${category.name}` : 'Categorize',
+        transaction.category
+          ? categories.find(category => category.id === transaction.category)
+              ?.name
+          : 'Categorize',
       );
       if (transaction.amount < 0) {
         expect(queryField(container, 'debit', 'div', idx).textContent).toBe(

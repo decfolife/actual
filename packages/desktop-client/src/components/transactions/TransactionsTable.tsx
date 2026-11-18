@@ -1436,7 +1436,7 @@ const Transaction = memo(function Transaction({
   dateFormat = 'MM/dd/yyyy',
   hideFraction,
   onSave,
-  onEdit,
+  onEdit: onEditProp,
   onDelete,
   onBatchDelete,
   onBatchDuplicate,
@@ -1488,6 +1488,30 @@ const Transaction = memo(function Transaction({
   // YNAB 4 puts Done and Cancel under the transaction being edited; Cancel
   // puts back what it was when editing started
   const isYnab = useIsYnabRegister();
+
+  // YNAB 4: the first click on a row selects it (only it), and a click on a
+  // selected row edits the field clicked. The checkbox and C act at once.
+  const onEdit = (editId: TransactionEntity['id'], field: string) => {
+    if (
+      isYnab &&
+      !editing &&
+      !selected &&
+      field !== 'select' &&
+      field !== 'cleared' &&
+      !isTemporaryId(originalTransaction.id)
+    ) {
+      dispatchSelected({ type: 'select-none' });
+      dispatchSelected({ type: 'select', id: originalTransaction.id });
+      // Clicking away from a row being edited finishes editing it
+      (onEditProp as (id: TransactionEntity['id'] | null, f: string) => void)(
+        null,
+        '',
+      );
+      return;
+    }
+    onEditProp(editId, field);
+  };
+
   const [editStart, setEditStart] = useState<TransactionEntity | null>(null);
   if (editing && editStart == null) {
     setEditStart(originalTransaction);
@@ -1506,7 +1530,7 @@ const Transaction = memo(function Transaction({
     !isTemporaryId(originalTransaction.id);
   // The table navigator's onEdit takes null to stop editing
   const stopEditing = () =>
-    (onEdit as (id: TransactionEntity['id'] | null, field: string) => void)(
+    (onEditProp as (id: TransactionEntity['id'] | null, field: string) => void)(
       null,
       '',
     );
