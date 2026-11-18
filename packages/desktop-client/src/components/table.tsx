@@ -946,6 +946,8 @@ export type TableProps<T extends TableItem = TableItem> = {
   count?: number;
   headers?: ReactNode | TableHeaderProps['headers'];
   contentHeader?: ReactNode;
+  // Empty space after the last row, in the page background color
+  footerHeight?: number;
   loading?: boolean;
   rowHeight?: number;
   backgroundColor?: string;
@@ -976,6 +978,7 @@ export const Table = forwardRef(
       count,
       headers,
       contentHeader,
+      footerHeight,
       loading,
       rowHeight = ROW_HEIGHT,
       backgroundColor = theme.tableBackground,
@@ -1215,6 +1218,8 @@ export const Table = forwardRef(
                     <FixedSizeList
                       ref={list}
                       header={contentHeader}
+                      footerHeight={footerHeight}
+                      footerColor={theme.pageBackground}
                       innerRef={listContainer}
                       outerRef={scrollContainer}
                       width={width}

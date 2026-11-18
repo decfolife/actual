@@ -23,6 +23,9 @@ type FixedSizeListProps = {
   overscanCount?: number;
   useIsScrolling?: boolean;
   headerHeight?: number;
+  // Empty space after the last row
+  footerHeight?: number;
+  footerColor?: string;
   initialScrollOffset?: number;
   itemCount?: number;
   outerRef?: RefObject<HTMLDivElement>;
@@ -194,6 +197,8 @@ export class FixedSizeList extends PureComponent<
       itemKey = defaultItemKey,
       useIsScrolling,
       width,
+      footerHeight = 0,
+      footerColor,
     } = this.props;
     const { isScrolling } = this.state;
 
@@ -262,6 +267,9 @@ export class FixedSizeList extends PureComponent<
         >
           {items}
         </div>
+        {footerHeight > 0 && (
+          <div style={{ height: footerHeight, backgroundColor: footerColor }} />
+        )}
       </div>
     );
   }
@@ -313,7 +321,9 @@ export class FixedSizeList extends PureComponent<
     const size = this.props.height;
     const lastItemOffset = Math.max(
       0,
-      this.props.itemCount * this.props.itemSize - size,
+      this.props.itemCount * this.props.itemSize +
+        (this.props.footerHeight ?? 0) -
+        size,
     );
     const maxOffset = Math.min(lastItemOffset, index * this.props.itemSize);
     const minOffset = Math.max(
