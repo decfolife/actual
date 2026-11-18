@@ -244,6 +244,12 @@ export function FinancesApp() {
               // bar in the mobile apps (zero elsewhere); the narrow layout's
               // page header handles it.
               ...(!isNarrowWidth && {
+                // On phones and tablets the strips kept clear for the status
+                // bar (top in portrait, side in landscape) take the frame
+                // color instead of the page's gray
+                ...(isTouchDevice() && {
+                  backgroundImage: `linear-gradient(to bottom, ${theme.touchViewTheme} var(--safe-area-top, 0px), transparent 0), linear-gradient(to left, ${theme.touchViewTheme} env(safe-area-inset-right), transparent 0)`,
+                }),
                 paddingTop: 'var(--safe-area-top, env(safe-area-inset-top))',
                 paddingRight: 'env(safe-area-inset-right)',
                 // A floating sidebar overlays this pane instead of sitting

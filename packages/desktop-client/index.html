@@ -114,6 +114,16 @@
       #root {
         height: 100%;
       }
+      /* The real visible height. In the installed iPhone app "100%" can come
+         out short by the status bar (and not update after rotating or
+         switching apps), leaving a band at the bottom. */
+      @supports (height: 100dvh) {
+        html,
+        body,
+        #root {
+          height: 100dvh;
+        }
+      }
 
       /* The status bar gap at the top. Touch devices in landscape have none
          (iPhones put the notch/status bar on the side), and after rotating
