@@ -3076,6 +3076,8 @@ function NewTransaction({
   useProperFocus(scheduleButtonRef, focusedField === 'schedule');
   const cancelButtonRef = useRef(null);
   useProperFocus(cancelButtonRef, focusedField === 'cancel');
+  const saveButtonRef = useRef(null);
+  useProperFocus(saveButtonRef, focusedField === 'save');
 
   const handleAddClick = (e: { ctrlKey?: boolean; metaKey?: boolean }) => {
     if (e.ctrlKey || e.metaKey) {
@@ -3200,6 +3202,7 @@ function NewTransaction({
                 style={{ padding: '2px 10px', gap: 5 }}
                 onPress={() => onAddAndClose()}
                 data-testid="save-button"
+                ref={saveButtonRef}
               >
                 <SvgCheckCircle1
                   style={{
@@ -4265,10 +4268,15 @@ export const TransactionTable = forwardRef(
       // Action buttons render under the split lines, after the last child.
       const hasSplitChildren =
         item?.is_parent === true && rows.some(row => row.parent_id === item.id);
+      // The buttons in their on-screen order (YNAB: Save and add another,
+      // Save, Cancel)
+      const buttonFields = isYnabRegister
+        ? ['schedule', 'add', 'save', 'cancel']
+        : ['cancel', 'schedule', 'add'];
       const fields = [
         'select',
         ...getFocusableFields(),
-        ...(hasSplitChildren ? [] : ['cancel', 'schedule', 'add']),
+        ...(hasSplitChildren ? [] : buttonFields),
       ];
 
       const resolved = getFields(item, fields).filter(
@@ -4285,9 +4293,7 @@ export const TransactionTable = forwardRef(
       const showSchedule = isFutureTransaction(parent ?? item);
       return [
         ...resolved,
-        'cancel',
-        ...(showSchedule ? ['schedule'] : []),
-        'add',
+        ...buttonFields.filter(f => f !== 'schedule' || showSchedule),
       ];
     }
 
@@ -4363,11 +4369,27 @@ export const TransactionTable = forwardRef(
           // YNAB 4: Enter only saves from the last field (the navigator
           // moves on to the next field otherwise)
           if (isYnabRegister) {
+            // On a button, Enter just presses that button
+            if (
+              ['add', 'save', 'cancel', 'schedule'].includes(
+                newNavigator.focusedField,
+              )
+            ) {
+              e.stopPropagation();
+              return;
+            }
             const inputFields = getFieldsNewTransaction(
               getLastTransaction(latestState),
             ).filter(
               f =>
-                !['select', 'cleared', 'cancel', 'schedule', 'add'].includes(f),
+                ![
+                  'select',
+                  'cleared',
+                  'cancel',
+                  'schedule',
+                  'add',
+                  'save',
+                ].includes(f),
             );
             if (
               newNavigator.focusedField !== inputFields[inputFields.length - 1]
