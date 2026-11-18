@@ -98,6 +98,8 @@ export type MetadataPrefs = Partial<{
 export type LocalPrefs = Partial<{
   'ui.showClosedAccounts': boolean;
   'ui.collapsedAccountGroups': Record<string, boolean>;
+  // Account register column widths set by dragging, in px by column id
+  'ui.transactionColumnWidths': Record<string, number>;
   'sidebar.accountsOpenState': Record<string, boolean>;
   'expand-splits': boolean;
   'budget.collapsed': string[];

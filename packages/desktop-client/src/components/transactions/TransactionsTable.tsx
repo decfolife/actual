@@ -236,6 +236,10 @@ type TransactionHeaderProps = {
   ascDesc: 'asc' | 'desc';
   field: string;
   amountColumnWidths: AmountColumnWidths;
+  // Dragging a column's edge (YNAB theme)
+  onResizeColumn?: (columnId: TransactionTableColumnId, width: number) => void;
+  onResizeColumnEnd?: () => void;
+  onResetColumnWidth?: (columnId: TransactionTableColumnId) => void;
 };
 
 const TransactionHeader = memo(
@@ -248,6 +252,9 @@ const TransactionHeader = memo(
     field,
     showSelection,
     amountColumnWidths,
+    onResizeColumn,
+    onResizeColumnEnd,
+    onResetColumnWidth,
   }: TransactionHeaderProps) => {
     const dispatchSelected = useSelectedDispatch();
     const { t } = useTranslation();
@@ -407,6 +414,13 @@ const TransactionHeader = memo(
                 marginRight: 0,
                 isDivided: true,
               })}
+              {...(isYnab &&
+                isResizableColumn(columnId) && {
+                  onResize: (width: number) =>
+                    onResizeColumn?.(columnId, width),
+                  onResizeEnd: onResizeColumnEnd,
+                  onResetWidth: () => onResetColumnWidth?.(columnId),
+                })}
               icon={
                 sortDirection
                   ? field === columnId
@@ -694,6 +708,97 @@ function EditBar({ onDone, onCancel }: EditBarProps) {
   );
 }
 
+// Columns whose width can be dragged; Memo takes whatever is left
+function isResizableColumn(id: TransactionTableColumnId) {
+  return id !== 'notes' && id !== 'cleared';
+}
+
+// The row cells' names differ from the header's for the amount columns
+const ROW_CELL_NAMES: Partial<Record<TransactionTableColumnId, string>> = {
+  payment: 'debit',
+  deposit: 'credit',
+};
+
+const MIN_COLUMN_WIDTH = 40;
+
+// Widths the user dragged, applied to the header and every row
+function columnWidthOverrides(widths: Record<string, number>) {
+  return Object.fromEntries(
+    Object.entries(widths).map(([id, width]) => [
+      `& [data-testid="transaction-table-header"] > [data-testid="${id}"], & [data-testid="row"] > [data-testid="${ROW_CELL_NAMES[id as TransactionTableColumnId] ?? id}"]`,
+      { flex: `0 0 ${width}px`, width, minWidth: width, maxWidth: width },
+    ]),
+  );
+}
+
+type ColumnResizeHandleProps = {
+  columnId: string;
+  onResize: (width: number) => void;
+  onResizeEnd?: () => void;
+  onReset?: () => void;
+};
+
+// The grab area on a column header's right edge. Double-click resets it.
+function ColumnResizeHandle({
+  columnId,
+  onResize,
+  onResizeEnd,
+  onReset,
+}: ColumnResizeHandleProps) {
+  const { t } = useTranslation();
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={t('Resize column')}
+      onClick={e => e.stopPropagation()}
+      onDoubleClick={e => {
+        e.stopPropagation();
+        onReset?.();
+      }}
+      onPointerDown={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const cell = e.currentTarget.closest(`[data-testid="${columnId}"]`);
+        if (!cell) {
+          return;
+        }
+        const startWidth = cell.getBoundingClientRect().width;
+        const startX = e.clientX;
+        const handle = e.currentTarget;
+        handle.setPointerCapture(e.pointerId);
+        const onMove = (event: PointerEvent) => {
+          onResize(
+            Math.max(
+              MIN_COLUMN_WIDTH,
+              Math.round(startWidth + event.clientX - startX),
+            ),
+          );
+        };
+        const onUp = () => {
+          handle.removeEventListener('pointermove', onMove);
+          handle.removeEventListener('pointerup', onUp);
+          handle.removeEventListener('pointercancel', onUp);
+          onResizeEnd?.();
+        };
+        handle.addEventListener('pointermove', onMove);
+        handle.addEventListener('pointerup', onUp);
+        handle.addEventListener('pointercancel', onUp);
+      }}
+      style={{
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        right: 0,
+        width: 7,
+        cursor: 'col-resize',
+        zIndex: 2,
+        touchAction: 'none',
+      }}
+    />
+  );
+}
+
 // YNAB 4's register sizes
 const YNAB_ROW_HEIGHT = 25;
 const YNAB_HEADER_HEIGHT = 28;
@@ -771,6 +876,9 @@ type HeaderCellProps = {
   tooltip?: ReactNode;
   isDivided?: boolean;
   onClick?: () => void;
+  onResize?: (width: number) => void;
+  onResizeEnd?: () => void;
+  onResetWidth?: () => void;
 } & Pick<CSSProperties, 'width' | 'alignItems' | 'marginLeft' | 'marginRight'>;
 
 function HeaderCell({
@@ -784,6 +892,9 @@ function HeaderCell({
   tooltip,
   isDivided = false,
   onClick,
+  onResize,
+  onResizeEnd,
+  onResetWidth,
 }: HeaderCellProps) {
   const style = {
     whiteSpace: 'nowrap' as CSSProperties['whiteSpace'],
@@ -834,12 +945,26 @@ function HeaderCell({
           </Text>
         );
 
-        return tooltip ? (
+        const labelled = tooltip ? (
           <Tooltip content={tooltip} placement="bottom end">
             {content}
           </Tooltip>
         ) : (
           content
+        );
+
+        return onResize ? (
+          <>
+            {labelled}
+            <ColumnResizeHandle
+              columnId={id}
+              onResize={onResize}
+              onResizeEnd={onResizeEnd}
+              onReset={onResetWidth}
+            />
+          </>
+        ) : (
+          labelled
         );
       }}
     />
@@ -3361,6 +3486,19 @@ function TransactionTableInner({
 
   // YNAB 4 adds transactions at the bottom of the register
   const isYnab = useIsYnabRegister();
+
+  // Column widths dragged in the header, remembered on this device
+  const [savedWidths, setSavedWidths] = useLocalPref(
+    'ui.transactionColumnWidths',
+  );
+  const [draggingWidths, setDraggingWidths] = useState<Record<
+    string,
+    number
+  > | null>(null);
+  const columnWidths = draggingWidths ?? savedWidths ?? {};
+  // The drag's latest widths, for saving when it ends (the handle keeps the
+  // callbacks from when the drag started)
+  const latestDragWidths = useRef<Record<string, number> | null>(null);
   const newTransactionRow = props.isAdding && (
     <View
       {...newNavigator.getNavigatorProps({
@@ -3406,6 +3544,7 @@ function TransactionTableInner({
       style={{
         flex: 1,
         cursor: 'default',
+        ...(isYnab && columnWidthOverrides(columnWidths)),
         ...props.style,
       }}
     >
@@ -3419,6 +3558,25 @@ function TransactionTableInner({
           field={props.sortField}
           showSelection={props.showSelection}
           amountColumnWidths={amountColumnWidths}
+          onResizeColumn={(columnId, width) => {
+            const next = {
+              ...(latestDragWidths.current ?? columnWidths),
+              [columnId]: width,
+            };
+            latestDragWidths.current = next;
+            setDraggingWidths(next);
+          }}
+          onResizeColumnEnd={() => {
+            if (latestDragWidths.current) {
+              setSavedWidths(latestDragWidths.current);
+              latestDragWidths.current = null;
+              setDraggingWidths(null);
+            }
+          }}
+          onResetColumnWidth={columnId => {
+            const { [columnId]: _removed, ...rest } = columnWidths;
+            setSavedWidths(rest);
+          }}
         />
 
         {!isYnab && newTransactionRow}
