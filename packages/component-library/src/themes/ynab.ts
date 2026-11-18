@@ -59,6 +59,10 @@ const ynabOverrides: Record<string, string> = {
   budgetRowBackgroundHover: '#c8d9e1',
   budgetCellBorder: '#00aed9',
   budgetCellSelection: '#b3ecfb',
+  // YNAB 4's pale yellow account tooltip
+  accountTooltipText: '#2a2a2a',
+  accountTooltipBackground: '#ffffcc',
+  accountTooltipBorder: '#d6d68a',
   formInputBorderSelected: '#3cb2d0',
   formInputShadowSelected: 'transparent',
   budgetMonthGap: '#dbdbdb',

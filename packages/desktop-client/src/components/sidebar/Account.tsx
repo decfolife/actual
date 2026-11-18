@@ -379,13 +379,19 @@ export function Account<FieldName extends SheetFields<'account'>>({
               },
             }}
           >
-            <Text
-              style={{
-                fontWeight: 'bold',
-              }}
-            >
-              {name}
-            </Text>
+            <Text>{name}</Text>
+            <View style={{ flex: 1 }} />
+            <CellValue<'account', FieldName> binding={query} type="financial">
+              {props => (
+                <CellValueText<'account', FieldName>
+                  {...props}
+                  formatter={(value, valueType) =>
+                    withTotalSymbol(format(value, valueType), format.currency)
+                  }
+                  style={{ marginLeft: 20 }}
+                />
+              )}
+            </CellValue>
             <Button
               aria-label={t('Toggle balance history')}
               variant="bare"
@@ -414,20 +420,25 @@ export function Account<FieldName extends SheetFields<'account'>>({
           {accountNote && (
             <Notes
               getStyle={() => ({
-                borderTop: `1px solid ${theme.tableBorder}`,
                 padding: 0,
-                paddingTop: '0.5rem',
-                marginTop: '0.5rem',
+                marginTop: '0.75rem',
               })}
               notes={accountNote}
             />
           )}
         </View>
       }
-      style={{ ...styles.tooltip, borderRadius: '0px 5px 5px 0px' }}
+      style={{
+        ...styles.tooltip,
+        backgroundColor: theme.accountTooltipBackground,
+        borderColor: theme.accountTooltipBorder,
+        color: theme.accountTooltipText,
+        borderRadius: '0px 5px 5px 0px',
+        maxWidth: 380,
+      }}
       placement="right top"
       triggerProps={{
-        delay: 1000,
+        delay: 500,
         closeDelay: 250,
         isDisabled: isContextMenuOpen,
       }}

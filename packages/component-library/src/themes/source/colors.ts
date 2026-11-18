@@ -800,6 +800,24 @@ export const colors = {
   tooltipText: { light: 'navy900', dark: 'navy100', midnight: 'gray100' },
   tooltipBackground: { light: 'white', dark: 'navy800', midnight: 'gray800' },
   tooltipBorder: { light: 'navy150', dark: 'navy700', midnight: 'gray600' },
+  accountTooltipText: {
+    light: 'navy900',
+    dark: 'navy100',
+    midnight: 'gray100',
+    description: 'Text of the tooltip shown when hovering a sidebar account',
+  },
+  accountTooltipBackground: {
+    light: 'white',
+    dark: 'navy800',
+    midnight: 'gray800',
+    description: 'Tooltip shown when hovering a sidebar account',
+  },
+  accountTooltipBorder: {
+    light: 'navy150',
+    dark: 'navy700',
+    midnight: 'gray600',
+    description: 'Border of the sidebar account tooltip',
+  },
 
   calendarCellBackground: {
     light: 'navy100',
