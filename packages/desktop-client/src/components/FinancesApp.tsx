@@ -21,6 +21,7 @@ import { useNewsNotification } from '#hooks/useNewsNotification';
 import { ScrollProvider } from '#hooks/useScrollListener';
 import { addNotification } from '#notifications/notificationsSlice';
 import { useDispatch, useSelector } from '#redux';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 import { UserAccessPage } from './admin/UserAccess/UserAccessPage';
 import { UserDirectoryPage } from './admin/UserDirectory/UserDirectoryPage';
@@ -103,7 +104,12 @@ export function FinancesApp() {
   const { isNarrowWidth } = useResponsive();
   const sidebar = useSidebar();
   const isTitlebarHidden = useIsTitlebarHidden();
-  useMetaThemeColor(theme.mobileViewTheme);
+  // Touch devices (phones, tablets) get their own status bar/edge color: in
+  // the YNAB theme the blue frame, while desktop installed apps keep the gray
+  // title bar
+  useMetaThemeColor(
+    isTouchDevice() ? theme.touchViewTheme : theme.mobileViewTheme,
+  );
 
   const location = useLocation();
   const dispatch = useDispatch();

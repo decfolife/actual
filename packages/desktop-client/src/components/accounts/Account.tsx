@@ -94,6 +94,7 @@ import type { PagedQuery } from '#queries/pagedQuery';
 import { useDispatch, useSelector } from '#redux';
 import type { AppDispatch } from '#redux/store';
 import { updateNewTransactions } from '#transactions/transactionsSlice';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 import { AccountEmptyMessage } from './AccountEmptyMessage';
 import { AccountFooter } from './AccountFooter';
@@ -101,6 +102,7 @@ import { AccountSkeleton } from './AccountSkeleton';
 import { AddTransactionBar } from './AddTransactionBar';
 import { AccountHeader } from './Header';
 import { SearchBanner } from './SearchBanner';
+import { TouchTransactionEntry } from './TouchTransactionEntry';
 
 type ConditionEntity = Partial<RuleConditionEntity> | TransactionFilterEntity;
 
@@ -302,6 +304,7 @@ type AccountInternalState = {
   nameError: string;
   isAdding: boolean;
   newTransactionKind: 'transfer' | null;
+  touchEntry: 'transaction' | 'transfer' | null;
   modalShowing?: boolean;
   sort: {
     ascDesc: 'asc' | 'desc';
@@ -358,6 +361,7 @@ class AccountInternal extends PureComponent<
       nameError: '',
       isAdding: false,
       newTransactionKind: null,
+      touchEntry: null,
       sort: null,
       filteredAmount: null,
       focusedTransactionId: null,
@@ -914,6 +918,11 @@ class AccountInternal extends PureComponent<
   };
 
   onAddTransaction = (kind?: 'transfer') => {
+    // Phones and tablets get a full-screen entry screen, like YNAB 4's app
+    if (isTouchDevice()) {
+      this.setState({ touchEntry: kind ?? 'transaction' });
+      return;
+    }
     this.setState({ isAdding: true, newTransactionKind: kind ?? null });
   };
 
@@ -2170,6 +2179,18 @@ class AccountInternal extends PureComponent<
                 account={account}
                 onAddTransaction={this.onAddTransaction}
               />
+
+              {this.state.touchEntry && (
+                <TouchTransactionEntry
+                  account={account}
+                  kind={this.state.touchEntry}
+                  onClose={() => {
+                    this.setState({ touchEntry: null });
+                    // Show what was just added
+                    void this.refetchTransactions();
+                  }}
+                />
+              )}
 
               <AccountFooter
                 account={account}

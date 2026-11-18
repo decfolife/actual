@@ -324,6 +324,8 @@ export type Modal =
       options: {
         onSelect: (payeeId: string | null) => void;
         showNoneOption?: boolean;
+        // Open listing only the accounts to transfer to/from
+        showTransfersFirst?: boolean;
         onClose?: () => void;
       };
     }

@@ -25,6 +25,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
+import { useResponsive } from '@actual-app/components/hooks/useResponsive';
 import { SvgSplit } from '@actual-app/components/icons/v0';
 import {
   SvgArrowDown,
@@ -146,6 +147,7 @@ import { getPayeesById } from '#payees';
 import { aqlQuery } from '#queries/aqlQuery';
 import { useDispatch } from '#redux';
 import { useTheme } from '#style';
+import { isTouchDevice } from '#util/isTouchDevice';
 import { getStatusLabel } from '#util/schedule';
 import {
   calculateFutureTransactionInfo,
@@ -373,7 +375,7 @@ const TransactionHeader = memo(
           borderTopWidth: 1,
           borderBottomWidth: 1,
           borderColor: theme.registerHeaderDivider,
-          ...(isYnab && { fontSize: 14, ...ynabColumnWidths }),
+          ...(isYnab && { fontSize: 14, ...getYnabColumnWidths() }),
         }}
         height={isYnab ? YNAB_HEADER_HEIGHT : undefined}
         data-testid="transaction-table-header"
@@ -808,6 +810,19 @@ function ColumnResizeHandle({
 const YNAB_ROW_HEIGHT = 25;
 const YNAB_HEADER_HEIGHT = 28;
 // Fixed column widths (Memo takes the rest), for header and rows alike
+// On touch devices the text columns share the room (Memo is hidden there)
+const ynabTouchColumnWidths = {
+  '& > [data-testid="account"]': { flex: '2 1 0', minWidth: 0 },
+  '& > [data-testid="date"]': { flex: '0 0 80px' },
+  '& > [data-testid="payee"]': { flex: '3 1 0', minWidth: 0 },
+  '& > [data-testid="category"]': { flex: '3 1 0', minWidth: 0 },
+  '& > [data-testid="group"]': { flex: '2 1 0', minWidth: 0 },
+};
+
+function getYnabColumnWidths() {
+  return isTouchDevice() ? ynabTouchColumnWidths : ynabColumnWidths;
+}
+
 const ynabColumnWidths = {
   '& > [data-testid="account"]': { flex: '0 0 178px' },
   '& > [data-testid="date"]': { flex: '0 0 80px' },
@@ -2664,7 +2679,7 @@ const Transaction = memo(function Transaction({
             },
           }),
           ...style,
-          ...(isYnab && ynabColumnWidths),
+          ...(isYnab && getYnabColumnWidths()),
           ...(showEditBar && {
             outline: `1px solid ${theme.registerEditingBorder}`,
             outlineOffset: -1,
@@ -3844,9 +3859,20 @@ export const TransactionTable = forwardRef(
       showBalances,
       showCleared,
     } = props;
+    // On a touch device (phone, tablet) the YNAB register drops the memo,
+    // and on narrower screens the running balance, so the rest fit
+    const isTouchRegister = useIsYnabRegister() && isTouchDevice();
+    const { width: windowWidth } = useResponsive();
+    const isCompactTouch = isTouchRegister && windowWidth < 900;
     const visibleColumns = useMemo(
       () =>
         (columnOrder ?? TRANSACTION_TABLE_COLUMN_IDS).filter(columnId => {
+          if (isTouchRegister && columnId === 'notes') {
+            return false;
+          }
+          if (isCompactTouch && columnId === 'balance') {
+            return false;
+          }
           switch (columnId) {
             case 'account':
               return showAccount;
@@ -3869,6 +3895,8 @@ export const TransactionTable = forwardRef(
         showGroup,
         showBalances,
         showCleared,
+        isTouchRegister,
+        isCompactTouch,
       ],
     );
     const [prevIsAdding, setPrevIsAdding] = useState(false);

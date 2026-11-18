@@ -161,6 +161,8 @@ const ynabOverrides: Record<string, string> = {
 
   // Window title bar of the installed app (and the mobile status bar)
   mobileViewTheme: '#ececec',
+  // On phones and tablets the edges blend into YNAB's blue frame
+  touchViewTheme: '#0098cb',
 };
 
 // YNAB 4 used Myriad Pro. Source Sans 3 is Adobe's free font from the same

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
+import { useResponsive } from '@actual-app/components/hooks/useResponsive';
 import { SvgCalendar3 } from '@actual-app/components/icons/v2';
 import { Popover } from '@actual-app/components/popover';
 import { styles } from '@actual-app/components/styles';
@@ -66,30 +67,38 @@ export function AccountFooter({
     query: balanceQuery.query.filter({ cleared: false }),
   });
 
+  // Narrow screens (a phone or tablet held upright): shorter labels and no
+  // text on the Scheduled Transactions button, so the bar fits
+  const { width } = useResponsive();
+  const isCompact = width < 900;
+
   return (
     <View
       style={{
         ...styles.pageContent,
         flexDirection: 'row',
         alignItems: 'stretch',
-        gap: 10,
+        gap: isCompact ? 6 : 10,
         paddingTop: 8,
         paddingBottom: 8,
         flexShrink: 0,
       }}
     >
       <Button
-        style={{ padding: '6px 14px', gap: 8 }}
+        aria-label={t('Scheduled Transactions')}
+        style={{ padding: isCompact ? '6px 10px' : '6px 14px', gap: 8 }}
         onPress={() => navigate('/schedules')}
       >
         <SvgCalendar3 style={{ width: 22, height: 22 }} />
-        <View style={{ textAlign: 'left', lineHeight: 1.2 }}>
-          <Trans>
-            Scheduled
-            <br />
-            Transactions
-          </Trans>
-        </View>
+        {!isCompact && (
+          <View style={{ textAlign: 'left', lineHeight: 1.2 }}>
+            <Trans>
+              Scheduled
+              <br />
+              Transactions
+            </Trans>
+          </View>
+        )}
       </Button>
 
       <View style={{ flex: 1 }} />
@@ -98,8 +107,9 @@ export function AccountFooter({
         style={{
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 14,
-          padding: '4px 18px',
+          gap: isCompact ? 6 : 14,
+          padding: isCompact ? '4px 8px' : '4px 18px',
+          minWidth: 0,
           backgroundColor: theme.accountFooterBox,
           border: `1px solid ${theme.tableBorder}`,
           borderRadius: 4,
@@ -129,17 +139,23 @@ export function AccountFooter({
                 <Divider />
               </>
             )}
-            <Total label={t('Cleared Balance')} amount={cleared ?? 0} />
+            <Total
+              label={isCompact ? t('Cleared') : t('Cleared Balance')}
+              amount={cleared ?? 0}
+            />
             <Operator>+</Operator>
             <Total
-              label={t('Uncleared Transactions')}
+              label={isCompact ? t('Uncleared') : t('Uncleared Transactions')}
               amount={uncleared ?? 0}
               isNegativeRed
             />
             <Operator>=</Operator>
           </>
         )}
-        <Total label={t('Working Balance')} amount={working ?? 0} />
+        <Total
+          label={isCompact ? t('Working') : t('Working Balance')}
+          amount={working ?? 0}
+        />
       </View>
 
       {account && !account.closed && (
@@ -184,7 +200,15 @@ function Total({ label, amount, isNegativeRed = false }: TotalProps) {
   const format = useFormat();
   return (
     <View style={{ alignItems: 'center' }}>
-      <View style={{ fontSize: 13, color: theme.pageTextLight }}>{label}</View>
+      <View
+        style={{
+          fontSize: 13,
+          color: theme.pageTextLight,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {label}
+      </View>
       <PrivacyFilter>
         <FinancialText
           style={{

@@ -26,6 +26,7 @@ type PayeeAutocompleteModalProps = Extract<
 export function PayeeAutocompleteModal({
   onSelect,
   showNoneOption,
+  showTransfersFirst = false,
   onClose,
 }: PayeeAutocompleteModalProps) {
   const { t } = useTranslation();
@@ -83,7 +84,8 @@ export function PayeeAutocompleteModal({
                 onClose={() => state.close()}
                 onManagePayees={onManagePayees}
                 showManagePayees={!isNarrowWidth}
-                showMakeTransfer={!isNarrowWidth}
+                showMakeTransfer={!isNarrowWidth || showTransfersFirst}
+                initialFocusTransferPayees={showTransfersFirst}
                 {...defaultAutocompleteProps}
                 onSelect={onSelect}
                 value={null}

@@ -203,6 +203,25 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   - Performance: rows are memoized, so props passed to `Transaction` must stay
     stable (memoized callbacks, `useAmountColumnWidths` memoized). A new
     function or object per render re-renders every row on each click.
+- **Touch devices** (phones, tablets, the owner's iPhone Duo; detected with
+  `isTouchDevice()` from `#util/isTouchDevice`, i.e. `pointer: coarse` /
+  `hover: none`), while the wide layout is shown:
+  - Add a new transaction / Make a transfer open a YNAB 4 iPhone-style
+    full-screen entry (`accounts/TouchTransactionEntry.tsx`): amount keypad
+    with Expense/Income, then Payee / Category / Account / Date / Memo /
+    Cleared and Save Transaction. Pickers reuse the `payee-autocomplete`,
+    `category-autocomplete` and `account-autocomplete` modals; transfers open
+    the payee list on the accounts (`showTransfersFirst`).
+  - The account toolbar and filter chips are hidden; the register drops Memo
+    (and the running balance under 900px wide), payee/category share the
+    width; the footer shortens its labels under 900px.
+  - The installed iOS app runs edge to edge (`apple-mobile-web-app-*` meta in
+    `index.html`) and its status bar/edges use `touchViewTheme` (YNAB blue),
+    not the gray `mobileViewTheme` used for desktop installed apps. Gray
+    bands after rotating came from iOS painting the old gray theme color.
+  - No Xcode on the owner's Mac: touch layouts were checked in Chrome with
+    touch emulation at the Duo's unfolded sizes (about 1000x700 landscape,
+    730x890 portrait). Safari-specific behavior needs checking on the phone.
 - Dropdowns (`components/autocomplete/`): white list with blue highlight,
   bold "Group:" headings, "Budget Categories" title, taller lists
   (`--autocomplete-list-height`).

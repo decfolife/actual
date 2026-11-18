@@ -46,6 +46,7 @@ import { useLocalPref } from '#hooks/useLocalPref';
 import { useSplitsExpanded } from '#hooks/useSplitsExpanded';
 import { useSyncedPref } from '#hooks/useSyncedPref';
 import { useSyncServerStatus } from '#hooks/useSyncServerStatus';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 import type { TableRef } from './Account';
 import { BalanceHistoryGraph } from './BalanceHistoryGraph';
@@ -168,6 +169,7 @@ export function AccountHeader({
   onMergeTransactions,
 }: AccountHeaderProps) {
   const { t } = useTranslation();
+  const isTouch = isTouchDevice();
 
   const [reconcileOpen, setReconcileOpen] = useState(false);
   const searchInput = useRef<HTMLInputElement>(null);
@@ -301,7 +303,16 @@ export function AccountHeader({
             {/* The balances (selected total too) are in the bar at the
                 bottom, like YNAB 4 */}
           </View>
-          <SpaceBetween gap={10} style={{ flex: 1, minWidth: 480 }}>
+          <SpaceBetween
+            gap={10}
+            style={{
+              flex: 1,
+              minWidth: 480,
+              // Phones and tablets don't need the toolbar (search, filters,
+              // import…): adding is in the strip under the register
+              ...(isTouch && { display: 'none' }),
+            }}
+          >
             {/* Like YNAB 4's "Edit Transactions", first in the toolbar */}
             {workingHard ? (
               <View>
@@ -546,7 +557,7 @@ export function AccountHeader({
             display: showNetWorthChart ? 'flex' : 'none',
           }}
         />
-        {filterConditions?.length > 0 && (
+        {!isTouch && filterConditions?.length > 0 && (
           <FiltersStack
             conditions={filterConditions}
             conditionsOp={filterConditionsOp}
