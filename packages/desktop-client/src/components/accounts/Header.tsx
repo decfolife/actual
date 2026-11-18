@@ -37,7 +37,6 @@ import { format as formatDate } from 'date-fns';
 
 import { isAccountFailedSync } from '#accounts/syncStatus';
 import { AnimatedRefresh } from '#components/AnimatedRefresh';
-import { Search } from '#components/common/Search';
 import { FilterButton } from '#components/filters/FiltersMenu';
 import { FiltersStack } from '#components/filters/FiltersStack';
 import type { SavedFilter } from '#components/filters/SavedFilterMenuButton';
@@ -54,7 +53,9 @@ import { useSyncServerStatus } from '#hooks/useSyncServerStatus';
 import type { TableRef } from './Account';
 import { Balances } from './Balance';
 import { BalanceHistoryGraph } from './BalanceHistoryGraph';
+import { DateRangeButton } from './DateRangeButton';
 import { ReconcileMenu, ReconcilingMessage } from './Reconcile';
+import { TransactionSearch } from './TransactionSearch';
 
 type AccountHeaderProps = {
   tableRef: TableRef;
@@ -343,7 +344,7 @@ export function AccountHeader({
             )}
 
             {account && !account.closed && (
-              <Button variant="bare" onPress={onImport}>
+              <Button onPress={onImport}>
                 <SvgDownloadThickBottom
                   width={13}
                   height={13}
@@ -354,7 +355,7 @@ export function AccountHeader({
             )}
 
             {!showEmptyMessage && (
-              <Button variant="bare" onPress={onAddTransaction}>
+              <Button onPress={onAddTransaction}>
                 <SvgAdd width={10} height={10} style={{ marginRight: 3 }} />
                 <Trans>Add New</Trans>
               </Button>
@@ -365,11 +366,17 @@ export function AccountHeader({
             </View>
             <View style={{ flex: 1 }} />
 
-            <Search
-              placeholder={t('Search')}
+            <DateRangeButton
+              filterConditions={filterConditions}
+              onApplyFilter={onApplyFilter}
+              onUpdateFilter={onUpdateFilter}
+              onDeleteFilter={onDeleteFilter}
+            />
+            <TransactionSearch
+              ref={searchInput}
               value={search}
               onChange={onSearch}
-              ref={searchInput}
+              onApplyFilter={onApplyFilter}
             />
             {workingHard ? (
               <View>
