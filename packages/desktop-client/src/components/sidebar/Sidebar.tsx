@@ -101,44 +101,47 @@ export function Sidebar() {
             {t('Add Account')}
           </Button>
         </View>
-      </View>
 
-      <View
-        style={{
-          flexShrink: 0,
-          paddingTop: 6,
-          borderTop: '1px solid ' + theme.sidebarBorder,
-        }}
-      >
-        <MoreButtons />
-
-        <BudgetName
-          style={{
-            paddingTop: 0,
-            height: 'auto',
-            margin: '4px 8px 0 19px',
-          }}
-        >
-          {!sidebar.alwaysFloats && (
-            <ToggleButton isFloating={isFloating} onFloat={onFloat} />
-          )}
-        </BudgetName>
-
-        <TitlebarActions
+        {/* Scrolls with the accounts (pinned to the bottom only when there's
+          room), so a short screen shows the accounts rather than these */}
+        <View
           style={{
             flexShrink: 0,
-            padding: '6px 12px 10px',
-            // Recolor the title bar controls for the sidebar
-            '--color-pageText': theme.sidebarItemText,
-            '--color-pageTextLight': theme.sidebarItemText,
-            '--color-buttonBareText': theme.sidebarItemText,
-            '--color-buttonBareTextHover': theme.sidebarItemText,
-            '--color-buttonBareBackgroundHover':
-              theme.sidebarItemBackgroundHover,
-            '--color-buttonBareBackgroundActive':
-              theme.sidebarItemBackgroundHover,
+            marginTop: 'auto',
+            paddingTop: 6,
+            borderTop: '1px solid ' + theme.sidebarBorder,
           }}
-        />
+        >
+          <MoreButtons />
+
+          <BudgetName
+            style={{
+              paddingTop: 0,
+              height: 'auto',
+              margin: '4px 8px 0 19px',
+            }}
+          >
+            {!sidebar.alwaysFloats && (
+              <ToggleButton isFloating={isFloating} onFloat={onFloat} />
+            )}
+          </BudgetName>
+
+          <TitlebarActions
+            style={{
+              flexShrink: 0,
+              padding: '6px 12px 10px',
+              // Recolor the title bar controls for the sidebar
+              '--color-pageText': theme.sidebarItemText,
+              '--color-pageTextLight': theme.sidebarItemText,
+              '--color-buttonBareText': theme.sidebarItemText,
+              '--color-buttonBareTextHover': theme.sidebarItemText,
+              '--color-buttonBareBackgroundHover':
+                theme.sidebarItemBackgroundHover,
+              '--color-buttonBareBackgroundActive':
+                theme.sidebarItemBackgroundHover,
+            }}
+          />
+        </View>
       </View>
     </SidebarShell>
   );
