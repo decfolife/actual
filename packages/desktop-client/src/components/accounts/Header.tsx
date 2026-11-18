@@ -6,10 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
 import { AnimatedLoading } from '@actual-app/components/icons/AnimatedLoading';
-import {
-  SvgAdd,
-  SvgDotsHorizontalTriple,
-} from '@actual-app/components/icons/v1';
+import { SvgDotsHorizontalTriple } from '@actual-app/components/icons/v1';
 import {
   SvgArrowsExpand3,
   SvgArrowsShrink3,
@@ -71,7 +68,6 @@ type AccountHeaderProps = {
   accounts: AccountEntity[];
   transactions: TransactionEntity[];
   showReconciled: boolean;
-  showEmptyMessage: boolean;
   balanceQuery: ComponentProps<typeof ReconcilingMessage>['balanceQuery'];
   reconcileAmount?: number | null;
   isSorted: boolean;
@@ -137,7 +133,6 @@ export function AccountHeader({
   accounts,
   transactions,
   showReconciled,
-  showEmptyMessage,
   balanceQuery,
   reconcileAmount,
   isSorted,
@@ -339,12 +334,7 @@ export function AccountHeader({
               </Button>
             )}
 
-            {!showEmptyMessage && (
-              <Button onPress={onAddTransaction}>
-                <SvgAdd width={10} height={10} style={{ marginRight: 3 }} />
-                <Trans>Add New</Trans>
-              </Button>
-            )}
+            {/* Adding is in the strip under the register, like YNAB 4 */}
             <View style={{ flexShrink: 0 }}>
               {/* @ts-expect-error fix me */}
               <FilterButton onApply={onApplyFilter} />

@@ -3059,6 +3059,47 @@ function TransactionTableInner({
     );
   };
 
+  // YNAB 4 adds transactions at the bottom of the register
+  const isYnab = useIsYnabRegister();
+  const newTransactionRow = props.isAdding && (
+    <View
+      {...newNavigator.getNavigatorProps({
+        onKeyDown: (e: KeyboardEvent) => props.onCheckNewEnter(e),
+      })}
+    >
+      <NewTransaction
+        transactions={props.newTransactions}
+        amountColumnWidths={amountColumnWidths}
+        transferAccountsByTransaction={props.transferAccountsByTransaction}
+        editingTransaction={newNavigator.editingId}
+        focusedField={newNavigator.focusedField}
+        accounts={props.accounts}
+        categoryGroups={props.categoryGroups}
+        payees={props.payees || []}
+        columns={props.columns}
+        dateFormat={dateFormat}
+        hideFraction={props.hideFraction}
+        onClose={props.onCloseAddTransaction}
+        onSchedule={props.onScheduleTemporary}
+        onAdd={props.onAddTemporary}
+        onAddAndClose={props.onAddAndCloseTemporary}
+        onAddSplit={props.onAddSplit}
+        onToggleSplit={props.onToggleSplit}
+        onSplit={props.onSplit}
+        onEdit={newNavigator.onEdit}
+        onSave={props.onSave}
+        onDelete={props.onDelete}
+        onManagePayees={props.onManagePayees}
+        onCreatePayee={props.onCreatePayee}
+        onNavigateToTransferAccount={onNavigateToTransferAccount}
+        onNavigateToSchedule={onNavigateToSchedule}
+        onNotesTagClick={onNotesTagClick}
+        onDistributeRemainder={props.onDistributeRemainder}
+        showHiddenCategories={showHiddenCategories}
+      />
+    </View>
+  );
+
   return (
     <View
       innerRef={containerRef}
@@ -3080,46 +3121,7 @@ function TransactionTableInner({
           amountColumnWidths={amountColumnWidths}
         />
 
-        {props.isAdding && (
-          <View
-            {...newNavigator.getNavigatorProps({
-              onKeyDown: (e: KeyboardEvent) => props.onCheckNewEnter(e),
-            })}
-          >
-            <NewTransaction
-              transactions={props.newTransactions}
-              amountColumnWidths={amountColumnWidths}
-              transferAccountsByTransaction={
-                props.transferAccountsByTransaction
-              }
-              editingTransaction={newNavigator.editingId}
-              focusedField={newNavigator.focusedField}
-              accounts={props.accounts}
-              categoryGroups={props.categoryGroups}
-              payees={props.payees || []}
-              columns={props.columns}
-              dateFormat={dateFormat}
-              hideFraction={props.hideFraction}
-              onClose={props.onCloseAddTransaction}
-              onSchedule={props.onScheduleTemporary}
-              onAdd={props.onAddTemporary}
-              onAddAndClose={props.onAddAndCloseTemporary}
-              onAddSplit={props.onAddSplit}
-              onToggleSplit={props.onToggleSplit}
-              onSplit={props.onSplit}
-              onEdit={newNavigator.onEdit}
-              onSave={props.onSave}
-              onDelete={props.onDelete}
-              onManagePayees={props.onManagePayees}
-              onCreatePayee={props.onCreatePayee}
-              onNavigateToTransferAccount={onNavigateToTransferAccount}
-              onNavigateToSchedule={onNavigateToSchedule}
-              onNotesTagClick={onNotesTagClick}
-              onDistributeRemainder={props.onDistributeRemainder}
-              showHiddenCategories={showHiddenCategories}
-            />
-          </View>
-        )}
+        {!isYnab && newTransactionRow}
       </View>
       {/*// * On Windows, makes the scrollbar always appear
          //   the full height of the container ??? */}
@@ -3139,9 +3141,11 @@ function TransactionTableInner({
           isSelected={id => props.selectedItems.has(id)}
           onKeyDown={e => props.onCheckEnter(e)}
           saveScrollWidth={saveScrollWidth}
+          // Newest rows stay in view above a new transaction
+          keepBottomOnShrink={isYnab}
         />
 
-        {props.isAdding && (
+        {props.isAdding && !isYnab && (
           <div
             key="shadow"
             style={{
@@ -3156,6 +3160,7 @@ function TransactionTableInner({
           />
         )}
       </View>
+      {isYnab && newTransactionRow}
     </View>
   );
 }
@@ -3188,6 +3193,8 @@ export type TransactionTableProps = {
   currentAccountId: AccountEntity['id'];
   currentCategoryId: CategoryEntity['id'];
   isAdding: boolean;
+  // Starts a new transaction with this payee, e.g. a transfer payee
+  newTransactionPayee?: PayeeEntity['id'] | null;
   isNew: (id: TransactionEntity['id']) => boolean;
   isMatched: (id: TransactionEntity['id']) => boolean;
   isFiltered?: boolean;
@@ -3520,12 +3527,16 @@ export const TransactionTable = forwardRef(
     if (prevIsAdding !== props.isAdding) {
       if (!prevIsAdding && props.isAdding) {
         clearedFields.current.clear();
-        setNewTransactions(
-          makeTemporaryTransactions(
-            props.currentAccountId,
-            props.currentCategoryId,
-          ),
+        const [temporary, ...rest] = makeTemporaryTransactions(
+          props.currentAccountId,
+          props.currentCategoryId,
         );
+        setNewTransactions([
+          props.newTransactionPayee
+            ? { ...temporary, payee: props.newTransactionPayee }
+            : temporary,
+          ...rest,
+        ]);
       }
       setPrevIsAdding(props.isAdding);
     }

@@ -97,6 +97,7 @@ import { updateNewTransactions } from '#transactions/transactionsSlice';
 
 import { AccountEmptyMessage } from './AccountEmptyMessage';
 import { AccountFooter } from './AccountFooter';
+import { AddTransactionBar } from './AddTransactionBar';
 import { AccountHeader } from './Header';
 import { SearchBanner } from './SearchBanner';
 
@@ -298,6 +299,7 @@ type AccountInternalState = {
   showReconciled: boolean;
   nameError: string;
   isAdding: boolean;
+  newTransactionPayee: PayeeEntity['id'] | null;
   modalShowing?: boolean;
   sort: {
     ascDesc: 'asc' | 'desc';
@@ -353,6 +355,7 @@ class AccountInternal extends PureComponent<
       showReconciled: props.showReconciled,
       nameError: '',
       isAdding: false,
+      newTransactionPayee: null,
       sort: null,
       filteredAmount: null,
       focusedTransactionId: null,
@@ -891,8 +894,8 @@ class AccountInternal extends PureComponent<
     }
   };
 
-  onAddTransaction = () => {
-    this.setState({ isAdding: true });
+  onAddTransaction = (payeeId?: PayeeEntity['id']) => {
+    this.setState({ isAdding: true, newTransactionPayee: payeeId ?? null });
   };
 
   onSaveName = (name: string) => {
@@ -1986,7 +1989,6 @@ class AccountInternal extends PureComponent<
                 accounts={accounts}
                 transactions={transactions}
                 showReconciled={showReconciled ?? false}
-                showEmptyMessage={showEmptyMessage ?? false}
                 balanceQuery={balanceQuery}
                 isSorted={this.state.sort !== null}
                 reconcileAmount={reconcileAmount}
@@ -2064,6 +2066,7 @@ class AccountInternal extends PureComponent<
                     accountId !== 'uncategorized'
                   }
                   isAdding={this.state.isAdding}
+                  newTransactionPayee={this.state.newTransactionPayee}
                   isNew={this.isNew}
                   isMatched={this.isMatched}
                   isFiltered={transactionsFiltered}
@@ -2116,6 +2119,13 @@ class AccountInternal extends PureComponent<
                   onApplyFilter={this.onApplyFilter}
                 />
               </View>
+
+              <AddTransactionBar
+                account={account}
+                accounts={accounts}
+                payees={payees}
+                onAddTransaction={this.onAddTransaction}
+              />
 
               <AccountFooter
                 account={account}

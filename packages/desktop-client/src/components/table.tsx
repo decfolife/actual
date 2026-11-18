@@ -949,6 +949,7 @@ export type TableProps<T extends TableItem = TableItem> = {
   contentHeader?: ReactNode;
   loading?: boolean;
   rowHeight?: number;
+  keepBottomOnShrink?: boolean;
   backgroundColor?: string;
   renderItem: (arg: {
     item: T;
@@ -979,6 +980,7 @@ export const Table = forwardRef(
       contentHeader,
       loading,
       rowHeight = ROW_HEIGHT,
+      keepBottomOnShrink,
       backgroundColor = theme.tableBackground,
       renderItem,
       renderEmpty,
@@ -1266,6 +1268,7 @@ export const Table = forwardRef(
                       overscanCount={5}
                       onItemsRendered={onItemsRendered}
                       onScroll={onListScroll}
+                      keepBottomOnShrink={keepBottomOnShrink}
                     />
                   </AvoidRefocusScrollProvider>
                 );

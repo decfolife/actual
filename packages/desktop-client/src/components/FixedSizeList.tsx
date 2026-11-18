@@ -23,6 +23,8 @@ type FixedSizeListProps = {
   overscanCount?: number;
   useIsScrolling?: boolean;
   headerHeight?: number;
+  // When the list gets shorter while scrolled to the end, stay at the end
+  keepBottomOnShrink?: boolean;
   initialScrollOffset?: number;
   itemCount?: number;
   outerRef?: RefObject<HTMLDivElement>;
@@ -160,8 +162,21 @@ export class FixedSizeList extends PureComponent<
     return null;
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: FixedSizeListProps) {
     const { scrollOffset, scrollUpdateWasRequested } = this.state;
+
+    if (
+      this.props.keepBottomOnShrink &&
+      this._outerRef &&
+      this.props.height < prevProps.height
+    ) {
+      const outer = this._outerRef;
+      const wasAtBottom =
+        outer.scrollTop + prevProps.height >= outer.scrollHeight - 2;
+      if (wasAtBottom) {
+        this.scrollTo(Number.MAX_SAFE_INTEGER);
+      }
+    }
 
     const anchoredPos = this.getAnchoredScrollPos();
     if (anchoredPos != null) {
