@@ -60,6 +60,15 @@ const ynabOverrides: Record<string, string> = {
   budgetCellBorder: '#00aed9',
   budgetCellSelection: '#b3ecfb',
   // YNAB 4's pale yellow account tooltip
+  // Account register: slate column header bar, striped rows without lines
+  registerHeaderBackground: '#5f6b72',
+  registerHeaderBackgroundEnd: '#3e484e',
+  registerHeaderText: '#ffffff',
+  registerHeaderDivider: '#2d363b',
+  registerRowBorder: 'transparent',
+  registerClearedBackground: '#3fae2a',
+  registerClearedText: '#ffffff',
+  registerUnclearedText: '#b4b4b4',
   accountSearchBannerText: '#2e6b12',
   accountSearchBannerBackground: '#e3f2c4',
   accountSearchBannerStripe: '#d2e9a6',
@@ -74,7 +83,7 @@ const ynabOverrides: Record<string, string> = {
 
   // Tables
   tableBackground: '#ffffff',
-  tableRowBackgroundAlternate: '#ffffff',
+  tableRowBackgroundAlternate: '#eaf4f9',
   tableText: '#3a3a3a',
   tableTextSubdued: '#9a9a9a',
   tableBorder: '#b5dfea',

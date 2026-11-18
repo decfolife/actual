@@ -141,6 +141,7 @@ import { addNotification } from '#notifications/notificationsSlice';
 import { getPayeesById } from '#payees';
 import { aqlQuery } from '#queries/aqlQuery';
 import { useDispatch } from '#redux';
+import { useTheme } from '#style';
 import { getStatusLabel } from '#util/schedule';
 import {
   calculateFutureTransactionInfo,
@@ -247,7 +248,16 @@ const TransactionHeader = memo(
   }: TransactionHeaderProps) => {
     const dispatchSelected = useSelectedDispatch();
     const { t } = useTranslation();
-    const columnLabels = useTransactionTableColumnLabels();
+    const isYnab = useIsYnabRegister();
+    const columnLabels = {
+      ...useTransactionTableColumnLabels(),
+      // YNAB 4's column names
+      ...(isYnab && {
+        notes: t('Memo'),
+        payment: t('Outflow'),
+        deposit: t('Inflow'),
+      }),
+    };
 
     useHotkeys(
       'ctrl+a, cmd+a, meta+a',
@@ -329,7 +339,7 @@ const TransactionHeader = memo(
         marginRight: -5,
       },
       cleared: {
-        value: '✓',
+        value: isYnab ? 'C' : '✓',
         width: 38,
         alignItems: 'center',
         tooltip: <ClearedColumnLegend />,
@@ -342,12 +352,13 @@ const TransactionHeader = memo(
         style={{
           fontWeight: 300,
           zIndex: 200,
-          color: theme.tableHeaderText,
-          backgroundColor: theme.tableHeaderBackground,
+          color: theme.registerHeaderText,
+          background: `linear-gradient(${theme.registerHeaderBackground}, ${theme.registerHeaderBackgroundEnd})`,
           paddingRight: `${5 + (scrollWidth ?? 0)}px`,
           borderTopWidth: 1,
           borderBottomWidth: 1,
-          borderColor: theme.tableBorder,
+          borderColor: theme.registerHeaderDivider,
+          ...(isYnab && { fontSize: 14 }),
         }}
         data-testid="transaction-table-header"
       >
@@ -385,6 +396,13 @@ const TransactionHeader = memo(
               key={columnId}
               id={columnId}
               {...cellProps}
+              // YNAB 4 centers the column names, with lines between them
+              {...(isYnab && {
+                alignItems: 'center',
+                marginLeft: 0,
+                marginRight: 0,
+                isDivided: true,
+              })}
               icon={
                 sortDirection
                   ? field === columnId
@@ -489,6 +507,7 @@ function StatusCell({
   onEdit,
   onUpdate,
 }: StatusCellProps) {
+  const isYnab = useIsYnabRegister();
   const isClearedField =
     status === 'cleared' || status === 'reconciled' || status == null;
   const statusProps = getStatusProps(status);
@@ -526,7 +545,7 @@ function StatusCell({
           padding: 3,
           backgroundColor: 'transparent',
           border: '1px solid transparent',
-          borderRadius: 50,
+          borderRadius: isYnab ? 4 : 50,
           ':focus': {
             ...(isPreview
               ? {
@@ -544,16 +563,78 @@ function StatusCell({
         onEdit={() => onEdit(id, 'cleared')}
         onSelect={onSelect}
       >
-        {createElement(statusProps.Icon, {
-          style: {
-            width: 13,
-            height: 13,
-            color: statusColor,
-            marginTop: status === 'due' ? -1 : 0,
-          },
-        })}
+        {isYnab && (status === 'cleared' || status == null) ? (
+          <ClearedBadge isCleared={status === 'cleared'} />
+        ) : (
+          createElement(statusProps.Icon, {
+            style: {
+              width: 13,
+              height: 13,
+              color: statusColor,
+              marginTop: status === 'due' ? -1 : 0,
+            },
+          })
+        )}
       </CellButton>
     </Cell>
+  );
+}
+
+// The account register mimics YNAB 4 with the YNAB theme
+function useIsYnabRegister() {
+  const [themeName] = useTheme();
+  return themeName === 'ynab';
+}
+
+// YNAB 4's cleared marker: a green "C" when cleared, a faint one when not
+function ClearedBadge({ isCleared }: { isCleared: boolean }) {
+  return (
+    <View
+      style={{
+        width: 17,
+        height: 17,
+        borderRadius: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 12,
+        fontWeight: 800,
+        lineHeight: 1,
+        ...(isCleared
+          ? {
+              color: theme.registerClearedText,
+              backgroundColor: theme.registerClearedBackground,
+              backgroundImage:
+                'linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.08))',
+            }
+          : {
+              color: theme.registerUnclearedText,
+              border: `1px solid ${theme.registerUnclearedText}`,
+            }),
+      }}
+    >
+      C
+    </View>
+  );
+}
+
+function ClearedHeaderBadge() {
+  return (
+    <View
+      style={{
+        width: 17,
+        height: 17,
+        borderRadius: 3,
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 12,
+        fontWeight: 800,
+        lineHeight: 1,
+        color: theme.registerHeaderBackgroundEnd,
+        backgroundColor: theme.registerHeaderText,
+      }}
+    >
+      C
+    </View>
   );
 }
 
@@ -562,6 +643,7 @@ type HeaderCellProps = {
   id: string;
   icon?: 'asc' | 'desc' | 'clickable';
   tooltip?: ReactNode;
+  isDivided?: boolean;
   onClick?: () => void;
 } & Pick<CSSProperties, 'width' | 'alignItems' | 'marginLeft' | 'marginRight'>;
 
@@ -574,14 +656,15 @@ function HeaderCell({
   marginRight,
   icon,
   tooltip,
+  isDivided = false,
   onClick,
 }: HeaderCellProps) {
   const style = {
     whiteSpace: 'nowrap' as CSSProperties['whiteSpace'],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    color: theme.tableHeaderText,
-    fontWeight: 300,
+    color: theme.registerHeaderText,
+    fontWeight: isDivided ? 600 : 300,
     marginLeft,
     marginRight,
   };
@@ -595,11 +678,19 @@ function HeaderCell({
       style={{
         borderTopWidth: 0,
         borderBottomWidth: 0,
+        ...(isDivided && {
+          borderLeft: `1px solid ${theme.registerHeaderDivider}`,
+          boxShadow: 'inset 1px 0 rgba(255, 255, 255, 0.12)',
+        }),
       }}
       unexposedContent={({ value: cellValue }) => {
         const content = onClick ? (
           <Button variant="bare" onPress={onClick} style={style}>
-            <UnexposedCellContent value={cellValue} />
+            {cellValue === 'C' && isDivided ? (
+              <ClearedHeaderBadge />
+            ) : (
+              <UnexposedCellContent value={cellValue} />
+            )}
             {icon === 'asc' && (
               <SvgArrowDown width={10} height={10} style={{ marginLeft: 5 }} />
             )}
@@ -608,7 +699,13 @@ function HeaderCell({
             )}
           </Button>
         ) : (
-          <Text style={style}>{cellValue}</Text>
+          <Text style={style}>
+            {cellValue === 'C' && isDivided ? (
+              <ClearedHeaderBadge />
+            ) : (
+              cellValue
+            )}
+          </Text>
         );
 
         return tooltip ? (
@@ -2149,6 +2246,8 @@ const Transaction = memo(function Transaction({
           ':hover': !(backgroundFocus || selected) && {
             backgroundColor: theme.tableRowBackgroundHover,
           },
+          // `div` so it outranks the cells' own border color
+          '& > div': { borderColor: theme.registerRowBorder },
           '& .hover-visible': {
             opacity: 0,
           },

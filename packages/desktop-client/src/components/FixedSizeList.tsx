@@ -90,16 +90,26 @@ export class FixedSizeList extends PureComponent<
     this.state = {
       isScrolling: false,
       scrollDirection: 'forward',
+      // Past the end, the rows above the last few would not be rendered
       scrollOffset:
         typeof this.props.initialScrollOffset === 'number'
-          ? this.props.initialScrollOffset
+          ? Math.max(
+              0,
+              Math.min(
+                this.props.initialScrollOffset,
+                this.props.itemSize * this.props.itemCount - this.props.height,
+              ),
+            )
           : 0,
       scrollUpdateWasRequested: false,
     };
   }
 
   scrollTo(scrollOffset: number) {
-    scrollOffset = Math.max(0, scrollOffset);
+    scrollOffset = Math.max(
+      0,
+      Math.min(scrollOffset, this.getMaxScrollOffset()),
+    );
 
     this.setState(prevState => {
       if (prevState.scrollOffset === scrollOffset) {
@@ -300,6 +310,14 @@ export class FixedSizeList extends PureComponent<
   isAnchored() {
     return this.anchored != null;
   }
+
+  // The furthest the list can scroll, from the page when it is laid out
+  getMaxScrollOffset = () => {
+    const outer = this._outerRef;
+    return outer
+      ? Math.max(0, outer.scrollHeight - outer.clientHeight)
+      : Math.max(0, this.getEstimatedTotalSize() - this.props.height);
+  };
 
   getItemOffset = (index: number) => index * this.props.itemSize;
   getItemSize = () => this.props.itemSize;

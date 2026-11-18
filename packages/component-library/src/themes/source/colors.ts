@@ -800,6 +800,42 @@ export const colors = {
   tooltipText: { light: 'navy900', dark: 'navy100', midnight: 'gray100' },
   tooltipBackground: { light: 'white', dark: 'navy800', midnight: 'gray800' },
   tooltipBorder: { light: 'navy150', dark: 'navy700', midnight: 'gray600' },
+  registerHeaderBackground: {
+    all: { ref: 'tableHeaderBackground' },
+    description: 'Top of the column header bar in account registers',
+  },
+  registerHeaderBackgroundEnd: {
+    all: { ref: 'tableHeaderBackground' },
+    description: 'Bottom of the column header bar in account registers',
+  },
+  registerHeaderText: {
+    all: { ref: 'tableHeaderText' },
+    description: 'Column names in account registers',
+  },
+  registerHeaderDivider: {
+    all: { ref: 'tableBorder' },
+    description: 'Lines between column names in account registers',
+  },
+  registerRowBorder: {
+    all: { ref: 'tableBorder' },
+    description: 'Lines between transactions in account registers',
+  },
+  registerClearedBackground: {
+    light: 'green500',
+    dark: 'green600',
+    midnight: 'green600',
+    description: 'The "C" of a cleared transaction',
+  },
+  registerClearedText: {
+    all: { raw: '#ffffff' },
+    description: 'Letter on the "C" of a cleared transaction',
+  },
+  registerUnclearedText: {
+    light: 'navy300',
+    dark: 'navy400',
+    midnight: 'gray400',
+    description: 'The "C" of an uncleared transaction',
+  },
   accountSearchBannerText: {
     light: 'green800',
     dark: 'green200',
