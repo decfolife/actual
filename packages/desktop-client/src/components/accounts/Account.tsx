@@ -102,7 +102,10 @@ import { AccountSkeleton } from './AccountSkeleton';
 import { AddTransactionBar } from './AddTransactionBar';
 import { AccountHeader } from './Header';
 import { SearchBanner } from './SearchBanner';
-import { TouchTransactionEntry } from './TouchTransactionEntry';
+import {
+  TouchEditContext,
+  TouchTransactionEntry,
+} from './TouchTransactionEntry';
 
 type ConditionEntity = Partial<RuleConditionEntity> | TransactionFilterEntity;
 
@@ -305,6 +308,7 @@ type AccountInternalState = {
   isAdding: boolean;
   newTransactionKind: 'transfer' | null;
   touchEntry: 'transaction' | 'transfer' | null;
+  touchEditTransaction: TransactionEntity | null;
   modalShowing?: boolean;
   sort: {
     ascDesc: 'asc' | 'desc';
@@ -362,6 +366,7 @@ class AccountInternal extends PureComponent<
       isAdding: false,
       newTransactionKind: null,
       touchEntry: null,
+      touchEditTransaction: null,
       sort: null,
       filteredAmount: null,
       focusedTransactionId: null,
@@ -924,6 +929,11 @@ class AccountInternal extends PureComponent<
       return;
     }
     this.setState({ isAdding: true, newTransactionKind: kind ?? null });
+  };
+
+  // On touch devices a tapped transaction opens in the entry screen
+  onTouchEdit = (transaction: TransactionEntity) => {
+    this.setState({ touchEditTransaction: transaction });
   };
 
   // A stable function, so rows don't all re-render on every update
@@ -2090,88 +2100,90 @@ class AccountInternal extends PureComponent<
                       : 'visible',
                   }}
                 >
-                  <TransactionList
-                    headerContent={undefined}
-                    // @ts-expect-error - fix me
-                    tableRef={this.table}
-                    account={account}
-                    transactions={transactions}
-                    allTransactions={allTransactions}
-                    loadMoreTransactions={() =>
-                      this.paged && this.paged.fetchNext()
-                    }
-                    accounts={accounts}
-                    category={category}
-                    categoryGroups={categoryGroups}
-                    payees={payees}
-                    balances={allBalances}
-                    // Set from the start (the values fill in when ready) so
-                    // the columns don't resize when the balances arrive
-                    showBalances={
-                      !!this.state.showBalances && this.canCalculateBalance()
-                    }
-                    showReconciled={showReconciled}
-                    showCleared={!!showCleared}
-                    showGroup={this.props.showGroup}
-                    showAccount={this.showAccountColumn()}
-                    columnOrder={this.props.columnOrder}
-                    allowReorder={
-                      !!accountId &&
-                      accountId !== 'offbudget' &&
-                      accountId !== 'onbudget' &&
-                      accountId !== 'uncategorized'
-                    }
-                    isAdding={this.state.isAdding}
-                    newTransactionKind={this.state.newTransactionKind}
-                    isNew={this.isNew}
-                    isMatched={this.isMatched}
-                    isFiltered={transactionsFiltered}
-                    dateFormat={dateFormat}
-                    hideFraction={hideFraction}
-                    renderEmpty={() =>
-                      showEmptyMessage ? (
-                        <AccountEmptyMessage
-                          onAdd={() =>
-                            this.props.dispatch(
-                              replaceModal({
-                                modal: { name: 'add-account', options: {} },
-                              }),
-                            )
-                          }
-                        />
-                      ) : !loading ? (
-                        <View
-                          style={{
-                            color: theme.tableText,
-                            marginTop: 20,
-                            textAlign: 'center',
-                            fontStyle: 'italic',
-                          }}
-                        >
-                          <Trans>No transactions</Trans>
-                        </View>
-                      ) : null
-                    }
-                    onSort={this.onSort}
-                    sortField={this.state.sort?.field ?? ''}
-                    ascDesc={this.state.sort?.ascDesc ?? 'asc'}
-                    onChange={this.onTransactionsChange}
-                    onBatchDelete={this.onBatchDelete}
-                    onBatchDuplicate={this.onBatchDuplicate}
-                    onBatchLinkSchedule={this.onBatchLinkSchedule}
-                    onBatchUnlinkSchedule={this.onBatchUnlinkSchedule}
-                    onCreateRule={this.onCreateRule}
-                    onScheduleAction={this.onScheduleAction}
-                    onMakeAsNonSplitTransactions={
-                      this.onMakeAsNonSplitTransactions
-                    }
-                    onRefetch={this.refetchTransactions}
-                    focusedTransactionId={this.state.focusedTransactionId}
-                    onFocusedTransactionShown={this.onFocusedTransactionShown}
-                    onCloseAddTransaction={this.onCloseAddTransaction}
-                    onCreatePayee={this.onCreatePayee}
-                    onApplyFilter={this.onApplyFilter}
-                  />
+                  <TouchEditContext.Provider value={this.onTouchEdit}>
+                    <TransactionList
+                      headerContent={undefined}
+                      // @ts-expect-error - fix me
+                      tableRef={this.table}
+                      account={account}
+                      transactions={transactions}
+                      allTransactions={allTransactions}
+                      loadMoreTransactions={() =>
+                        this.paged && this.paged.fetchNext()
+                      }
+                      accounts={accounts}
+                      category={category}
+                      categoryGroups={categoryGroups}
+                      payees={payees}
+                      balances={allBalances}
+                      // Set from the start (the values fill in when ready) so
+                      // the columns don't resize when the balances arrive
+                      showBalances={
+                        !!this.state.showBalances && this.canCalculateBalance()
+                      }
+                      showReconciled={showReconciled}
+                      showCleared={!!showCleared}
+                      showGroup={this.props.showGroup}
+                      showAccount={this.showAccountColumn()}
+                      columnOrder={this.props.columnOrder}
+                      allowReorder={
+                        !!accountId &&
+                        accountId !== 'offbudget' &&
+                        accountId !== 'onbudget' &&
+                        accountId !== 'uncategorized'
+                      }
+                      isAdding={this.state.isAdding}
+                      newTransactionKind={this.state.newTransactionKind}
+                      isNew={this.isNew}
+                      isMatched={this.isMatched}
+                      isFiltered={transactionsFiltered}
+                      dateFormat={dateFormat}
+                      hideFraction={hideFraction}
+                      renderEmpty={() =>
+                        showEmptyMessage ? (
+                          <AccountEmptyMessage
+                            onAdd={() =>
+                              this.props.dispatch(
+                                replaceModal({
+                                  modal: { name: 'add-account', options: {} },
+                                }),
+                              )
+                            }
+                          />
+                        ) : !loading ? (
+                          <View
+                            style={{
+                              color: theme.tableText,
+                              marginTop: 20,
+                              textAlign: 'center',
+                              fontStyle: 'italic',
+                            }}
+                          >
+                            <Trans>No transactions</Trans>
+                          </View>
+                        ) : null
+                      }
+                      onSort={this.onSort}
+                      sortField={this.state.sort?.field ?? ''}
+                      ascDesc={this.state.sort?.ascDesc ?? 'asc'}
+                      onChange={this.onTransactionsChange}
+                      onBatchDelete={this.onBatchDelete}
+                      onBatchDuplicate={this.onBatchDuplicate}
+                      onBatchLinkSchedule={this.onBatchLinkSchedule}
+                      onBatchUnlinkSchedule={this.onBatchUnlinkSchedule}
+                      onCreateRule={this.onCreateRule}
+                      onScheduleAction={this.onScheduleAction}
+                      onMakeAsNonSplitTransactions={
+                        this.onMakeAsNonSplitTransactions
+                      }
+                      onRefetch={this.refetchTransactions}
+                      focusedTransactionId={this.state.focusedTransactionId}
+                      onFocusedTransactionShown={this.onFocusedTransactionShown}
+                      onCloseAddTransaction={this.onCloseAddTransaction}
+                      onCreatePayee={this.onCreatePayee}
+                      onApplyFilter={this.onApplyFilter}
+                    />
+                  </TouchEditContext.Provider>
                 </View>
               </View>
 
@@ -2180,12 +2192,16 @@ class AccountInternal extends PureComponent<
                 onAddTransaction={this.onAddTransaction}
               />
 
-              {this.state.touchEntry && (
+              {(this.state.touchEntry || this.state.touchEditTransaction) && (
                 <TouchTransactionEntry
                   account={account}
-                  kind={this.state.touchEntry}
+                  kind={this.state.touchEntry ?? 'transaction'}
+                  transaction={this.state.touchEditTransaction ?? undefined}
                   onClose={() => {
-                    this.setState({ touchEntry: null });
+                    this.setState({
+                      touchEntry: null,
+                      touchEditTransaction: null,
+                    });
                     // Show what was just added
                     void this.refetchTransactions();
                   }}

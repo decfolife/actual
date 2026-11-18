@@ -114,6 +114,19 @@
       #root {
         height: 100%;
       }
+
+      /* The status bar gap at the top. Touch devices in landscape have none
+         (iPhones put the notch/status bar on the side), and after rotating
+         iOS can keep reporting the portrait gap until the app restarts, so
+         ignore it there. */
+      :root {
+        --safe-area-top: env(safe-area-inset-top);
+      }
+      @media (orientation: landscape) and (pointer: coarse) {
+        :root {
+          --safe-area-top: 0px;
+        }
+      }
       body {
         overflow: hidden;
       }

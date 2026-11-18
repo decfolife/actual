@@ -19,6 +19,7 @@ import { useFormat } from '#hooks/useFormat';
 import { useNavigate } from '#hooks/useNavigate';
 import { useSelectedItems } from '#hooks/useSelected';
 import { useSheetValue } from '#hooks/useSheetValue';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 import { useSelectedTotal } from './Balance';
 import { ReconcileMenu } from './Reconcile';
@@ -70,7 +71,7 @@ export function AccountFooter({
   // Narrow screens (a phone or tablet held upright): shorter labels and no
   // text on the Scheduled Transactions button, so the bar fits
   const { width } = useResponsive();
-  const isCompact = width < 900;
+  const isCompact = width < 900 || isTouchDevice();
 
   return (
     <View
@@ -199,7 +200,7 @@ type TotalProps = {
 function Total({ label, amount, isNegativeRed = false }: TotalProps) {
   const format = useFormat();
   return (
-    <View style={{ alignItems: 'center' }}>
+    <View style={{ alignItems: 'center', flexShrink: 0 }}>
       <View
         style={{
           fontSize: 13,
@@ -212,6 +213,7 @@ function Total({ label, amount, isNegativeRed = false }: TotalProps) {
       <PrivacyFilter>
         <FinancialText
           style={{
+            whiteSpace: 'nowrap',
             fontSize: 16,
             fontWeight: 700,
             color:

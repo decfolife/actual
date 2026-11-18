@@ -244,7 +244,7 @@ export function FinancesApp() {
               // bar in the mobile apps (zero elsewhere); the narrow layout's
               // page header handles it.
               ...(!isNarrowWidth && {
-                paddingTop: 'env(safe-area-inset-top)',
+                paddingTop: 'var(--safe-area-top, env(safe-area-inset-top))',
                 paddingRight: 'env(safe-area-inset-right)',
                 // A floating sidebar overlays this pane instead of sitting
                 // beside it, so the pane itself reaches the left edge.

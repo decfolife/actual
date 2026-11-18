@@ -14,6 +14,7 @@ import {
 } from '#components/common/Modal';
 import { SectionLabel } from '#components/forms';
 import type { Modal as ModalType } from '#modals/modalsSlice';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 type AccountAutocompleteModalProps = Extract<
   ModalType,
@@ -27,7 +28,12 @@ export function AccountAutocompleteModal({
   onClose,
 }: AccountAutocompleteModalProps) {
   const { t } = useTranslation();
-  const { isNarrowWidth } = useResponsive();
+  const { isNarrowWidth: isNarrowScreen } = useResponsive();
+  // Touch devices get the phone sizing (a tall, scrollable list) even on a
+  // wide screen, and the search box isn't focused until tapped, so the
+  // on-screen keyboard doesn't cover the list
+  const isTouch = isTouchDevice();
+  const isNarrowWidth = isNarrowScreen || isTouch;
   const defaultAutocompleteProps = {
     containerProps: { style: { height: isNarrowWidth ? '90vh' : 275 } },
   };
@@ -77,7 +83,7 @@ export function AccountAutocompleteModal({
             )}
             <View style={{ flex: 1 }}>
               <AccountAutocomplete
-                focused
+                focused={!isTouch}
                 embedded
                 closeOnBlur={false}
                 onClose={() => state.close()}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { createContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
@@ -40,9 +40,18 @@ const colors = {
   sectionText: '#7a7a7a',
 };
 
+/**
+ * Lets the register (on touch devices) open a transaction in this screen.
+ */
+export const TouchEditContext = createContext<
+  ((transaction: TransactionEntity) => void) | null
+>(null);
+
 type TouchTransactionEntryProps = {
   account?: AccountEntity;
   kind: 'transaction' | 'transfer';
+  // An existing transaction to edit (or delete) instead of adding one
+  transaction?: TransactionEntity;
   onClose: () => void;
 };
 
@@ -56,6 +65,7 @@ type TouchTransactionEntryProps = {
 export function TouchTransactionEntry({
   account,
   kind,
+  transaction: existing,
   onClose,
 }: TouchTransactionEntryProps) {
   const { t } = useTranslation();
@@ -65,18 +75,27 @@ export function TouchTransactionEntry({
   const { data: payees = [] } = usePayees();
   const { data: categoryData } = useCategories();
 
-  const [step, setStep] = useState<'amount' | 'details'>('amount');
-  // The amount in cents, typed digit by digit like YNAB ("4446" = 44.46)
-  const [cents, setCents] = useState(0);
-  const [isIncome, setIsIncome] = useState(false);
-  const [payeeId, setPayeeId] = useState<string | null>(null);
-  const [categoryId, setCategoryId] = useState<string | null>(null);
-  const [accountId, setAccountId] = useState<string | null>(
-    account?.id ?? accounts.find(a => !a.closed && !a.offbudget)?.id ?? null,
+  const [step, setStep] = useState<'amount' | 'details'>(
+    existing ? 'details' : 'amount',
   );
-  const [date, setDate] = useState(monthUtils.currentDay());
-  const [notes, setNotes] = useState('');
-  const [cleared, setCleared] = useState(false);
+  // The amount in cents, typed digit by digit like YNAB ("4446" = 44.46)
+  const [cents, setCents] = useState(Math.abs(existing?.amount ?? 0));
+  const [isIncome, setIsIncome] = useState((existing?.amount ?? 0) > 0);
+  const [payeeId, setPayeeId] = useState<string | null>(
+    existing?.payee ?? null,
+  );
+  const [categoryId, setCategoryId] = useState<string | null>(
+    existing?.category ?? null,
+  );
+  const [accountId, setAccountId] = useState<string | null>(
+    existing?.account ??
+      account?.id ??
+      accounts.find(a => !a.closed && !a.offbudget)?.id ??
+      null,
+  );
+  const [date, setDate] = useState(existing?.date ?? monthUtils.currentDay());
+  const [notes, setNotes] = useState(existing?.notes ?? '');
+  const [cleared, setCleared] = useState(existing?.cleared ?? false);
   const [isSaving, setIsSaving] = useState(false);
 
   const payee = payees.find(p => p.id === payeeId);
@@ -148,7 +167,8 @@ export function TouchTransactionEntry({
     }
     setIsSaving(true);
     const transaction = {
-      id: uuidv4(),
+      ...(existing ?? {}),
+      id: existing?.id ?? uuidv4(),
       account: accountId,
       date,
       amount: isIncome ? cents : -cents,
@@ -157,7 +177,23 @@ export function TouchTransactionEntry({
       notes: notes || null,
       cleared,
     } as TransactionEntity;
-    await send('transactions-batch-update', { added: [transaction] });
+    await send(
+      'transactions-batch-update',
+      existing ? { updated: [transaction] } : { added: [transaction] },
+    );
+    onClose();
+  }
+
+  async function remove() {
+    if (!existing || isSaving) {
+      return;
+    }
+    // oxlint-disable-next-line no-alert
+    if (!window.confirm(t('Delete this transaction?'))) {
+      return;
+    }
+    setIsSaving(true);
+    await send('transactions-batch-update', { deleted: [{ id: existing.id }] });
     onClose();
   }
 
@@ -217,7 +253,9 @@ export function TouchTransactionEntry({
               marginRight: 60,
             }}
           >
-            {kind === 'transfer' ? (
+            {existing ? (
+              <Trans>Edit Transaction</Trans>
+            ) : kind === 'transfer' ? (
               <Trans>Make a Transfer</Trans>
             ) : (
               <Trans>Add Transaction</Trans>
@@ -417,12 +455,37 @@ export function TouchTransactionEntry({
               </label>
             </View>
 
-            <View style={{ padding: 14, flexShrink: 0 }}>
+            <View
+              style={{
+                padding: 14,
+                flexShrink: 0,
+                flexDirection: 'row',
+                gap: 10,
+              }}
+            >
+              {existing && (
+                <Button
+                  variant="bare"
+                  isDisabled={isSaving}
+                  onPress={() => void remove()}
+                  style={{
+                    backgroundColor: colors.expense,
+                    backgroundImage: 'none',
+                    color: '#ffffff',
+                    fontSize: 22,
+                    padding: '14px 20px',
+                    borderRadius: 6,
+                  }}
+                >
+                  <Trans>Delete</Trans>
+                </Button>
+              )}
               <Button
                 variant="bare"
                 isDisabled={!accountId || isSaving}
                 onPress={() => void save()}
                 style={{
+                  flex: 1,
                   backgroundColor: colors.next,
                   backgroundImage: 'none',
                   color: '#ffffff',

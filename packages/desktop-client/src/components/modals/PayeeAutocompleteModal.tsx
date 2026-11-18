@@ -17,6 +17,7 @@ import { useAccounts } from '#hooks/useAccounts';
 import { useNavigate } from '#hooks/useNavigate';
 import { usePayees } from '#hooks/usePayees';
 import type { Modal as ModalType } from '#modals/modalsSlice';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 type PayeeAutocompleteModalProps = Extract<
   ModalType,
@@ -34,7 +35,12 @@ export function PayeeAutocompleteModal({
   const { data: accounts = [] } = useAccounts();
   const navigate = useNavigate();
 
-  const { isNarrowWidth } = useResponsive();
+  const { isNarrowWidth: isNarrowScreen } = useResponsive();
+  // Touch devices get the phone sizing (a tall, scrollable list) even on a
+  // wide screen, and the search box isn't focused until tapped, so the
+  // on-screen keyboard doesn't cover the list
+  const isTouch = isTouchDevice();
+  const isNarrowWidth = isNarrowScreen || isTouch;
   const defaultAutocompleteProps = {
     containerProps: { style: { height: isNarrowWidth ? '90vh' : 275 } },
   };
@@ -78,7 +84,7 @@ export function PayeeAutocompleteModal({
               <PayeeAutocomplete
                 payees={payees}
                 accounts={accounts}
-                focused
+                focused={!isTouch}
                 embedded
                 closeOnBlur={false}
                 onClose={() => state.close()}

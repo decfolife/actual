@@ -212,13 +212,20 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
     Cleared and Save Transaction. Pickers reuse the `payee-autocomplete`,
     `category-autocomplete` and `account-autocomplete` modals; transfers open
     the payee list on the accounts (`showTransfersFirst`).
-  - The account toolbar and filter chips are hidden; the register drops Memo
+  - Tapping a (non-split) transaction opens it in the same screen to edit or
+    delete (`TouchEditContext`, provided by `Account.tsx`).
+  - The payee/category/account pickers use the phone sizing and don't focus
+    their search box (so the keyboard doesn't cover the list).
+  - The account name row is hidden too. The account toolbar and filter chips are hidden; the register drops Memo
     (and the running balance under 900px wide), payee/category share the
     width; the footer shortens its labels under 900px.
   - The installed iOS app runs edge to edge (`apple-mobile-web-app-*` meta in
     `index.html`) and its status bar/edges use `touchViewTheme` (YNAB blue),
     not the gray `mobileViewTheme` used for desktop installed apps. Gray
     bands after rotating came from iOS painting the old gray theme color.
+    iOS keeps a stale top safe-area inset after rotating, so the top padding
+    uses `--safe-area-top` (from `index.html`), which is 0 in landscape on
+    touch devices.
   - No Xcode on the owner's Mac: touch layouts were checked in Chrome with
     touch emulation at the Duo's unfolded sizes (about 1000x700 landscape,
     730x890 portrait). Safari-specific behavior needs checking on the phone.

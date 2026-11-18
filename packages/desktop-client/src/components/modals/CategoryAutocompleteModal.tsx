@@ -17,6 +17,7 @@ import {
 import { SectionLabel } from '#components/forms';
 import { SheetNameProvider } from '#hooks/useSheetName';
 import type { Modal as ModalType } from '#modals/modalsSlice';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 type CategoryAutocompleteModalProps = Extract<
   ModalType,
@@ -35,7 +36,12 @@ export function CategoryAutocompleteModal({
   onClose,
 }: CategoryAutocompleteModalProps) {
   const { t } = useTranslation();
-  const { isNarrowWidth } = useResponsive();
+  const { isNarrowWidth: isNarrowScreen } = useResponsive();
+  // Touch devices get the phone sizing (a tall, scrollable list) even on a
+  // wide screen, and the search box isn't focused until tapped, so the
+  // on-screen keyboard doesn't cover the list
+  const isTouch = isTouchDevice();
+  const isNarrowWidth = isNarrowScreen || isTouch;
 
   const defaultAutocompleteProps = {
     containerProps: { style: { height: isNarrowWidth ? '90vh' : 275 } },
@@ -89,7 +95,7 @@ export function CategoryAutocompleteModal({
                 name={month ? monthUtils.sheetForMonth(month) : ''}
               >
                 <CategoryAutocomplete
-                  focused
+                  focused={!isTouch}
                   embedded
                   closeOnBlur={false}
                   closeOnSelect={closeOnSelect}

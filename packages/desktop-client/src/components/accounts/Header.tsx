@@ -259,9 +259,16 @@ export function AccountHeader({
 
   return (
     <>
-      <View style={{ ...styles.pageContent, paddingBottom: 6, flexShrink: 0 }}>
+      <View
+        style={{
+          ...styles.pageContent,
+          paddingBottom: isTouch ? 0 : 6,
+          flexShrink: 0,
+        }}
+      >
         {/* Like YNAB 4, a compact header: the name, balance and toolbar share
-            one row (wrapping on narrow screens) */}
+            one row (wrapping on narrow screens). Phones and tablets skip it:
+            the account is highlighted in the sidebar */}
         <View
           style={{
             flexDirection: 'row',
@@ -269,6 +276,7 @@ export function AccountHeader({
             alignItems: 'center',
             columnGap: 16,
             rowGap: 6,
+            ...(isTouch && { display: 'none' }),
           }}
         >
           <View

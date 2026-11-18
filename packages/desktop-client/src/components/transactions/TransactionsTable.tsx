@@ -4,6 +4,7 @@ import {
   forwardRef,
   memo,
   useCallback,
+  useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -88,6 +89,7 @@ import { format as formatDate, parseISO } from 'date-fns';
 import { isEqual } from 'es-toolkit/compat';
 
 import { getAccountsById } from '#accounts/accountsSlice';
+import { TouchEditContext } from '#components/accounts/TouchTransactionEntry';
 import { AccountAutocomplete } from '#components/autocomplete/AccountAutocomplete';
 import { CategoryAutocomplete } from '#components/autocomplete/CategoryAutocomplete';
 import { PayeeAutocomplete } from '#components/autocomplete/PayeeAutocomplete';
@@ -1525,6 +1527,7 @@ const Transaction = memo(function Transaction({
   // selected row edits the field clicked. The checkbox and C act at once.
   // The modifier keys held for the latest click on this row
   const clickModifiers = useRef({ shift: false, toggle: false });
+  const openTouchEditor = useContext(TouchEditContext);
 
   const onEdit = (editId: TransactionEntity['id'], field: string) => {
     const { shift, toggle } = clickModifiers.current;
@@ -1534,6 +1537,20 @@ const Transaction = memo(function Transaction({
       field !== 'select' &&
       field !== 'cleared' &&
       !isTemporaryId(originalTransaction.id);
+
+    // On a phone or tablet a tap opens the transaction in the full-screen
+    // editor (splits stay in the register)
+    if (
+      isRowClick &&
+      openTouchEditor &&
+      isTouchDevice() &&
+      !isPreview &&
+      !originalTransaction.is_parent &&
+      !originalTransaction.is_child
+    ) {
+      openTouchEditor(originalTransaction);
+      return;
+    }
 
     // Shift+click selects the range from the last clicked row (and trims
     // it when clicking inside it); Cmd/Ctrl+click adds or removes one row
