@@ -31,6 +31,7 @@ import { useCategories } from '#hooks/useCategories';
 import { useSheetValue } from '#hooks/useSheetValue';
 import { useSyncedPref } from '#hooks/useSyncedPref';
 import { envelopeBudget, trackingBudget } from '#spreadsheet/bindings';
+import { useTheme } from '#style';
 
 import { Autocomplete } from './Autocomplete';
 import { filterCategorySuggestions } from './filterCategorySuggestions';
@@ -84,15 +85,32 @@ function CategoryList({
   const categoryItems = items
     .map((item, index) => ({ ...item, highlightedIndex: index }))
     .filter(item => item.id !== 'split');
+  // YNAB 4's dropdown: a title, "Group:" headings and a taller list
+  const [themeName] = useTheme();
+  const isYnab = themeName === 'ynab' && !embedded;
 
   return (
     <View>
+      {isYnab && (
+        <View
+          style={{
+            padding: '6px 10px',
+            fontWeight: 700,
+            color: theme.buttonNormalText,
+            backgroundColor: theme.buttonNormalBackground,
+            backgroundImage: 'var(--button-gradient, none)',
+            borderBottom: `1px solid ${theme.buttonNormalBorder}`,
+          }}
+        >
+          <Trans>Budget Categories</Trans>
+        </View>
+      )}
       <View
         style={{
           overflowY: 'auto',
           willChange: 'transform',
           padding: '5px 0',
-          ...(!embedded && { maxHeight: 175 }),
+          ...(!embedded && { maxHeight: isYnab ? 260 : 175 }),
         }}
       >
         {splitTransaction &&
@@ -124,7 +142,7 @@ function CategoryList({
             <Fragment key={item.id}>
               {showGroupHeader &&
                 renderCategoryItemGroupHeader({
-                  title: `${group.name}${group.hidden ? ` ${t('(hidden)')}` : ''}`,
+                  title: `${group.name}${isYnab ? ':' : ''}${group.hidden ? ` ${t('(hidden)')}` : ''}`,
                   style: {
                     ...(showHiddenItems &&
                       group.hidden && { color: theme.pageTextSubdued }),
@@ -306,7 +324,9 @@ function SplitTransactionButton({
         alignItems: 'center',
         fontSize: 11,
         fontWeight: 500,
-        color: theme.noticeTextMenu,
+        color: highlighted
+          ? theme.menuAutoCompleteItemTextHover
+          : theme.noticeTextMenu,
         padding: '6px 8px',
         ':active': {
           backgroundColor: 'rgba(100, 100, 100, .25)',
@@ -415,6 +435,8 @@ function CategoryItem({
               positiveColor: theme.noticeTextMenu,
               negativeColor: theme.errorTextMenu,
             }),
+            // Readable on the highlight
+            ...(highlighted && { color: 'inherit' }),
           }}
         >
           {isToBudgetItem

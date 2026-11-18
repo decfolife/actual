@@ -25,6 +25,8 @@ export function ItemHeader({ title, style, type, ...props }: ItemHeaderProps) {
     <div
       style={{
         color: theme.menuAutoCompleteTextHeader,
+        // Bold in the YNAB theme
+        fontWeight: 'var(--autocomplete-header-weight, inherit)',
         padding: '4px 9px',
         ...narrowStyle,
         ...style,
