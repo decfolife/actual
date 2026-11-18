@@ -112,6 +112,9 @@ type AllTransactionsProps = {
   balancesTotal: IntegerAmount | null;
   showBalances?: boolean | undefined;
   filtered?: boolean | undefined;
+  // Show scheduled and upcoming transactions after the newest one, oldest
+  // first, for the oldest-first order
+  previewAtBottom?: boolean | undefined;
   children: (
     transactions: TransactionEntity[],
     balances: Record<TransactionEntity['id'], IntegerAmount> | null,
@@ -125,6 +128,7 @@ function AllTransactions({
   balancesTotal,
   showBalances,
   filtered,
+  previewAtBottom,
   children,
 }: AllTransactionsProps) {
   const accountId = account?.id;
@@ -166,10 +170,13 @@ function AllTransactions({
   const allTransactions = useMemo(() => {
     // Don't prepend scheduled transactions if we are filtering
     if (!filtered && previewTransactions.length > 0) {
-      return previewTransactions.concat(transactions);
+      // Running balances are per transaction, so they hold in either order
+      return previewAtBottom
+        ? transactions.concat([...previewTransactions].reverse())
+        : previewTransactions.concat(transactions);
     }
     return transactions;
-  }, [filtered, previewTransactions, transactions]);
+  }, [filtered, previewTransactions, transactions, previewAtBottom]);
 
   const allBalances = useMemo(() => {
     // Don't prepend scheduled transactions if we are filtering
@@ -302,7 +309,7 @@ type AccountInternalState = {
 export type TableRef = RefObject<{
   edit: (updatedId: string | null, op?: string, someBool?: boolean) => void;
   setRowAnimation: (animation: boolean) => void;
-  scrollTo: (focusId: string) => void;
+  scrollTo: (focusId: string, alignment?: string) => void;
   scrollToTop: () => void;
   getScrolledItem: () => string;
 } | null>;
@@ -636,7 +643,10 @@ class AccountInternal extends PureComponent<
         return;
       }
       if (this.state.transactions.some(t => t.id === newest.id)) {
-        requestAnimationFrame(() => this.table.current?.scrollTo(newest.id));
+        requestAnimationFrame(() =>
+          // Centered, so scheduled transactions below it show too
+          this.table.current?.scrollTo(newest.id, 'center'),
+        );
       } else if (triesLeft > 0) {
         setTimeout(() => scrollWhenListed(triesLeft - 1), 100);
       }
@@ -1961,6 +1971,7 @@ class AccountInternal extends PureComponent<
         balancesTotal={balancesTotal}
         showBalances={showBalances}
         filtered={transactionsFiltered}
+        previewAtBottom={this.state.sort === null}
       >
         {(allTransactions, allBalances) => (
           <SelectedProviderWithItems
