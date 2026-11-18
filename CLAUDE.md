@@ -207,6 +207,36 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   bold "Group:" headings, "Budget Categories" title, taller lists
   (`--autocomplete-list-height`).
 
+## Future plan
+
+### YNAB 4 "Spending By Category" report (requested, not started)
+
+A new report like YNAB 4's: title with Export (CSV) and Print buttons; a
+light filter box with dropdown links (Timeframe, e.g. "January 2022 to
+October 2024"; Categories: All; Payees: All; Accounts: Budget Accounts); a
+large donut chart of spending per category group with leader-line labels
+("Food $32,979.12 (4%)") and "Total Spending $X" in the middle; a dark slate
+panel on the right listing each group with a colored dot and its amount, and
+a big Total. Hidden categories are grouped as "Hidden Categories".
+
+How to add it (follow the Age of Money report, the simplest recent example):
+
+- Widget type: add `'spending-by-category-card'` and its meta type
+  (name, timeFrame, category/payee/account filters) in
+  `loot-core/src/types/models/dashboard.ts`, and to the allowed list in
+  `loot-core/src/server/dashboard/app.ts` (and its test).
+- Dashboard: add it to the "Add new widget" menu and the widget render switch
+  in `components/reports/Overview.tsx`; a card component in
+  `components/reports/reports/` (small donut + total, links to the page).
+- Page and routes: `/spending-by-category` and `/spending-by-category/:id` in
+  `components/reports/ReportRouter.tsx`; page loads/saves its meta with
+  `useDashboardWidget` / `useUpdateDashboardWidgetMutation` like
+  `AgeOfMoney.tsx`.
+- Data: sum outflows per category group over the timeframe, on-budget
+  accounts by default, excluding transfers and income; a spreadsheet in
+  `components/reports/spreadsheets/` used through `useReport`. Charts use
+  recharts (see `components/reports/graphs/`).
+
 ## Known gaps / ideas not done yet
 
 - No flag column, check numbers, or "Add Category" button in the category
