@@ -917,6 +917,11 @@ class AccountInternal extends PureComponent<
     this.setState({ isAdding: true, newTransactionPayee: payeeId ?? null });
   };
 
+  // A stable function, so rows don't all re-render on every update
+  onCloseAddTransaction = () => {
+    this.setState({ isAdding: false });
+  };
+
   onSaveName = (name: string) => {
     const accountNameError = validateAccountName(
       name,
@@ -2154,9 +2159,7 @@ class AccountInternal extends PureComponent<
                     onRefetch={this.refetchTransactions}
                     focusedTransactionId={this.state.focusedTransactionId}
                     onFocusedTransactionShown={this.onFocusedTransactionShown}
-                    onCloseAddTransaction={() =>
-                      this.setState({ isAdding: false })
-                    }
+                    onCloseAddTransaction={this.onCloseAddTransaction}
                     onCreatePayee={this.onCreatePayee}
                     onApplyFilter={this.onApplyFilter}
                   />

@@ -208,23 +208,27 @@ export function useAmountColumnWidths(
   transactions: TransactionEntity[],
   balances: Record<TransactionEntity['id'], IntegerAmount> | null,
 ): AmountColumnWidths {
-  const debitCreditValues = transactions.map(t =>
-    integerToCurrency(Math.abs(t.amount ?? 0)),
-  );
-  const balanceValues = balances
-    ? Object.values(balances).map(balance => integerToCurrency(balance))
-    : [];
+  // Memoized: formats every transaction, and a new object would re-render
+  // every row
+  return useMemo(() => {
+    const debitCreditValues = transactions.map(t =>
+      integerToCurrency(Math.abs(t.amount ?? 0)),
+    );
+    const balanceValues = balances
+      ? Object.values(balances).map(balance => integerToCurrency(balance))
+      : [];
 
-  return {
-    amount: measureAmountColumnWidth(
-      debitCreditValues,
-      DEFAULT_AMOUNT_COLUMN_WIDTHS.amount,
-    ),
-    balance: measureAmountColumnWidth(
-      balanceValues,
-      DEFAULT_AMOUNT_COLUMN_WIDTHS.balance,
-    ),
-  };
+    return {
+      amount: measureAmountColumnWidth(
+        debitCreditValues,
+        DEFAULT_AMOUNT_COLUMN_WIDTHS.amount,
+      ),
+      balance: measureAmountColumnWidth(
+        balanceValues,
+        DEFAULT_AMOUNT_COLUMN_WIDTHS.balance,
+      ),
+    };
+  }, [transactions, balances]);
 }
 
 type TransactionHeaderProps = {
@@ -2000,6 +2004,7 @@ const Transaction = memo(function Transaction({
     <SelectCell
       /* Checkmark field for non-child transaction */
       exposed
+      deferSelect={isYnab}
       buttonProps={{
         // YNAB 4 shows every row's checkbox
         className: selected || editing || isYnab ? undefined : 'hover-visible',
@@ -2012,7 +2017,9 @@ const Transaction = memo(function Transaction({
           isRangeSelect: e.shiftKey,
         });
       }}
-      onEdit={() => onEdit(id, 'select')}
+      // Ticking a box isn't editing in YNAB 4; skipping it saves a full
+      // table re-render on every click
+      onEdit={isYnab ? undefined : () => onEdit(id, 'select')}
       selected={selected}
       style={{ ...(isChild && { borderLeftWidth: 1 }) }}
       value={
@@ -4685,16 +4692,17 @@ export const TransactionTable = forwardRef(
       [latestState, onSave],
     );
 
-    function onCloseAddTransaction() {
+    // Stable, so the rows (which get callbacks built on it) don't all
+    // re-render on every update, e.g. ticking a checkbox
+    const { currentAccountId, currentCategoryId } = props;
+    const onCloseAddTransactionProp = props.onCloseAddTransaction;
+    const onCloseAddTransaction = useCallback(() => {
       clearedFields.current.clear();
       setNewTransactions(
-        makeTemporaryTransactions(
-          props.currentAccountId,
-          props.currentCategoryId,
-        ),
+        makeTemporaryTransactions(currentAccountId, currentCategoryId),
       );
-      props.onCloseAddTransaction();
-    }
+      onCloseAddTransactionProp();
+    }, [currentAccountId, currentCategoryId, onCloseAddTransactionProp]);
 
     const onToggleSplit = useCallback(
       (id: TransactionEntity['id']) =>

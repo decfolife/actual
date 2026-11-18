@@ -642,6 +642,9 @@ type SelectCellProps = Omit<ComponentProps<typeof Cell>, 'children'> & {
   onSelect?: (e) => void;
   icon?: ReactNode;
   buttonProps?: Partial<CellButtonProps>;
+  // Paint the check first and select just after, for big tables where
+  // selecting updates a lot of the page
+  deferSelect?: boolean;
 };
 export function SelectCell({
   focused,
@@ -651,8 +654,19 @@ export function SelectCell({
   onEdit,
   icon = <SvgCheckmark width={6} height={6} />,
   buttonProps = {},
+  deferSelect = false,
   ...props
 }: SelectCellProps) {
+  // Show the click right away; the selection itself (which updates the
+  // whole page) runs just after, once the check has been painted
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
+  const [lastSelected, setLastSelected] = useState(selected);
+  if (selected !== lastSelected) {
+    setLastSelected(selected);
+    setOptimistic(null);
+  }
+  const isChecked = optimistic ?? selected;
+
   return (
     <Cell
       {...props}
@@ -662,8 +676,20 @@ export function SelectCell({
       style={{ alignItems: 'center', userSelect: 'none', ...style }}
       onClick={e => {
         e.stopPropagation();
-        onSelect?.(e);
-        onEdit?.();
+        if (!deferSelect) {
+          onSelect?.(e);
+          onEdit?.();
+          return;
+        }
+        setOptimistic(!isChecked);
+        requestAnimationFrame(() =>
+          setTimeout(() => {
+            onSelect?.(e);
+            onEdit?.();
+            // The real state takes over (in the same render)
+            setOptimistic(null);
+          }),
+        );
       }}
     >
       {() => (
@@ -675,11 +701,11 @@ export function SelectCell({
             justifyContent: 'center',
             alignItems: 'center',
             borderRadius: 3,
-            border: selected
+            border: isChecked
               ? '1px solid ' + theme.checkboxBorderSelected
               : `1px solid var(--checkbox-border, ${theme.formInputBorder})`,
             color: theme.checkboxText,
-            backgroundColor: selected
+            backgroundColor: isChecked
               ? theme.checkboxBackgroundSelected
               : theme.tableBackground,
             backgroundImage: 'var(--checkbox-gradient, none)',
@@ -698,7 +724,7 @@ export function SelectCell({
           clickBehavior="none"
           {...buttonProps}
         >
-          {selected && icon}
+          {isChecked && icon}
         </CellButton>
       )}
     </Cell>
