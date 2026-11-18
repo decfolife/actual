@@ -122,6 +122,7 @@ type AllTransactionsProps = {
   children: (
     transactions: TransactionEntity[],
     balances: Record<TransactionEntity['id'], IntegerAmount> | null,
+    isPreviewLoading: boolean,
   ) => ReactElement;
 };
 
@@ -191,9 +192,9 @@ function AllTransactions({
   }, [filtered, prependBalances, balances]);
 
   if (!previewTransactions?.length || filtered) {
-    return children(transactions, balances);
+    return children(transactions, balances, isPreviewTransactionsLoading);
   }
-  return children(allTransactions, allBalances);
+  return children(allTransactions, allBalances, isPreviewTransactionsLoading);
 }
 
 function getField(field?: string) {
@@ -1958,7 +1959,7 @@ class AccountInternal extends PureComponent<
         filtered={transactionsFiltered}
         previewAtBottom={this.state.sort === null}
       >
-        {(allTransactions, allBalances) => (
+        {(allTransactions, allBalances, isPreviewLoading) => (
           <SelectedProviderWithItems
             name="transactions"
             // When reconciled transactions are hidden they are still
@@ -2037,7 +2038,16 @@ class AccountInternal extends PureComponent<
                 />
               )}
 
-              <View style={{ flex: 1 }}>
+              <View
+                style={{
+                  flex: 1,
+                  // Shown once the transactions and the scheduled ones
+                  // below them have loaded, so the grid appears in place
+                  // instead of shifting as each part arrives
+                  visibility:
+                    loading || isPreviewLoading ? 'hidden' : 'visible',
+                }}
+              >
                 <TransactionList
                   headerContent={undefined}
                   // @ts-expect-error - fix me
@@ -2053,7 +2063,11 @@ class AccountInternal extends PureComponent<
                   categoryGroups={categoryGroups}
                   payees={payees}
                   balances={allBalances}
-                  showBalances={!!allBalances}
+                  // Set from the start (the values fill in when ready) so
+                  // the columns don't resize when the balances arrive
+                  showBalances={
+                    !!this.state.showBalances && this.canCalculateBalance()
+                  }
                   showReconciled={showReconciled}
                   showCleared={!!showCleared}
                   showGroup={this.props.showGroup}
