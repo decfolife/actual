@@ -27,6 +27,10 @@ import { configureAppStore } from './redux/store';
 import * as transactionsSlice from './transactions/transactionsSlice';
 import { redo, undo } from './undo';
 import * as usersSlice from './users/usersSlice';
+import { remeasureOnResume } from './util/remeasureOnResume';
+
+// Back from the app switcher, re-check the window size (see the module)
+remeasureOnResume();
 
 // Queries and mutations talk to the local backend, so they must run
 // regardless of internet connectivity.
