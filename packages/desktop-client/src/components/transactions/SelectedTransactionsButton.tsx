@@ -18,6 +18,7 @@ import { useSchedules } from '#hooks/useSchedules';
 import { useSelectedItems } from '#hooks/useSelected';
 import { pushModal } from '#modals/modalsSlice';
 import { useDispatch } from '#redux';
+import { useTheme } from '#style';
 
 type SelectedTransactionsButtonProps = {
   getTransaction: (id: string) => TransactionEntity | undefined;
@@ -68,6 +69,8 @@ export function SelectedTransactionsButton({
   onMergeTransactions,
 }: SelectedTransactionsButtonProps) {
   const { t } = useTranslation();
+  const [themeName] = useTheme();
+  const isYnab = themeName === 'ynab';
   const dispatch = useDispatch();
   const selectedItems = useSelectedItems();
   const selectedIds = useMemo(() => [...selectedItems], [selectedItems]);
@@ -297,7 +300,17 @@ export function SelectedTransactionsButton({
   return (
     <SelectedItemsButton
       id="transactions"
-      name={count => t('{{count}} transactions', { count })}
+      // YNAB 4's always-present "Edit Transactions" button
+      alwaysShow={isYnab}
+      name={count =>
+        !isYnab
+          ? t('{{count}} transactions', { count })
+          : count === 0
+            ? t('Edit Transactions')
+            : count === 1
+              ? t('Edit (1) Transaction')
+              : t('Edit ({{count}}) Transactions', { count })
+      }
       // @ts-expect-error fix me
       items={[
         ...(!types.trans

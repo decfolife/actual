@@ -304,6 +304,30 @@ export function AccountHeader({
             <HeaderSelectedBalance account={account} />
           </View>
           <SpaceBetween gap={10} style={{ flex: 1, minWidth: 480 }}>
+            {/* Like YNAB 4's "Edit Transactions", first in the toolbar */}
+            {workingHard ? (
+              <View>
+                <AnimatedLoading style={{ width: 16, height: 16 }} />
+              </View>
+            ) : (
+              <SelectedTransactionsButton
+                getTransaction={id => transactions.find(t => t.id === id)}
+                onShow={onShowTransactions}
+                onDuplicate={onBatchDuplicate}
+                onDelete={onBatchDelete}
+                onEdit={onBatchEdit}
+                onRunRules={onRunRules}
+                onLinkSchedule={onBatchLinkSchedule}
+                onUnlinkSchedule={onBatchUnlinkSchedule}
+                onCreateRule={onCreateRule}
+                onSetTransfer={onSetTransfer}
+                onScheduleAction={onScheduleAction}
+                showMakeTransfer={showMakeTransfer}
+                onMakeAsSplitTransaction={onMakeAsSplitTransaction}
+                onMakeAsNonSplitTransactions={onMakeAsNonSplitTransactions}
+                onMergeTransactions={onMergeTransactions}
+              />
+            )}
             {canSync && (
               <Button
                 variant="bare"
@@ -353,29 +377,6 @@ export function AccountHeader({
               onChange={onSearch}
               onApplyFilter={onApplyFilter}
             />
-            {workingHard ? (
-              <View>
-                <AnimatedLoading style={{ width: 16, height: 16 }} />
-              </View>
-            ) : (
-              <SelectedTransactionsButton
-                getTransaction={id => transactions.find(t => t.id === id)}
-                onShow={onShowTransactions}
-                onDuplicate={onBatchDuplicate}
-                onDelete={onBatchDelete}
-                onEdit={onBatchEdit}
-                onRunRules={onRunRules}
-                onLinkSchedule={onBatchLinkSchedule}
-                onUnlinkSchedule={onBatchUnlinkSchedule}
-                onCreateRule={onCreateRule}
-                onSetTransfer={onSetTransfer}
-                onScheduleAction={onScheduleAction}
-                showMakeTransfer={showMakeTransfer}
-                onMakeAsSplitTransaction={onMakeAsSplitTransaction}
-                onMakeAsNonSplitTransactions={onMakeAsNonSplitTransactions}
-                onMergeTransactions={onMergeTransactions}
-              />
-            )}
             <View style={{ flex: '0 0 auto' }}>
               {account && (
                 <Tooltip

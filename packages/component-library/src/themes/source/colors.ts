@@ -820,6 +820,18 @@ export const colors = {
     all: { ref: 'tableBorder' },
     description: 'Lines between transactions in account registers',
   },
+  registerEditingBorder: {
+    all: { ref: 'tableBorderSelected' },
+    description: 'Outline of the transaction being edited',
+  },
+  registerEditingStripe: {
+    all: { ref: 'tableRowBackgroundHover' },
+    description: 'Stripes on the Done/Cancel bar under an edited transaction',
+  },
+  registerEditingStripeAlternate: {
+    all: { ref: 'tableBackground' },
+    description: 'Alternate stripes on the Done/Cancel bar',
+  },
   registerClearedBackground: {
     light: 'green500',
     dark: 'green600',

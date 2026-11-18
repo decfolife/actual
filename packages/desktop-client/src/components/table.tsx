@@ -848,6 +848,8 @@ type SelectedItemsButtonProps<Name extends string> = {
   items: MenuItem<Name>[];
   onSelect: (name: Name, items: string[]) => void;
   footer?: ReactNode;
+  // Shown (disabled) even with nothing selected, as a bordered button
+  alwaysShow?: boolean;
 };
 
 export function SelectedItemsButton<Name extends string>({
@@ -856,12 +858,13 @@ export function SelectedItemsButton<Name extends string>({
   items,
   onSelect,
   footer,
+  alwaysShow = false,
 }: SelectedItemsButtonProps<Name>) {
   const selectedItems = useSelectedItems();
   const [menuOpen, setMenuOpen] = useState(false);
   const triggerRef = useRef(null);
 
-  if (selectedItems.size === 0) {
+  if (selectedItems.size === 0 && !alwaysShow) {
     return null;
   }
 
@@ -870,20 +873,32 @@ export function SelectedItemsButton<Name extends string>({
 
   return (
     <View style={{ flexShrink: 0 }}>
-      <Button
-        ref={triggerRef}
-        variant="bare"
-        style={{ color: theme.pageTextPositive }}
-        onPress={() => setMenuOpen(true)}
-        data-testid={id + '-select-button'}
-      >
-        <SvgExpandArrow
-          width={8}
-          height={8}
-          style={{ marginRight: 5, color: theme.pageText }}
-        />
-        {buttonLabel}
-      </Button>
+      {alwaysShow ? (
+        <Button
+          ref={triggerRef}
+          isDisabled={selectedItems.size === 0}
+          onPress={() => setMenuOpen(true)}
+          data-testid={id + '-select-button'}
+        >
+          {buttonLabel}
+          <SvgExpandArrow width={8} height={8} style={{ marginLeft: 6 }} />
+        </Button>
+      ) : (
+        <Button
+          ref={triggerRef}
+          variant="bare"
+          style={{ color: theme.pageTextPositive }}
+          onPress={() => setMenuOpen(true)}
+          data-testid={id + '-select-button'}
+        >
+          <SvgExpandArrow
+            width={8}
+            height={8}
+            style={{ marginRight: 5, color: theme.pageText }}
+          />
+          {buttonLabel}
+        </Button>
+      )}
 
       <Popover
         triggerRef={triggerRef}

@@ -39,6 +39,7 @@ import {
   SvgEditSkull1,
   SvgHyperlink2,
   SvgLockClosed,
+  SvgRemove,
   SvgSubtract,
 } from '@actual-app/components/icons/v2';
 import { Popover } from '@actual-app/components/popover';
@@ -81,6 +82,7 @@ import type {
 } from '@actual-app/core/types/models';
 import { keyframes } from '@emotion/css';
 import { format as formatDate, parseISO } from 'date-fns';
+import { isEqual } from 'es-toolkit/compat';
 
 import { getAccountsById } from '#accounts/accountsSlice';
 import { AccountAutocomplete } from '#components/autocomplete/AccountAutocomplete';
@@ -577,6 +579,47 @@ function StatusCell({
         )}
       </CellButton>
     </Cell>
+  );
+}
+
+type EditBarProps = {
+  onDone: () => void;
+  onCancel: () => void;
+};
+
+// The striped bar with Done and Cancel under an edited transaction
+function EditBar({ onDone, onCancel }: EditBarProps) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 6,
+        padding: '4px 8px',
+        border: `1px solid ${theme.registerEditingBorder}`,
+        borderTop: 0,
+        background: `repeating-linear-gradient(135deg, ${theme.registerEditingStripe} 0 10px, ${theme.registerEditingStripeAlternate} 10px 20px)`,
+      }}
+    >
+      {/* Done lets the field being typed in save as it loses focus */}
+      <Button onPress={onDone} style={{ gap: 5 }}>
+        <SvgCheckCircle1
+          style={{
+            width: 13,
+            height: 13,
+            color: theme.registerClearedBackground,
+          }}
+        />
+        <Trans>Done</Trans>
+      </Button>
+      {/* Cancel keeps the focus so the field's typing isn't saved */}
+      <View onMouseDown={e => e.preventDefault()}>
+        <Button onPress={onCancel} style={{ gap: 5 }}>
+          <SvgRemove style={{ width: 9, height: 9 }} />
+          <Trans>Cancel</Trans>
+        </Button>
+      </View>
+    </View>
   );
 }
 
@@ -1222,7 +1265,7 @@ const Transaction = memo(function Transaction({
 
   const dispatch = useDispatch();
   const dispatchSelected = useSelectedDispatch();
-  const triggerRef = useRef(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
 
   const [prevShowZero, setPrevShowZero] = useState(showZeroInDeposit);
   const [prevTransaction, setPrevTransaction] = useState(originalTransaction);
@@ -1230,6 +1273,24 @@ const Transaction = memo(function Transaction({
     serializeTransaction(originalTransaction, showZeroInDeposit),
   );
   const isPreview = isPreviewId(transaction.id);
+
+  // YNAB 4 puts Done and Cancel under the transaction being edited; Cancel
+  // puts back what it was when editing started
+  const isYnab = useIsYnabRegister();
+  const [editStart, setEditStart] = useState<TransactionEntity | null>(null);
+  if (editing && editStart == null) {
+    setEditStart(originalTransaction);
+  } else if (!editing && editStart != null) {
+    setEditStart(null);
+  }
+  const showEditBar =
+    isYnab && editing && !isPreview && !originalTransaction.is_child;
+  // The table navigator's onEdit takes null to stop editing
+  const stopEditing = () =>
+    (onEdit as (id: TransactionEntity['id'] | null, field: string) => void)(
+      null,
+      '',
+    );
 
   if (
     originalTransaction !== prevTransaction ||
@@ -2265,6 +2326,11 @@ const Transaction = memo(function Transaction({
             },
           }),
           ...style,
+          ...(showEditBar && {
+            outline: `1px solid ${theme.registerEditingBorder}`,
+            outlineOffset: -1,
+            zIndex: 1,
+          }),
           ...(isPreview && {
             color: theme.tableTextInactive,
             fontStyle: 'italic',
@@ -2273,6 +2339,38 @@ const Transaction = memo(function Transaction({
           ...(isBeingDragged && { opacity: 0.5 }),
         }}
       >
+        {showEditBar && listContainerRef?.current && (
+          <Popover
+            triggerRef={triggerRef}
+            isOpen
+            isNonModal
+            shouldFlip={false}
+            offset={0}
+            placement="bottom start"
+            // Full row width, so no gap from the edges
+            containerPadding={0}
+            UNSTABLE_portalContainer={listContainerRef.current}
+            style={{
+              width: triggerRef.current?.offsetWidth,
+              maxWidth: 'none',
+              padding: 0,
+              border: 0,
+              borderRadius: 0,
+              boxShadow: 'none',
+            }}
+          >
+            <EditBar
+              onDone={stopEditing}
+              onCancel={() => {
+                if (editStart && !isEqual(editStart, originalTransaction)) {
+                  // Not tied to one field, so no field name
+                  onSave(editStart, subtransactions ?? null, '');
+                }
+                stopEditing();
+              }}
+            />
+          </Popover>
+        )}
         {splitError && listContainerRef?.current && (
           <Popover
             triggerRef={triggerRef}

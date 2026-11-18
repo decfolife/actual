@@ -7,6 +7,7 @@ import type { TransactionTableColumn } from '#components/transactions/table/colu
 import { useSyncedPref } from '#hooks/useSyncedPref';
 import { saveSyncedPrefs } from '#prefs/prefsSlice';
 import { useDispatch, useSelector } from '#redux';
+import { useTheme } from '#style';
 
 // Pseudo-account views that have their own per-view prefs alongside real
 // account ids ('all-accounts' is the view with no account id in the URL).
@@ -15,6 +16,20 @@ export const SPECIAL_VIEW_IDS: string[] = [
   'offbudget',
   'uncategorized',
   'all-accounts',
+];
+
+// YNAB 4's column order
+const YNAB_COLUMN_ORDER: TransactionTableColumn['id'][] = [
+  'account',
+  'date',
+  'payee',
+  'group',
+  'category',
+  'notes',
+  'payment',
+  'deposit',
+  'balance',
+  'cleared',
 ];
 
 /**
@@ -40,13 +55,24 @@ export function useTransactionTableColumns(accountId: string | undefined) {
   // Memoized manually (the React Compiler bails out on the consuming
   // components): `columnOrder` crosses the `memo()` boundary of every
   // transaction row, so its identity must only change when the config does.
-  const transactionColumns = useMemo(
-    () => parseTransactionTableColumns(columnsConfig),
-    [columnsConfig],
-  );
-  const showBalances = columnsConfig
-    ? !transactionColumns.find(column => column.id === 'balance')?.hidden
-    : String(legacyShowBalances) === 'true';
+  const [themeName] = useTheme();
+  const isYnab = themeName === 'ynab';
+  const transactionColumns = useMemo(() => {
+    const columns = parseTransactionTableColumns(columnsConfig);
+    // The YNAB theme lays the register out like YNAB 4
+    return isYnab
+      ? [...columns].sort(
+          (a, b) =>
+            YNAB_COLUMN_ORDER.indexOf(a.id) - YNAB_COLUMN_ORDER.indexOf(b.id),
+        )
+      : columns;
+  }, [columnsConfig, isYnab]);
+  // YNAB 4 always shows the running balance
+  const showBalances =
+    isYnab ||
+    (columnsConfig
+      ? !transactionColumns.find(column => column.id === 'balance')?.hidden
+      : String(legacyShowBalances) === 'true');
   const showCleared = columnsConfig
     ? !transactionColumns.find(column => column.id === 'cleared')?.hidden
     : String(legacyHideCleared) !== 'true';
