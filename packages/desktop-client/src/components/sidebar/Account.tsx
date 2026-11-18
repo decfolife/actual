@@ -18,6 +18,7 @@ import { Text } from '@actual-app/components/text';
 import { theme } from '@actual-app/components/theme';
 import { Tooltip } from '@actual-app/components/tooltip';
 import { View } from '@actual-app/components/view';
+import { send } from '@actual-app/core/platform/client/connection';
 import type { AccountEntity } from '@actual-app/core/types/models';
 import { css, cx } from '@emotion/css';
 
@@ -35,10 +36,12 @@ import { useFormat } from '#hooks/useFormat';
 import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useNotes } from '#hooks/useNotes';
 import { useSyncedPref } from '#hooks/useSyncedPref';
-import { openAccountCloseModal } from '#modals/modalsSlice';
+import { pushModal } from '#modals/modalsSlice';
 import { useDispatch, useSelector } from '#redux';
 import type { Binding, SheetFields } from '#spreadsheet';
 import { isTouchDevice } from '#util/isTouchDevice';
+
+import { AdjustBalancePopover } from './AdjustBalancePopover';
 
 export const accountNameStyle: StyleProperties = {
   marginTop: -2,
@@ -165,32 +168,70 @@ export function Account<FieldName extends SheetFields<'account'>>({
         typeof i === 'object' && 'name' in i && i.name.startsWith('account-'),
     ),
   );
+  const [isAdjustingBalance, setIsAdjustingBalance] = useState(false);
+
+  const onEditNotes = () => {
+    if (!account) {
+      return;
+    }
+    dispatch(
+      pushModal({
+        modal: {
+          name: 'notes',
+          options: {
+            id: `account-${account.id}`,
+            name: account.name,
+            onSave: (id, contents) => {
+              void send('notes-save', { id, note: contents });
+            },
+          },
+        },
+      }),
+    );
+  };
+
   useContextMenu({
     triggerRef,
     enabled: account != null && needsTooltip,
-    items: [
-      {
-        name: 'account-rename',
-        text: t('Rename'),
-        onClick: () => setIsEditing(true),
-      },
-      account?.closed
-        ? {
+    // Like YNAB 4: adjust the balance or add a note. Rename and Close are on
+    // the account page.
+    items: account?.closed
+      ? [
+          {
+            name: 'account-notes',
+            text: t('Note…'),
+            onClick: onEditNotes,
+          },
+          {
             name: 'account-reopen',
             text: t('Reopen'),
             onClick: () => reopenAccount.mutate({ id: account.id }),
-          }
-        : {
-            name: 'account-close',
-            text: t('Close'),
-            onClick: () =>
-              dispatch(openAccountCloseModal({ accountId: account.id })),
           },
-    ],
+        ]
+      : [
+          {
+            name: 'account-adjust-balance',
+            text: t('Adjust Balance…'),
+            onClick: () => setIsAdjustingBalance(true),
+          },
+          {
+            name: 'account-notes',
+            text: t('Note…'),
+            onClick: onEditNotes,
+          },
+        ],
   });
 
   const accountRow = (
     <View innerRef={dropRef} style={{ flexShrink: 0, ...outerStyle }}>
+      {account && (
+        <AdjustBalancePopover
+          account={account}
+          triggerRef={triggerRef}
+          isOpen={isAdjustingBalance}
+          onClose={() => setIsAdjustingBalance(false)}
+        />
+      )}
       <View innerRef={triggerRef}>
         <DropHighlight pos={dropPos} />
         <View innerRef={handleDragRef}>
@@ -218,7 +259,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
               // has unread transactions. The system does mark is read and
               // unbolds it, but it still "flashes" bold so this just
               // ignores it if it's active
-              fontWeight: (style && style.fontWeight) || 'normal',
+              fontWeight: 700,
               '& .dot': {
                 backgroundColor: theme.sidebarItemAccentSelected,
                 transform: 'translateX(-4.5px)',
