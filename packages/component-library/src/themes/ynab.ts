@@ -87,6 +87,9 @@ const ynabOverrides: Record<string, string> = {
   // Tables
   tableBackground: '#ffffff',
   tableRowBackgroundAlternate: '#eaf4f9',
+  // YNAB 4 highlights selected rows in yellow
+  tableRowBackgroundHighlight: '#faf2b0',
+  tableRowBackgroundHighlightText: '#2a2a2a',
   tableText: '#3a3a3a',
   tableTextSubdued: '#9a9a9a',
   tableBorder: '#b5dfea',

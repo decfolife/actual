@@ -43,13 +43,11 @@ import { useDateFormat } from '#hooks/useDateFormat';
 import { useFeatureFlag } from '#hooks/useFeatureFlag';
 import { useLocale } from '#hooks/useLocale';
 import { useLocalPref } from '#hooks/useLocalPref';
-import { useSelectedItems } from '#hooks/useSelected';
 import { useSplitsExpanded } from '#hooks/useSplitsExpanded';
 import { useSyncedPref } from '#hooks/useSyncedPref';
 import { useSyncServerStatus } from '#hooks/useSyncServerStatus';
 
 import type { TableRef } from './Account';
-import { SelectedBalance } from './Balance';
 import { BalanceHistoryGraph } from './BalanceHistoryGraph';
 import { DateRangeButton } from './DateRangeButton';
 import { ReconcileMenu, ReconcilingMessage } from './Reconcile';
@@ -300,8 +298,8 @@ export function AccountHeader({
               />
             </View>
 
-            {/* The balances are in the bar at the bottom, like YNAB 4 */}
-            <HeaderSelectedBalance account={account} />
+            {/* The balances (selected total too) are in the bar at the
+                bottom, like YNAB 4 */}
           </View>
           <SpaceBetween gap={10} style={{ flex: 1, minWidth: 480 }}>
             {/* Like YNAB 4's "Edit Transactions", first in the toolbar */}
@@ -806,11 +804,4 @@ function AccountMenu({
       ]}
     />
   );
-}
-
-function HeaderSelectedBalance({ account }: { account?: AccountEntity }) {
-  const selectedItems = useSelectedItems();
-  return selectedItems.size > 0 ? (
-    <SelectedBalance selectedItems={selectedItems} account={account} />
-  ) : null;
 }

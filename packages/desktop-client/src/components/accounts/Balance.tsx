@@ -60,12 +60,14 @@ type SelectedBalanceProps = {
   account?: AccountEntity;
 };
 
-export function SelectedBalance({
-  selectedItems,
-  account,
-}: SelectedBalanceProps) {
-  const { t } = useTranslation();
-
+/**
+ * The total of the selected transactions, scheduled ones included (by their
+ * scheduled amount). `null` until it can be calculated.
+ */
+export function useSelectedTotal(
+  selectedItems: Set<string>,
+  account?: AccountEntity,
+): { total: number | null; isExact: boolean } {
   const name = `selected-balance-${[...selectedItems].join('-')}`;
 
   const rows = useSheetValue<'balance', `selected-transactions-${string}`>({
@@ -80,7 +82,7 @@ export function SelectedBalance({
   const ids = new Set((rows || []).map((r: { id: string }) => r.id));
 
   const finalIds = [...selectedItems].filter(id => !ids.has(id));
-  let balance = useSheetValue<'balance', `selected-balance-${string}`>({
+  const balance = useSheetValue<'balance', `selected-balance-${string}`>({
     name: (name + '-sum') as `selected-balance-${string}`,
     query: q('transactions')
       .filter({ id: { $oneof: finalIds } })
@@ -88,15 +90,14 @@ export function SelectedBalance({
       .calculate({ $sum: '$amount' }),
   });
 
-  let scheduleBalance = 0;
-
   const { isLoading, schedules = [] } = useCachedSchedules();
 
   if (isLoading) {
-    return null;
+    return { total: null, isExact: true };
   }
 
-  let isExactBalance = true;
+  let scheduleBalance = 0;
+  let isExact = true;
 
   for (const id of [...selectedItems].filter(isPreviewId)) {
     // Preview IDs are in the format `preview/<schedule_id>/<date>`
@@ -105,7 +106,7 @@ export function SelectedBalance({
     if (schedule) {
       // If a schedule is `between X and Y` then we calculate the average
       if (schedule._amountOp === 'isbetween') {
-        isExactBalance = false;
+        isExact = false;
       }
 
       if (!account || account.id === schedule._account) {
@@ -117,16 +118,27 @@ export function SelectedBalance({
   }
 
   if (typeof balance !== 'number' && !scheduleBalance) {
+    return { total: null, isExact };
+  }
+  return { total: (balance ?? 0) + scheduleBalance, isExact };
+}
+
+export function SelectedBalance({
+  selectedItems,
+  account,
+}: SelectedBalanceProps) {
+  const { t } = useTranslation();
+  const { total, isExact } = useSelectedTotal(selectedItems, account);
+
+  if (total == null) {
     return null;
-  } else {
-    balance = (balance ?? 0) + scheduleBalance;
   }
 
   return (
     <DetailedBalance
       name={t('Selected balance:')}
-      balance={balance}
-      isExactBalance={isExactBalance}
+      balance={total}
+      isExactBalance={isExact}
     />
   );
 }

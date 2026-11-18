@@ -16,8 +16,10 @@ import { FinancialText } from '#components/FinancialText';
 import { PrivacyFilter } from '#components/PrivacyFilter';
 import { useFormat } from '#hooks/useFormat';
 import { useNavigate } from '#hooks/useNavigate';
+import { useSelectedItems } from '#hooks/useSelected';
 import { useSheetValue } from '#hooks/useSheetValue';
 
+import { useSelectedTotal } from './Balance';
 import { ReconcileMenu } from './Reconcile';
 
 type AccountFooterProps = {
@@ -45,6 +47,8 @@ export function AccountFooter({
   const reconcileRef = useRef<HTMLButtonElement>(null);
   const [isReconcileOpen, setIsReconcileOpen] = useState(false);
 
+  const selectedItems = useSelectedItems();
+  const { total: selectedTotal } = useSelectedTotal(selectedItems, account);
   const working = useSheetValue<'balance', `balance-query-${string}`>({
     name: balanceQuery.name,
     query: balanceQuery.query,
@@ -101,23 +105,40 @@ export function AccountFooter({
           borderRadius: 4,
         }}
       >
-        {filteredCount != null && (
+        {selectedItems.size > 0 ? (
+          // Like YNAB 4: the selected total in place of cleared/uncleared
           <>
             <Total
-              label={t('Search Total ({{count}})', { count: filteredCount })}
-              amount={filteredAmount ?? 0}
+              label={t('Selected Total ({{count}})', {
+                count: selectedItems.size,
+              })}
+              amount={selectedTotal ?? 0}
             />
             <Divider />
           </>
+        ) : (
+          <>
+            {filteredCount != null && (
+              <>
+                <Total
+                  label={t('Search Total ({{count}})', {
+                    count: filteredCount,
+                  })}
+                  amount={filteredAmount ?? 0}
+                />
+                <Divider />
+              </>
+            )}
+            <Total label={t('Cleared Balance')} amount={cleared ?? 0} />
+            <Operator>+</Operator>
+            <Total
+              label={t('Uncleared Transactions')}
+              amount={uncleared ?? 0}
+              isNegativeRed
+            />
+            <Operator>=</Operator>
+          </>
         )}
-        <Total label={t('Cleared Balance')} amount={cleared ?? 0} />
-        <Operator>+</Operator>
-        <Total
-          label={t('Uncleared Transactions')}
-          amount={uncleared ?? 0}
-          isNegativeRed
-        />
-        <Operator>=</Operator>
         <Total label={t('Working Balance')} amount={working ?? 0} />
       </View>
 

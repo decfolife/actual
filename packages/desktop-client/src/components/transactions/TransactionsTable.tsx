@@ -1302,6 +1302,9 @@ const Transaction = memo(function Transaction({
   const showEditBar =
     isYnab &&
     editing &&
+    // Ticking the checkbox or the C isn't editing the transaction
+    focusedField !== 'select' &&
+    focusedField !== 'cleared' &&
     !isPreview &&
     !originalTransaction.is_child &&
     // A new transaction has its own Save/Cancel bar
