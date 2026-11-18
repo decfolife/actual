@@ -467,6 +467,11 @@ function DateSelectDesktop({
     <View {...containerProps}>
       <Input
         id={id}
+        // Not credentials: keep password managers from offering to fill it
+        data-lpignore="true"
+        data-1p-ignore
+        data-form-type="other"
+        autoComplete="off"
         {...inputProps}
         ref={mergedRef}
         value={value}

@@ -361,6 +361,8 @@ export type PayeeAutocompleteProps = ComponentProps<
   accounts?: AccountEntity[];
   payees?: PayeeEntity[];
   nearbyPayees?: NearbyPayeeEntity[];
+  // Open showing only the accounts to transfer to/from
+  initialFocusTransferPayees?: boolean;
 };
 
 export function PayeeAutocomplete({
@@ -381,6 +383,7 @@ export function PayeeAutocomplete({
   accounts,
   payees,
   nearbyPayees,
+  initialFocusTransferPayees = false,
   ...props
 }: PayeeAutocompleteProps) {
   const { t } = useTranslation();
@@ -405,7 +408,9 @@ export function PayeeAutocomplete({
     accounts = cachedAccounts;
   }
 
-  const [focusTransferPayees, setFocusTransferPayees] = useState(false);
+  const [focusTransferPayees, setFocusTransferPayees] = useState(
+    initialFocusTransferPayees,
+  );
   const [rawPayee, setRawPayee] = useState('');
   const hasPayeeInput = !!rawPayee;
   const payeeSuggestions: PayeeAutocompleteItem[] = useMemo(() => {

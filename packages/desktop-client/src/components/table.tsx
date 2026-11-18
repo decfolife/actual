@@ -314,7 +314,8 @@ export const Row = forwardRef<HTMLDivElement, RowProps>(function Row(
 });
 
 const inputCellStyle = {
-  padding: '5px 3px',
+  // Smaller in the YNAB theme so editing fits its 25px rows
+  padding: 'var(--table-input-padding, 5px 3px)',
   margin: '0 1px',
 };
 
@@ -391,6 +392,12 @@ function InputValue({
 
   return (
     <Input
+      // Not credentials: keep password managers (LastPass, 1Password,
+      // Dashlane) from offering to fill it
+      data-lpignore="true"
+      data-1p-ignore
+      data-form-type="other"
+      autoComplete="off"
       {...props}
       value={value}
       onChangeValue={setValue_}
@@ -1344,6 +1351,8 @@ export type TableNavigator<T extends TableItem> = {
 export function useTableNavigator<T extends TableItem>(
   data: T[],
   fields: string[] | ((item?: T) => string[]),
+  // Enter moves to the next field (like Tab) instead of the next row
+  { enterMovesRight = false }: { enterMovesRight?: boolean } = {},
 ): TableNavigator<T> {
   const getFields = typeof fields !== 'function' ? () => fields : fields;
   const [editingId, setEditingId] = useState<T['id']>(null);
@@ -1488,7 +1497,7 @@ export function useTableNavigator<T extends TableItem>(
             e.stopPropagation();
 
             onMove(
-              e.key === 'Enter'
+              e.key === 'Enter' && !enterMovesRight
                 ? e.shiftKey
                   ? 'up'
                   : 'down'

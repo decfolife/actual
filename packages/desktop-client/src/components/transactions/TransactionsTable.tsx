@@ -1001,6 +1001,9 @@ type PayeeCellProps = {
   onManagePayees: (id: PayeeEntity['id'] | undefined) => void;
   onNavigateToTransferAccount: NavigateToTransferAccount;
   onNavigateToSchedule: (id: ScheduleEntity['id']) => void;
+  startWithTransferPayees?: boolean;
+  // Called after a payee is picked from the list
+  onPicked?: () => void;
 };
 
 function PayeeCell({
@@ -1020,6 +1023,8 @@ function PayeeCell({
   onManagePayees,
   onNavigateToTransferAccount,
   onNavigateToSchedule,
+  startWithTransferPayees = false,
+  onPicked,
 }: PayeeCellProps) {
   // YNAB 4 doesn't underline imported payees
   const isYnab = useIsYnabRegister();
@@ -1238,10 +1243,14 @@ function PayeeCell({
             style: inputStyle,
           }}
           showManagePayees
+          initialFocusTransferPayees={startWithTransferPayees}
           clearOnBlur={false}
           focused
           onUpdate={(_, value) => onUpdate?.(value)}
-          onSelect={onSave}
+          onSelect={value => {
+            onSave(value);
+            onPicked?.();
+          }}
           onManagePayees={() => onManagePayees(payee?.id)}
         />
       )}
@@ -1412,6 +1421,8 @@ type TransactionProps = {
   nextRowDate?: string | null;
   sortField?: string;
   ascDesc?: 'asc' | 'desc';
+  // A new transfer: the payee opens listing the accounts
+  startWithTransferPayees?: boolean;
   onDragChange?: OnDragChangeCallback<TransactionEntity>;
   onDrop?: OnDropCallback;
   index: number;
@@ -1476,6 +1487,7 @@ const Transaction = memo(function Transaction({
   onDrop,
   index,
   amountColumnWidths,
+  startWithTransferPayees = false,
 }: TransactionProps) {
   const { t } = useTranslation();
 
@@ -1548,6 +1560,28 @@ const Transaction = memo(function Transaction({
     !originalTransaction.is_child &&
     // A new transaction has its own Save/Cancel bar
     !isTemporaryId(originalTransaction.id);
+  // YNAB 4: in a new transaction, picking a date, account, payee or
+  // category moves on to the next field
+  const advanceAfterPick = (field: string) => {
+    if (!isYnab || !isTemporaryId(originalTransaction.id)) {
+      return;
+    }
+    const fields: string[] = columns
+      .filter(column => !isTransactionTableColumnDisplayOnly(column))
+      .map(column =>
+        column === 'payment'
+          ? 'debit'
+          : column === 'deposit'
+            ? 'credit'
+            : column,
+      );
+    const next = fields[fields.indexOf(field) + 1];
+    if (next) {
+      // After the pick has been saved and the list closed
+      setTimeout(() => onEditProp(originalTransaction.id, next));
+    }
+  };
+
   // The table navigator's onEdit takes null to stop editing
   const stopEditing = () =>
     (onEditProp as (id: TransactionEntity['id'] | null, field: string) => void)(
@@ -2102,7 +2136,10 @@ const Transaction = memo(function Transaction({
                 shouldSaveFromKey={shouldSaveFromKey}
                 clearOnBlur
                 onUpdate={onUpdate}
-                onSelect={onSave}
+                onSelect={value => {
+                  onSave(value);
+                  advanceAfterPick('date');
+                }}
                 transferDateSyncChecked={syncTransferDate}
                 onTransferDateSyncChange={
                   transaction.transfer_id ||
@@ -2166,7 +2203,10 @@ const Transaction = memo(function Transaction({
                 focused
                 inputProps={{ onBlur, onKeyDown, style: inputStyle }}
                 onUpdate={onUpdate}
-                onSelect={onSave}
+                onSelect={value => {
+                  onSave(value);
+                  advanceAfterPick('account');
+                }}
               />
             )}
           </CustomCell>
@@ -2177,6 +2217,8 @@ const Transaction = memo(function Transaction({
             key={columnId}
             /* Payee field for all transactions */
             id={id}
+            startWithTransferPayees={startWithTransferPayees}
+            onPicked={() => advanceAfterPick('payee')}
             payee={payee}
             focused={focusedField === 'payee'}
             /* Filter out the account we're currently in as it is not a valid transfer */
@@ -2425,7 +2467,10 @@ const Transaction = memo(function Transaction({
                   shouldSaveFromKey={shouldSaveFromKey}
                   inputProps={{ onBlur, onKeyDown, style: inputStyle }}
                   onUpdate={onUpdate}
-                  onSelect={onSave}
+                  onSelect={value => {
+                    onSave(value);
+                    advanceAfterPick('category');
+                  }}
                   showHiddenCategories={showHiddenCategories}
                 />
               </SheetNameProvider>
@@ -2983,6 +3028,7 @@ type NewTransactionProps = {
     [id: TransactionEntity['id']]: AccountEntity | null;
   };
   showHiddenCategories?: boolean;
+  startWithTransferPayees?: boolean;
 };
 function NewTransaction({
   transactions,
@@ -3014,6 +3060,7 @@ function NewTransaction({
   onNotesTagClick,
   balance,
   showHiddenCategories,
+  startWithTransferPayees = false,
 }: NewTransactionProps) {
   const error = transactions[0].error;
   const isDeposit = transactions[0].amount > 0;
@@ -3097,6 +3144,7 @@ function NewTransaction({
           showSelection
           allowSplitTransaction
           showHiddenCategories={showHiddenCategories}
+          startWithTransferPayees={startWithTransferPayees}
         />
       ))}
       {isYnab ? (
@@ -3239,6 +3287,7 @@ type TransactionTableInnerProps = {
   transactionsByParent: {
     [parentId: TransactionEntity['id']]: TransactionEntity[];
   };
+  newTransactionKind?: 'transfer' | null;
   transferAccountsByTransaction: {
     [id: TransactionEntity['id']]: AccountEntity | null;
   };
@@ -3367,11 +3416,13 @@ function TransactionTableInner({
     [onCloseAddTransactionProp, onNotesTagClickProp],
   );
 
+  const isNewTransfer = props.newTransactionKind === 'transfer';
   useEffect(() => {
     if (!isAddingPrev && props.isAdding) {
-      newNavigator.onEdit('temp', 'date');
+      // A transfer starts on the payee (the accounts list), like YNAB 4
+      newNavigator.onEdit('temp', isNewTransfer ? 'payee' : 'date');
     }
-  }, [isAddingPrev, props.isAdding, newNavigator]);
+  }, [isAddingPrev, props.isAdding, newNavigator, isNewTransfer]);
 
   // Don't render reconciled transactions if we're hiding them.
   const transactionsToRender = useMemo(
@@ -3566,6 +3617,7 @@ function TransactionTableInner({
       <NewTransaction
         transactions={props.newTransactions}
         amountColumnWidths={amountColumnWidths}
+        startWithTransferPayees={isNewTransfer}
         transferAccountsByTransaction={props.transferAccountsByTransaction}
         editingTransaction={newNavigator.editingId}
         focusedField={newNavigator.focusedField}
@@ -3710,8 +3762,8 @@ export type TransactionTableProps = {
   currentAccountId: AccountEntity['id'];
   currentCategoryId: CategoryEntity['id'];
   isAdding: boolean;
-  // Starts a new transaction with this payee, e.g. a transfer payee
-  newTransactionPayee?: PayeeEntity['id'] | null;
+  // 'transfer' starts the new transaction on the payee, listing accounts
+  newTransactionKind?: 'transfer' | null;
   isNew: (id: TransactionEntity['id']) => boolean;
   isMatched: (id: TransactionEntity['id']) => boolean;
   isFiltered?: boolean;
@@ -3997,9 +4049,12 @@ export const TransactionTable = forwardRef(
       }
     }, [hasPrevSplitsExpanded]);
 
+    // YNAB 4: Enter moves through a new transaction's fields like Tab
+    const isYnabRegister = useIsYnabRegister();
     const newNavigator = useTableNavigator(
       newTransactions ?? [],
       getFieldsNewTransaction,
+      { enterMovesRight: isYnabRegister },
     );
 
     const tableNavigator = useTableNavigator(
@@ -4044,16 +4099,12 @@ export const TransactionTable = forwardRef(
     if (prevIsAdding !== props.isAdding) {
       if (!prevIsAdding && props.isAdding) {
         clearedFields.current.clear();
-        const [temporary, ...rest] = makeTemporaryTransactions(
-          props.currentAccountId,
-          props.currentCategoryId,
+        setNewTransactions(
+          makeTemporaryTransactions(
+            props.currentAccountId,
+            props.currentCategoryId,
+          ),
         );
-        setNewTransactions([
-          props.newTransactionPayee
-            ? { ...temporary, payee: props.newTransactionPayee }
-            : temporary,
-          ...rest,
-        ]);
       }
       setPrevIsAdding(props.isAdding);
     }
@@ -4307,6 +4358,22 @@ export const TransactionTable = forwardRef(
           function getLastTransaction(state: RefObject<TableState>) {
             const { newTransactions } = state.current;
             return newTransactions[newTransactions.length - 1];
+          }
+
+          // YNAB 4: Enter only saves from the last field (the navigator
+          // moves on to the next field otherwise)
+          if (isYnabRegister) {
+            const inputFields = getFieldsNewTransaction(
+              getLastTransaction(latestState),
+            ).filter(
+              f =>
+                !['select', 'cleared', 'cancel', 'schedule', 'add'].includes(f),
+            );
+            if (
+              newNavigator.focusedField !== inputFields[inputFields.length - 1]
+            ) {
+              return;
+            }
           }
 
           // Right now, the table navigator does some funky stuff with

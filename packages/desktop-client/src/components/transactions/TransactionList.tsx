@@ -94,7 +94,7 @@ type TransactionListProps = Pick<
   | 'focusedTransactionId'
   | 'hideFraction'
   | 'isAdding'
-  | 'newTransactionPayee'
+  | 'newTransactionKind'
   | 'isMatched'
   | 'isNew'
   | 'loadMoreTransactions'
@@ -155,7 +155,7 @@ export function TransactionList({
   showAccount,
   columnOrder,
   isAdding,
-  newTransactionPayee,
+  newTransactionKind,
   isNew,
   isMatched,
   isFiltered,
@@ -526,7 +526,7 @@ export function TransactionList({
         currentAccountId={account && account.id}
         currentCategoryId={category && category.id}
         isAdding={isAdding}
-        newTransactionPayee={newTransactionPayee}
+        newTransactionKind={newTransactionKind}
         isNew={isNew}
         isMatched={isMatched}
         dateFormat={dateFormat}

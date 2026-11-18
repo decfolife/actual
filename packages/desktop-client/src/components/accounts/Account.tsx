@@ -301,7 +301,7 @@ type AccountInternalState = {
   showReconciled: boolean;
   nameError: string;
   isAdding: boolean;
-  newTransactionPayee: PayeeEntity['id'] | null;
+  newTransactionKind: 'transfer' | null;
   modalShowing?: boolean;
   sort: {
     ascDesc: 'asc' | 'desc';
@@ -357,7 +357,7 @@ class AccountInternal extends PureComponent<
       showReconciled: props.showReconciled,
       nameError: '',
       isAdding: false,
-      newTransactionPayee: null,
+      newTransactionKind: null,
       sort: null,
       filteredAmount: null,
       focusedTransactionId: null,
@@ -913,8 +913,8 @@ class AccountInternal extends PureComponent<
     }
   };
 
-  onAddTransaction = (payeeId?: PayeeEntity['id']) => {
-    this.setState({ isAdding: true, newTransactionPayee: payeeId ?? null });
+  onAddTransaction = (kind?: 'transfer') => {
+    this.setState({ isAdding: true, newTransactionKind: kind ?? null });
   };
 
   // A stable function, so rows don't all re-render on every update
@@ -2113,7 +2113,7 @@ class AccountInternal extends PureComponent<
                       accountId !== 'uncategorized'
                     }
                     isAdding={this.state.isAdding}
-                    newTransactionPayee={this.state.newTransactionPayee}
+                    newTransactionKind={this.state.newTransactionKind}
                     isNew={this.isNew}
                     isMatched={this.isMatched}
                     isFiltered={transactionsFiltered}
@@ -2168,8 +2168,6 @@ class AccountInternal extends PureComponent<
 
               <AddTransactionBar
                 account={account}
-                accounts={accounts}
-                payees={payees}
                 onAddTransaction={this.onAddTransaction}
               />
 
