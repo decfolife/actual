@@ -14,6 +14,7 @@ import type {
   CSSProperties,
   ForwardedRef,
   KeyboardEvent,
+  MouseEvent,
   ReactNode,
   Ref,
   RefObject,
@@ -1495,15 +1496,30 @@ const Transaction = memo(function Transaction({
 
   // YNAB 4: the first click on a row selects it (only it), and a click on a
   // selected row edits the field clicked. The checkbox and C act at once.
+  // The modifier keys held for the latest click on this row
+  const clickModifiers = useRef({ shift: false, toggle: false });
+
   const onEdit = (editId: TransactionEntity['id'], field: string) => {
-    if (
+    const { shift, toggle } = clickModifiers.current;
+    clickModifiers.current = { shift: false, toggle: false };
+    const isRowClick =
       isYnab &&
-      !editing &&
-      !selected &&
       field !== 'select' &&
       field !== 'cleared' &&
-      !isTemporaryId(originalTransaction.id)
-    ) {
+      !isTemporaryId(originalTransaction.id);
+
+    // Shift+click selects the range from the last clicked row (and trims
+    // it when clicking inside it); Cmd/Ctrl+click adds or removes one row
+    if (isRowClick && (shift || toggle)) {
+      dispatchSelected({
+        type: 'select',
+        id: originalTransaction.id,
+        isRangeSelect: shift,
+      });
+      return;
+    }
+
+    if (isRowClick && !editing && !selected) {
       dispatchSelected({ type: 'select-none' });
       dispatchSelected({ type: 'select', id: originalTransaction.id });
       // Clicking away from a row being edited finishes editing it
@@ -2561,6 +2577,16 @@ const Transaction = memo(function Transaction({
       <Row
         ref={rowRef}
         height={isYnab ? YNAB_ROW_HEIGHT : undefined}
+        onMouseDownCapture={(e: MouseEvent) => {
+          clickModifiers.current = {
+            shift: e.shiftKey,
+            toggle: e.metaKey || e.ctrlKey,
+          };
+          // Shift/Cmd+click selects rows, not text
+          if (isYnab && (e.shiftKey || e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+          }
+        }}
         {...dragProps}
         {...(pulse && { 'data-pulse': true })}
         style={{
