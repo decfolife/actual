@@ -2001,7 +2001,8 @@ const Transaction = memo(function Transaction({
       /* Checkmark field for non-child transaction */
       exposed
       buttonProps={{
-        className: selected || editing ? undefined : 'hover-visible',
+        // YNAB 4 shows every row's checkbox
+        className: selected || editing || isYnab ? undefined : 'hover-visible',
       }}
       focused={focusedField === 'select'}
       onSelect={(e: KeyboardEvent<HTMLDivElement>) => {

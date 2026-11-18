@@ -669,18 +669,25 @@ export function SelectCell({
       {() => (
         <CellButton
           style={{
-            width: 12,
-            height: 12,
+            // The theme can restyle it (YNAB's beveled gray box)
+            width: 'var(--checkbox-size, 12px)',
+            height: 'var(--checkbox-size, 12px)',
             justifyContent: 'center',
             alignItems: 'center',
             borderRadius: 3,
             border: selected
               ? '1px solid ' + theme.checkboxBorderSelected
-              : '1px solid ' + theme.formInputBorder,
+              : `1px solid var(--checkbox-border, ${theme.formInputBorder})`,
             color: theme.checkboxText,
             backgroundColor: selected
               ? theme.checkboxBackgroundSelected
               : theme.tableBackground,
+            backgroundImage: 'var(--checkbox-gradient, none)',
+            boxShadow: 'var(--checkbox-shadow, none)',
+            '& svg': {
+              width: 'var(--checkbox-check-size, 6px)',
+              height: 'var(--checkbox-check-size, 6px)',
+            },
             ':focus': {
               border: '1px solid ' + theme.checkboxBorderSelected,
               boxShadow: '0 1px 2px ' + theme.checkboxShadowSelected,
