@@ -19,6 +19,7 @@ import type { UndoState } from '@actual-app/core/server/undo';
 import { q } from '@actual-app/core/shared/query';
 import type { Query } from '@actual-app/core/shared/query';
 import {
+  isPreviewId,
   makeAsNonChildTransactions,
   makeChild,
   ungroupTransaction,
@@ -95,7 +96,9 @@ import type { AppDispatch } from '#redux/store';
 import { updateNewTransactions } from '#transactions/transactionsSlice';
 
 import { AccountEmptyMessage } from './AccountEmptyMessage';
+import { AccountFooter } from './AccountFooter';
 import { AccountHeader } from './Header';
+import { SearchBanner } from './SearchBanner';
 
 type ConditionEntity = Partial<RuleConditionEntity> | TransactionFilterEntity;
 
@@ -311,6 +314,7 @@ export type TableRef = RefObject<{
   setRowAnimation: (animation: boolean) => void;
   scrollTo: (focusId: string, alignment?: string) => void;
   scrollToTop: () => void;
+  scrollToBottom: () => void;
   getScrolledItem: () => string;
 } | null>;
 
@@ -516,6 +520,11 @@ class AccountInternal extends PureComponent<
         .orderBy({ sort_order: 'asc' });
     }
 
+    // Listing oldest first, the whole account loads at once so it can open
+    // at the bottom, like YNAB 4, instead of loading and scrolling down
+    const isNewestLast =
+      this.state.sort === null && !isFiltered && this.state.search === '';
+
     const paged = pagedQuery<TransactionEntity>(query.select('*'), {
       onData: async (groupedData, prevData) => {
         const data = ungroupTransactions([...groupedData]);
@@ -574,16 +583,13 @@ class AccountInternal extends PureComponent<
           },
           () => {
             if (firstLoad) {
-              this.table.current?.scrollToTop();
-              if (paged === this.paged) {
-                if (
-                  this.pendingFocusId == null &&
-                  this.state.sort === null &&
-                  !isFiltered &&
-                  this.state.search === ''
-                ) {
-                  void this.showNewest(paged);
-                } else {
+              if (isNewestLast && this.pendingFocusId == null) {
+                // Everything is loaded, so open at the newest rows without
+                // any visible scrolling (this runs before the browser paints)
+                this.table.current?.scrollToBottom();
+              } else {
+                this.table.current?.scrollToTop();
+                if (paged === this.paged) {
                   void this.showPendingFocus(paged);
                 }
               }
@@ -596,7 +602,7 @@ class AccountInternal extends PureComponent<
         );
       },
       options: {
-        pageCount: 150,
+        pageCount: isNewestLast ? 1_000_000 : 150,
         onlySync: true,
       },
     });
@@ -626,33 +632,10 @@ class AccountInternal extends PureComponent<
     }
   }
 
-  // Loads the account down to its newest transaction and scrolls there, so
-  // it opens at the bottom like a YNAB 4 register
-  showNewest = async (paged: PagedQuery<TransactionEntity>) => {
-    const { data } = await aqlQuery(paged.query.select('id'));
-    const newest: TransactionEntity | undefined = data[data.length - 1];
-    if (newest == null || !paged.isRunning) {
-      return;
-    }
-    if (!this.state.transactions.some(t => t.id === newest.id)) {
-      await paged.refetchUpToRow(newest.id, { field: 'date', order: 'asc' });
-    }
-    // The rows render after the data arrives, so wait for the newest one
-    const scrollWhenListed = (triesLeft: number) => {
-      if (paged !== this.paged || !paged.isRunning) {
-        return;
-      }
-      if (this.state.transactions.some(t => t.id === newest.id)) {
-        requestAnimationFrame(() =>
-          // Centered, so scheduled transactions below it show too
-          this.table.current?.scrollTo(newest.id, 'center'),
-        );
-      } else if (triesLeft > 0) {
-        setTimeout(() => scrollWhenListed(triesLeft - 1), 100);
-      }
-    };
-    scrollWhenListed(30);
-  };
+  // Transactions in the list, not counting split parts or scheduled ones
+  countListed = () =>
+    this.state.transactions.filter(t => !t.is_child && !isPreviewId(t.id))
+      .length;
 
   // Brings the pending transaction into view, loading the account up to it
   // if needed. Leaves the account at the top when the query doesn't have it,
@@ -1913,7 +1896,6 @@ class AccountInternal extends PureComponent<
       dateFormat,
       hideFraction,
       accountsSyncing,
-      showExtraBalances,
       accountId,
       categoryId,
     } = this.props;
@@ -2003,12 +1985,9 @@ class AccountInternal extends PureComponent<
                 accountsSyncing={accountsSyncing}
                 accounts={accounts}
                 transactions={transactions}
-                showExtraBalances={showExtraBalances ?? false}
                 showReconciled={showReconciled ?? false}
                 showEmptyMessage={showEmptyMessage ?? false}
                 balanceQuery={balanceQuery}
-                filteredAmount={filteredAmount}
-                isFiltered={transactionsFiltered ?? false}
                 isSorted={this.state.sort !== null}
                 reconcileAmount={reconcileAmount}
                 search={this.state.search}
@@ -2019,7 +1998,6 @@ class AccountInternal extends PureComponent<
                 onShowTransactions={this.onShowTransactions}
                 onMenuSelect={this.onMenuSelect}
                 onAddTransaction={this.onAddTransaction}
-                onToggleExtraBalances={this.onToggleExtraBalances}
                 onSaveName={this.onSaveName}
                 saveNameError={this.state.nameError}
                 onReconcile={this.onReconcile}
@@ -2048,6 +2026,14 @@ class AccountInternal extends PureComponent<
                 onMakeAsNonSplitTransactions={this.onMakeAsNonSplitTransactions}
                 onMergeTransactions={this.onMergeTransactions}
               />
+
+              {this.state.search !== '' && (
+                <SearchBanner
+                  search={this.state.search}
+                  count={this.countListed()}
+                  onClear={() => this.onSearch('')}
+                />
+              )}
 
               <View style={{ flex: 1 }}>
                 <TransactionList
@@ -2130,6 +2116,18 @@ class AccountInternal extends PureComponent<
                   onApplyFilter={this.onApplyFilter}
                 />
               </View>
+
+              <AccountFooter
+                account={account}
+                balanceQuery={balanceQuery}
+                filteredAmount={filteredAmount}
+                filteredCount={
+                  this.state.search !== '' || transactionsFiltered
+                    ? this.countListed()
+                    : null
+                }
+                onReconcile={this.onReconcile}
+              />
             </View>
           </SelectedProviderWithItems>
         )}

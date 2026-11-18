@@ -3040,7 +3040,6 @@ function TransactionTableInner({
           isSelected={id => props.selectedItems.has(id)}
           onKeyDown={e => props.onCheckEnter(e)}
           saveScrollWidth={saveScrollWidth}
-          footerHeight={48}
         />
 
         {props.isAdding && (

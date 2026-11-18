@@ -46,12 +46,13 @@ import { useDateFormat } from '#hooks/useDateFormat';
 import { useFeatureFlag } from '#hooks/useFeatureFlag';
 import { useLocale } from '#hooks/useLocale';
 import { useLocalPref } from '#hooks/useLocalPref';
+import { useSelectedItems } from '#hooks/useSelected';
 import { useSplitsExpanded } from '#hooks/useSplitsExpanded';
 import { useSyncedPref } from '#hooks/useSyncedPref';
 import { useSyncServerStatus } from '#hooks/useSyncServerStatus';
 
 import type { TableRef } from './Account';
-import { Balances } from './Balance';
+import { SelectedBalance } from './Balance';
 import { BalanceHistoryGraph } from './BalanceHistoryGraph';
 import { DateRangeButton } from './DateRangeButton';
 import { ReconcileMenu, ReconcilingMessage } from './Reconcile';
@@ -69,13 +70,10 @@ type AccountHeaderProps = {
   accountsSyncing: string[];
   accounts: AccountEntity[];
   transactions: TransactionEntity[];
-  showExtraBalances: boolean;
   showReconciled: boolean;
   showEmptyMessage: boolean;
   balanceQuery: ComponentProps<typeof ReconcilingMessage>['balanceQuery'];
   reconcileAmount?: number | null;
-  isFiltered: boolean;
-  filteredAmount?: number | null;
   isSorted: boolean;
   search: string;
   filterConditions: RuleConditionEntity[];
@@ -89,9 +87,6 @@ type AccountHeaderProps = {
   onCreateReconciliationTransaction: ComponentProps<
     typeof ReconcilingMessage
   >['onCreateTransaction'];
-  onToggleExtraBalances: ComponentProps<
-    typeof Balances
-  >['onToggleExtraBalances'];
   onSaveName: AccountNameFieldProps['onSaveName'];
   saveNameError: AccountNameFieldProps['saveNameError'];
   onSync: () => void;
@@ -141,13 +136,10 @@ export function AccountHeader({
   accountsSyncing,
   accounts,
   transactions,
-  showExtraBalances,
   showReconciled,
   showEmptyMessage,
   balanceQuery,
   reconcileAmount,
-  isFiltered,
-  filteredAmount,
   isSorted,
   search,
   filterConditions,
@@ -157,7 +149,6 @@ export function AccountHeader({
   onShowTransactions,
   onDoneReconciling,
   onCreateReconciliationTransaction,
-  onToggleExtraBalances,
   onSaveName,
   saveNameError,
   onSync,
@@ -314,14 +305,8 @@ export function AccountHeader({
               />
             </View>
 
-            <Balances
-              balanceQuery={balanceQuery}
-              showExtraBalances={showExtraBalances}
-              onToggleExtraBalances={onToggleExtraBalances}
-              account={account}
-              isFiltered={isFiltered}
-              filteredAmount={filteredAmount}
-            />
+            {/* The balances are in the bar at the bottom, like YNAB 4 */}
+            <HeaderSelectedBalance account={account} />
           </View>
           <SpaceBetween gap={10} style={{ flex: 1, minWidth: 480 }}>
             {canSync && (
@@ -830,4 +815,11 @@ function AccountMenu({
       ]}
     />
   );
+}
+
+function HeaderSelectedBalance({ account }: { account?: AccountEntity }) {
+  const selectedItems = useSelectedItems();
+  return selectedItems.size > 0 ? (
+    <SelectedBalance selectedItems={selectedItems} account={account} />
+  ) : null;
 }

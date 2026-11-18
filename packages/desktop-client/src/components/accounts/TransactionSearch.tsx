@@ -51,6 +51,7 @@ export function TransactionSearch({
   const [isFocused, setIsFocused] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
+  const isClosingWithEscape = useRef(false);
 
   const text = value.trim();
   const lower = text.toLowerCase();
@@ -184,6 +185,9 @@ export function TransactionSearch({
     } else if (e.key === 'Escape' && value !== '') {
       e.stopPropagation();
       setIsDismissed(true);
+      // The search box clears itself on Escape's keyup; this Escape only
+      // closes the list
+      isClosingWithEscape.current = true;
     }
   }
 
@@ -191,6 +195,12 @@ export function TransactionSearch({
     <View
       innerRef={triggerRef}
       onKeyDownCapture={onKeyDownCapture}
+      onKeyUpCapture={e => {
+        if (e.key === 'Escape' && isClosingWithEscape.current) {
+          isClosingWithEscape.current = false;
+          e.stopPropagation();
+        }
+      }}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
     >

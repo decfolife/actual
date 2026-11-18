@@ -800,6 +800,30 @@ export const colors = {
   tooltipText: { light: 'navy900', dark: 'navy100', midnight: 'gray100' },
   tooltipBackground: { light: 'white', dark: 'navy800', midnight: 'gray800' },
   tooltipBorder: { light: 'navy150', dark: 'navy700', midnight: 'gray600' },
+  accountSearchBannerText: {
+    light: 'green800',
+    dark: 'green200',
+    midnight: 'green200',
+    description: 'Text of the "Showing N results" bar while searching',
+  },
+  accountSearchBannerBackground: {
+    light: 'green100',
+    dark: 'green900',
+    midnight: 'green900',
+    description: 'The "Showing N results" bar while searching an account',
+  },
+  accountSearchBannerStripe: {
+    light: 'green150',
+    dark: 'green800',
+    midnight: 'green800',
+    description: 'Stripes on the "Showing N results" bar',
+  },
+  accountFooterBox: {
+    light: 'white',
+    dark: 'navy800',
+    midnight: 'gray800',
+    description: 'Box holding the balances at the bottom of an account',
+  },
   accountTooltipText: {
     light: 'navy900',
     dark: 'navy100',

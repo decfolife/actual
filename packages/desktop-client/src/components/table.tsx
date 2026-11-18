@@ -918,6 +918,7 @@ const rowStyle: CSSProperties = {
 export type TableHandleRef<T extends TableItem = TableItem> = {
   scrollTo: (id: T['id'], alignment?: string) => void;
   scrollToTop: () => void;
+  scrollToBottom: () => void;
   getScrolledItem: () => T['id'];
   setRowAnimation: (flag) => void;
   edit(id: number, field: string, shouldScroll: boolean): void;
@@ -946,8 +947,6 @@ export type TableProps<T extends TableItem = TableItem> = {
   count?: number;
   headers?: ReactNode | TableHeaderProps['headers'];
   contentHeader?: ReactNode;
-  // Empty space after the last row, in the page background color
-  footerHeight?: number;
   loading?: boolean;
   rowHeight?: number;
   backgroundColor?: string;
@@ -978,7 +977,6 @@ export const Table = forwardRef(
       count,
       headers,
       contentHeader,
-      footerHeight,
       loading,
       rowHeight = ROW_HEIGHT,
       backgroundColor = theme.tableBackground,
@@ -1031,6 +1029,15 @@ export const Table = forwardRef(
         list.current?.scrollTo(0);
       },
 
+      // Jumps straight to the end (the browser clamps the offset)
+      scrollToBottom: () => {
+        if (list.current) {
+          list.current.scrollTo(Number.MAX_SAFE_INTEGER);
+        } else {
+          initialScrollTo.current = items.length + 1000;
+        }
+      },
+
       getScrolledItem: () => {
         if (scrollContainer.current) {
           const offset = scrollContainer.current.scrollTop;
@@ -1074,6 +1081,26 @@ export const Table = forwardRef(
         scrollContainer.current ? scrollContainer.current.clientWidth : 0,
       );
     }
+
+    // Stay at the bottom when rows are added while scrolled to the end, e.g.
+    // scheduled transactions arriving just after an account opens there
+    const isAtBottom = useRef(false);
+    const previousCount = useRef(items.length);
+    function onListScroll() {
+      const el = scrollContainer.current;
+      if (el) {
+        isAtBottom.current =
+          el.scrollTop > 0 &&
+          el.scrollHeight - el.clientHeight - el.scrollTop < rowHeight;
+      }
+      onScroll?.();
+    }
+    useLayoutEffect(() => {
+      if (items.length > previousCount.current && isAtBottom.current) {
+        list.current?.scrollTo(Number.MAX_SAFE_INTEGER);
+      }
+      previousCount.current = items.length;
+    }, [items.length]);
 
     useLayoutEffect(() => {
       // We wait for the list to mount because AutoSizer needs to run
@@ -1218,8 +1245,6 @@ export const Table = forwardRef(
                     <FixedSizeList
                       ref={list}
                       header={contentHeader}
-                      footerHeight={footerHeight}
-                      footerColor={theme.pageBackground}
                       innerRef={listContainer}
                       outerRef={scrollContainer}
                       width={width}
@@ -1240,7 +1265,7 @@ export const Table = forwardRef(
                       }
                       overscanCount={5}
                       onItemsRendered={onItemsRendered}
-                      onScroll={onScroll}
+                      onScroll={onListScroll}
                     />
                   </AvoidRefocusScrollProvider>
                 );
