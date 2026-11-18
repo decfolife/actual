@@ -639,6 +639,21 @@ class AccountInternal extends PureComponent<
     }
   }
 
+  // The view whose grid has finished its first load
+  gridReadyFor: string | null = null;
+
+  // The skeleton covers an account's first load only. Later refreshes (e.g.
+  // the scheduled transactions recalculating after a C is clicked) update
+  // the grid in place.
+  isGridLoading = (loading: boolean, isPreviewLoading: boolean) => {
+    const view = this.props.accountId ?? 'all-accounts';
+    if (!loading && !isPreviewLoading) {
+      this.gridReadyFor = view;
+      return false;
+    }
+    return loading || this.gridReadyFor !== view;
+  };
+
   // Transactions in the list, not counting split parts or scheduled ones
   countListed = () =>
     this.state.transactions.filter(t => !t.is_child && !isPreviewId(t.id))
@@ -2047,15 +2062,18 @@ class AccountInternal extends PureComponent<
                   position: 'relative',
                 }}
               >
-                {(loading || isPreviewLoading) && <AccountSkeleton />}
+                {this.isGridLoading(loading, isPreviewLoading) && (
+                  <AccountSkeleton />
+                )}
                 <View
                   style={{
                     flex: 1,
                     // Shown once the transactions and the scheduled ones
                     // below them have loaded, so the grid appears in place
                     // instead of shifting as each part arrives
-                    visibility:
-                      loading || isPreviewLoading ? 'hidden' : 'visible',
+                    visibility: this.isGridLoading(loading, isPreviewLoading)
+                      ? 'hidden'
+                      : 'visible',
                   }}
                 >
                   <TransactionList
