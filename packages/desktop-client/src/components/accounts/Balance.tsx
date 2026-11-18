@@ -202,8 +202,6 @@ export function Balances({
         flexDirection: 'row',
         flexWrap: 'wrap',
         alignItems: 'center',
-        marginTop: -5,
-        marginLeft: -5,
         gap: 10,
       }}
     >
@@ -230,7 +228,7 @@ export function Balances({
             <CellValueText
               {...props}
               style={{
-                fontSize: 22,
+                fontSize: 19,
                 fontWeight: 400,
                 color:
                   props.value < 0
