@@ -191,6 +191,15 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   - editing shows an orange outline and a striped Done/Cancel bar (Cancel
     restores the transaction as it was); new transactions get Save and add
     another / Save / Cancel.
+  - in a new transaction, Enter moves to the next field like Tab
+    (`useTableNavigator(..., { enterMovesRight })`) and saves from the last
+    field (Inflow); picking a date, account, payee or category also moves on
+    (`advanceAfterPick`). Make a transfer opens a new row on the payee with
+    the transfer accounts listed (`newTransactionKind: 'transfer'`,
+    `initialFocusTransferPayees`).
+  - register inputs are smaller (`--table-input-padding`) and carry
+    `data-lpignore` / `data-1p-ignore` / `data-form-type="other"` so password
+    managers stay out of them.
   - Performance: rows are memoized, so props passed to `Transaction` must stay
     stable (memoized callbacks, `useAmountColumnWidths` memoized). A new
     function or object per render re-renders every row on each click.
