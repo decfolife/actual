@@ -635,11 +635,11 @@ describe('Transactions', () => {
       expect(queryField(container, 'notes', 'div', idx).textContent).toBe(
         transaction.notes,
       );
+      // The YNAB theme (the default) shows "Group: Category"
+      const category = categories.find(c => c.id === transaction.category);
+      const group = categoryGroups.find(g => g.id === category?.group);
       expect(queryField(container, 'category', 'div', idx).textContent).toBe(
-        transaction.category
-          ? categories.find(category => category.id === transaction.category)
-              ?.name
-          : 'Categorize',
+        category ? `${group?.name}: ${category.name}` : 'Categorize',
       );
       if (transaction.amount < 0) {
         expect(queryField(container, 'debit', 'div', idx).textContent).toBe(

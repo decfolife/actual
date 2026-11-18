@@ -360,8 +360,9 @@ const TransactionHeader = memo(
           borderTopWidth: 1,
           borderBottomWidth: 1,
           borderColor: theme.registerHeaderDivider,
-          ...(isYnab && { fontSize: 14 }),
+          ...(isYnab && { fontSize: 14, ...ynabColumnWidths }),
         }}
+        height={isYnab ? YNAB_HEADER_HEIGHT : undefined}
         data-testid="transaction-table-header"
       >
         {showSelection && (
@@ -595,14 +596,14 @@ function EditBar({ onDone, onCancel }: EditBarProps) {
         flexDirection: 'row',
         justifyContent: 'flex-end',
         gap: 6,
-        padding: '4px 8px',
+        padding: '3px 8px',
         border: `1px solid ${theme.registerEditingBorder}`,
         borderTop: 0,
         background: `repeating-linear-gradient(135deg, ${theme.registerEditingStripe} 0 10px, ${theme.registerEditingStripeAlternate} 10px 20px)`,
       }}
     >
       {/* Done lets the field being typed in save as it loses focus */}
-      <Button onPress={onDone} style={{ gap: 5 }}>
+      <Button onPress={onDone} style={{ gap: 5, padding: '2px 10px' }}>
         <SvgCheckCircle1
           style={{
             width: 13,
@@ -614,7 +615,7 @@ function EditBar({ onDone, onCancel }: EditBarProps) {
       </Button>
       {/* Cancel keeps the focus so the field's typing isn't saved */}
       <View onMouseDown={e => e.preventDefault()}>
-        <Button onPress={onCancel} style={{ gap: 5 }}>
+        <Button onPress={onCancel} style={{ gap: 5, padding: '2px 10px' }}>
           <SvgRemove style={{ width: 9, height: 9 }} />
           <Trans>Cancel</Trans>
         </Button>
@@ -622,6 +623,18 @@ function EditBar({ onDone, onCancel }: EditBarProps) {
     </View>
   );
 }
+
+// YNAB 4's register sizes
+const YNAB_ROW_HEIGHT = 25;
+const YNAB_HEADER_HEIGHT = 28;
+// Fixed column widths (Memo takes the rest), for header and rows alike
+const ynabColumnWidths = {
+  '& > [data-testid="account"]': { flex: '0 0 178px' },
+  '& > [data-testid="date"]': { flex: '0 0 80px' },
+  '& > [data-testid="payee"]': { flex: '0 0 205px' },
+  '& > [data-testid="category"]': { flex: '0 0 210px' },
+  '& > [data-testid="group"]': { flex: '0 0 150px' },
+};
 
 // The account register mimics YNAB 4 with the YNAB theme
 function useIsYnabRegister() {
@@ -808,6 +821,8 @@ function PayeeCell({
   onNavigateToTransferAccount,
   onNavigateToSchedule,
 }: PayeeCellProps) {
+  // YNAB 4 doesn't underline imported payees
+  const isYnab = useIsYnabRegister();
   const isCreatingPayee = useRef(false);
   const { t } = useTranslation();
 
@@ -888,9 +903,10 @@ function PayeeCell({
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
               minWidth: 0,
-              borderBottom: importedPayee
-                ? `1px dashed ${theme.pageTextSubdued}`
-                : 'none',
+              borderBottom:
+                importedPayee && !isYnab
+                  ? `1px dashed ${theme.pageTextSubdued}`
+                  : 'none',
             }}
           >
             {importedPayee ? (
@@ -951,7 +967,7 @@ function PayeeCell({
           <UnexposedCellContent
             {...props}
             style={
-              importedPayee
+              importedPayee && !isYnab
                 ? { borderBottom: `1px dashed ${theme.pageTextSubdued}` }
                 : {}
             }
@@ -2100,13 +2116,20 @@ const Transaction = memo(function Transaction({
             width="flex"
             textAlign="flex"
             value={categoryId}
-            formatter={value =>
-              value
-                ? (getCategoriesById(categoryGroups)[value]?.name ?? '')
-                : transaction.id
-                  ? t('Categorize')
-                  : ''
-            }
+            formatter={value => {
+              if (!value) {
+                return transaction.id ? t('Categorize') : '';
+              }
+              const category = getCategoriesById(categoryGroups)[value];
+              if (!category) {
+                return '';
+              }
+              // YNAB 4 shows "Group: Category"
+              const group = isYnab
+                ? categoryGroups.find(g => g.id === category.group)
+                : undefined;
+              return group ? `${group.name}: ${category.name}` : category.name;
+            }}
             exposed={focusedField === 'category'}
             onExpose={name => !isPreview && onEdit(id, name)}
             valueStyle={
@@ -2294,6 +2317,7 @@ const Transaction = memo(function Transaction({
       <DropHighlight pos={showDropHighlight ? dropPos : null} />
       <Row
         ref={rowRef}
+        height={isYnab ? YNAB_ROW_HEIGHT : undefined}
         {...dragProps}
         {...(pulse && { 'data-pulse': true })}
         style={{
@@ -2326,6 +2350,7 @@ const Transaction = memo(function Transaction({
             },
           }),
           ...style,
+          ...(isYnab && ynabColumnWidths),
           ...(showEditBar && {
             outline: `1px solid ${theme.registerEditingBorder}`,
             outlineOffset: -1,
@@ -2353,10 +2378,14 @@ const Transaction = memo(function Transaction({
             style={{
               width: triggerRef.current?.offsetWidth,
               maxWidth: 'none',
+              maxHeight: 'none !important',
+              overflow: 'visible',
               padding: 0,
               border: 0,
               borderRadius: 0,
               boxShadow: 'none',
+              // Above the rows that follow it in the list
+              zIndex: 3,
             }}
           >
             <EditBar
@@ -3241,6 +3270,7 @@ function TransactionTableInner({
           saveScrollWidth={saveScrollWidth}
           // Newest rows stay in view above a new transaction
           keepBottomOnShrink={isYnab}
+          rowHeight={isYnab ? YNAB_ROW_HEIGHT : undefined}
         />
 
         {props.isAdding && !isYnab && (
