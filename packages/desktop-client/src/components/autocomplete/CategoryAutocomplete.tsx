@@ -110,7 +110,9 @@ function CategoryList({
           overflowY: 'auto',
           willChange: 'transform',
           padding: '5px 0',
-          ...(!embedded && { maxHeight: isYnab ? 260 : 175 }),
+          ...(!embedded && {
+            maxHeight: 'var(--autocomplete-list-height, 175px)',
+          }),
         }}
       >
         {splitTransaction &&

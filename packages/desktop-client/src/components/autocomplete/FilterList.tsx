@@ -25,7 +25,9 @@ export function FilterList<T extends { id: string; name: string }>({
         style={{
           overflow: 'auto',
           padding: '5px 0',
-          ...(!embedded && { maxHeight: 175 }),
+          ...(!embedded && {
+            maxHeight: 'var(--autocomplete-list-height, 175px)',
+          }),
         }}
       >
         <ItemHeader title={t('Saved Filters')} type="filter" />

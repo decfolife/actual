@@ -64,7 +64,9 @@ function AccountGroupList({
           overflowY: 'auto',
           willChange: 'transform',
           padding: '5px 0',
-          ...(!embedded && { maxHeight: 175 }),
+          ...(!embedded && {
+            maxHeight: 'var(--autocomplete-list-height, 175px)',
+          }),
         }}
       >
         {items.map((item, index) => (

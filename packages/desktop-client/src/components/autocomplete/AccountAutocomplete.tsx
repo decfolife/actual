@@ -91,7 +91,9 @@ function AccountList({
         style={{
           overflow: 'auto',
           padding: '5px 0',
-          ...(!embedded && { maxHeight: 175 }),
+          ...(!embedded && {
+            maxHeight: 'var(--autocomplete-list-height, 175px)',
+          }),
         }}
       >
         {onBudgetAccounts.length > 0 && (

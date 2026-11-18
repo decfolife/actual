@@ -104,7 +104,7 @@ const _getPadding = (variant: ButtonVariant): string => {
 
 // Framed buttons can carry a gradient from the theme (YNAB's gray buttons)
 const isFramed = (variant: ButtonVariant) =>
-  variant === 'normal' || variant === 'primary';
+  variant === 'normal' || variant === 'primary' || variant === 'menu';
 
 const _getHoveredStyles = (variant: ButtonVariant): CSSProperties => ({
   ...(variant !== 'bare' && styles.shadow),
