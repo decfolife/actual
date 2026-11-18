@@ -524,10 +524,12 @@ class AccountInternal extends PureComponent<
         .orderBy({ sort_order: 'asc' });
     }
 
-    // Listing oldest first, the whole account loads at once so it can open
-    // at the bottom, like YNAB 4, instead of loading and scrolling down
+    // Listing oldest first (searches and filters too), the whole list loads
+    // at once so it can open at the bottom, like YNAB 4, instead of loading
+    // and scrolling down
     const isNewestLast =
-      this.state.sort === null && !isFiltered && this.state.search === '';
+      this.state.sort === null ||
+      (this.state.sort.field === 'date' && this.state.sort.ascDesc === 'asc');
 
     const paged = pagedQuery<TransactionEntity>(query.select('*'), {
       onData: async (groupedData, prevData) => {
