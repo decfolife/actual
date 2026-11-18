@@ -42,6 +42,7 @@ import {
   SvgRemove,
   SvgSubtract,
 } from '@actual-app/components/icons/v2';
+import { Menu } from '@actual-app/components/menu';
 import { Popover } from '@actual-app/components/popover';
 import { styles } from '@actual-app/components/styles';
 import { Text } from '@actual-app/components/text';
@@ -498,6 +499,12 @@ type StatusCellProps = {
   isPreview?: boolean;
   onEdit: TransactionEditFunction;
   onUpdate: TransactionUpdateFunction;
+  // Scheduled (preview) transactions: what can be done with them
+  onScheduleAction?: (
+    name: 'skip' | 'post-transaction' | 'post-transaction-today' | 'complete',
+  ) => void;
+  onViewSchedule?: () => void;
+  canSkipSchedule?: boolean;
 };
 
 function StatusCell({
@@ -509,8 +516,14 @@ function StatusCell({
   isPreview,
   onEdit,
   onUpdate,
+  onScheduleAction,
+  onViewSchedule,
+  canSkipSchedule = false,
 }: StatusCellProps) {
   const isYnab = useIsYnabRegister();
+  const { t } = useTranslation();
+  const scheduleButtonRef = useRef<HTMLButtonElement>(null);
+  const [isScheduleMenuOpen, setIsScheduleMenuOpen] = useState(false);
   const isClearedField =
     status === 'cleared' || status === 'reconciled' || status == null;
   const statusProps = getStatusProps(status);
@@ -532,6 +545,63 @@ function StatusCell({
     if (isClearedField) {
       onUpdate('cleared', !(status === 'cleared'));
     }
+  }
+
+  // A scheduled transaction's icon opens what can be done with it
+  if (isPreview && onScheduleAction) {
+    return (
+      <Cell name="cleared" width={38} alignItems="center" plain>
+        <Button
+          ref={scheduleButtonRef}
+          variant="bare"
+          aria-label={t('Scheduled transaction actions')}
+          style={{ padding: 3 }}
+          onPress={() => setIsScheduleMenuOpen(true)}
+        >
+          {createElement(statusProps.Icon, {
+            style: {
+              width: 13,
+              height: 13,
+              color: statusColor,
+              marginTop: status === 'due' ? -1 : 0,
+            },
+          })}
+        </Button>
+        <Popover
+          triggerRef={scheduleButtonRef}
+          placement="bottom end"
+          isOpen={isScheduleMenuOpen}
+          onOpenChange={() => setIsScheduleMenuOpen(false)}
+        >
+          <Menu
+            onMenuSelect={name => {
+              setIsScheduleMenuOpen(false);
+              if (name === 'view-schedule') {
+                onViewSchedule?.();
+              } else {
+                onScheduleAction(name);
+              }
+            }}
+            items={[
+              { name: 'post-transaction-today', text: t('Enter now') } as const,
+              {
+                name: 'post-transaction',
+                text: t('Enter on its scheduled date'),
+              } as const,
+              ...(canSkipSchedule
+                ? [{ name: 'skip', text: t('Skip this time') } as const]
+                : []),
+              ...(onViewSchedule
+                ? ([
+                    Menu.line,
+                    { name: 'view-schedule', text: t('Edit schedule…') },
+                  ] as const)
+                : []),
+            ]}
+          />
+        </Popover>
+      </Cell>
+    );
   }
 
   return (
@@ -2307,6 +2377,14 @@ const Transaction = memo(function Transaction({
             isChild={isChild}
             onEdit={onEdit}
             onUpdate={onUpdate}
+            onScheduleAction={name => onScheduleAction?.(name, [id])}
+            // Only a repeating schedule has a next date to skip to
+            canSkipSchedule={!!schedule && typeof schedule._date === 'object'}
+            onViewSchedule={
+              transaction.schedule
+                ? () => onNavigateToSchedule(transaction.schedule as string)
+                : undefined
+            }
           />
         );
       default:
