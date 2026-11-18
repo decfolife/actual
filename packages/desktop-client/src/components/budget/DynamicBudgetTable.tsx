@@ -17,23 +17,16 @@ import { BudgetPageHeader } from './BudgetPageHeader';
 import { BudgetTable } from './BudgetTable';
 import { clampMonth } from './MonthsContext';
 
+// YNAB 4's month column width. When more months are chosen than fit at
+// that width, the whole budget is scaled down (to MIN_SCALE at most) so they
+// fit, rather than squeezing and clipping the numbers.
+const MONTH_WIDTH = 230;
+const MIN_SCALE = 0.75;
+const MAX_MONTHS = 12;
+
 function getNumPossibleMonths(width: number, categoryWidth: number) {
-  const estimatedTableWidth = width - categoryWidth;
-
-  // About 230px per month, close to YNAB 4's month width
-  if (estimatedTableWidth < 460) {
-    return 1;
-  } else if (estimatedTableWidth < 690) {
-    return 2;
-  } else if (estimatedTableWidth < 920) {
-    return 3;
-  } else if (estimatedTableWidth < 1150) {
-    return 4;
-  } else if (estimatedTableWidth < 1380) {
-    return 5;
-  }
-
-  return 6;
+  const fitting = Math.floor((width / MIN_SCALE - categoryWidth) / MONTH_WIDTH);
+  return Math.max(1, Math.min(MAX_MONTHS, fitting));
 }
 
 type DynamicBudgetTableProps = {
@@ -63,8 +56,13 @@ const DynamicBudgetTable = ({
     CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState,
   );
   const numMonths = Math.min(numPossible, maxMonths);
-  const maxWidth =
-    CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState + 500 * numMonths;
+  const categoryWidth = CATEGORY_COLUMN_WIDTH + 100 * categoryExpandedState;
+  const maxWidth = categoryWidth + 500 * numMonths;
+  // Shrink everything when the chosen months don't fit at full size
+  const scale = Math.max(
+    MIN_SCALE,
+    Math.min(1, width / (categoryWidth + MONTH_WIDTH * numMonths)),
+  );
 
   // Every displayed column must stay inside the bounds, so the first
   // column can go no later than `numMonths - 1` months before the end.
@@ -161,10 +159,11 @@ const DynamicBudgetTable = ({
   return (
     <View
       style={{
-        width,
-        height,
+        width: width / scale,
+        height: height / scale,
         alignItems: 'center',
         opacity: width <= 0 || height <= 0 ? 0 : 1,
+        ...(scale < 1 && { zoom: scale }),
       }}
     >
       <View style={{ width: '100%', maxWidth, flex: 1, minHeight: 0 }}>
