@@ -315,8 +315,8 @@ export function Account<FieldName extends SheetFields<'account'>>({
                 ) : Icon ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Icon
-                      width={21}
-                      height={21}
+                      width={24}
+                      height={24}
                       style={{
                         color: iconColor,
                         marginRight: 8,

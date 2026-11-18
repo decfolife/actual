@@ -52,6 +52,8 @@ export function Sidebar() {
           style={{
             flexShrink: 0,
             margin: '0 6px',
+            // YNAB 4 leaves room above Budget and below All Accounts
+            padding: '10px 0 9px',
             borderRadius: 6,
             overflow: 'hidden',
             backgroundColor: theme.sidebarAccountGroupBackground,
@@ -64,7 +66,7 @@ export function Sidebar() {
             query={bindings.allAccountBalance()}
             style={{
               fontSize: 16.5,
-              fontWeight: 600,
+              fontWeight: 700,
               paddingTop: 7,
               paddingBottom: 7,
               paddingLeft: 6,
@@ -76,7 +78,7 @@ export function Sidebar() {
             isExactPathMatch
             showCurrencySymbol
             // YNAB 4 showed the total smaller than the label
-            balanceStyle={{ fontSize: 13.5, fontWeight: 600 }}
+            balanceStyle={{ fontSize: 13.5, fontWeight: 700 }}
             balanceTestId="sidebar-all-accounts-balance"
           />
         </View>

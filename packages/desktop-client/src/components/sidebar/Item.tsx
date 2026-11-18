@@ -57,8 +57,8 @@ export function Item({
       }}
     >
       <Icon
-        width={compact ? 13 : 21}
-        height={compact ? 13 : 21}
+        width={compact ? 13 : 24}
+        height={compact ? 13 : 24}
         style={iconColor ? { color: iconColor } : undefined}
       />
       <Block style={{ marginLeft: compact ? 7 : 8 }}>{title}</Block>
@@ -74,7 +74,7 @@ export function Item({
             ? { ...styles.smallText, paddingTop: 4, paddingBottom: 4 }
             : {
                 fontSize: 16.5,
-                fontWeight: 600,
+                fontWeight: 700,
                 paddingTop: 7,
                 paddingBottom: 7,
               }),
