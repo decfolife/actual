@@ -4,11 +4,6 @@ import type { ComponentType, CSSProperties, SVGProps } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { AlignedText } from '@actual-app/components/aligned-text';
-import { Button } from '@actual-app/components/button';
-import {
-  SvgArrowButtonDown1,
-  SvgArrowButtonUp1,
-} from '@actual-app/components/icons/v2';
 import { InitialFocus } from '@actual-app/components/initial-focus';
 import { Input } from '@actual-app/components/input';
 import { SpaceBetween } from '@actual-app/components/space-between';
@@ -23,7 +18,6 @@ import type { AccountEntity } from '@actual-app/core/types/models';
 import { css, cx } from '@emotion/css';
 
 import { useReopenAccountMutation, useUpdateAccountMutation } from '#accounts';
-import { BalanceHistoryGraph } from '#components/accounts/BalanceHistoryGraph';
 import { withTotalSymbol } from '#components/budget/util';
 import { Link } from '#components/common/Link';
 import { Notes } from '#components/Notes';
@@ -35,7 +29,6 @@ import { useDragRef } from '#hooks/useDragRef';
 import { useFormat } from '#hooks/useFormat';
 import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useNotes } from '#hooks/useNotes';
-import { useSyncedPref } from '#hooks/useSyncedPref';
 import { pushModal } from '#modals/modalsSlice';
 import { useDispatch, useSelector } from '#redux';
 import type { Binding, SheetFields } from '#spreadsheet';
@@ -125,10 +118,6 @@ export function Account<FieldName extends SheetFields<'account'>>({
     id: account && account.id,
     onDrop,
   });
-
-  const [showBalanceHistory, setShowBalanceHistory] = useSyncedPref(
-    `side-nav.show-balance-history-${account?.id}`,
-  );
 
   const dispatch = useDispatch();
 
@@ -366,19 +355,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
             padding: 10,
           }}
         >
-          <SpaceBetween
-            gap={5}
-            style={{
-              justifyContent: 'space-between',
-              '& .hover-visible': {
-                opacity: 0,
-                transition: 'opacity .25s',
-              },
-              '&:hover .hover-visible': {
-                opacity: 1,
-              },
-            }}
-          >
+          <SpaceBetween gap={5} style={{ justifyContent: 'space-between' }}>
             <Text>{name}</Text>
             <View style={{ flex: 1 }} />
             <CellValue<'account', FieldName> binding={query} type="financial">
@@ -392,31 +369,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
                 />
               )}
             </CellValue>
-            <Button
-              aria-label={t('Toggle balance history')}
-              variant="bare"
-              onClick={() =>
-                setShowBalanceHistory(
-                  showBalanceHistory === 'true' ? 'false' : 'true',
-                )
-              }
-              className="hover-visible"
-            >
-              <SpaceBetween gap={3}>
-                {showBalanceHistory === 'true' ? (
-                  <SvgArrowButtonUp1 width={10} height={10} />
-                ) : (
-                  <SvgArrowButtonDown1 width={10} height={10} />
-                )}
-              </SpaceBetween>
-            </Button>
           </SpaceBetween>
-          {showBalanceHistory === 'true' && account && (
-            <BalanceHistoryGraph
-              accountId={account.id}
-              style={{ minWidth: 350, minHeight: 70 }}
-            />
-          )}
           {accountNote && (
             <Notes
               getStyle={() => ({
