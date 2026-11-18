@@ -57,9 +57,11 @@ export function AddTransactionBar({
       <View
         style={{
           flexDirection: 'row',
-          backgroundColor: theme.tableHeaderBackground,
-          borderTop: `1px solid ${theme.tableBorder}`,
-          borderBottom: `1px solid ${theme.tableBorder}`,
+          // The theme's button look (YNAB's gray bevel)
+          backgroundColor: theme.buttonNormalBackground,
+          backgroundImage: 'var(--button-gradient, none)',
+          borderTop: `1px solid ${theme.buttonNormalBorder}`,
+          borderBottom: `1px solid ${theme.buttonNormalBorder}`,
         }}
       >
         <StripButton
@@ -132,9 +134,9 @@ function StripButton({ ref, Icon, label, onPress }: StripButtonProps) {
       style={{
         padding: 0,
         borderRadius: 0,
-        borderRight: `1px solid ${theme.tableBorder}`,
+        borderRight: `1px solid ${theme.buttonNormalBorder}`,
         alignItems: 'stretch',
-        color: theme.pageText,
+        color: theme.buttonNormalText,
       }}
     >
       <View

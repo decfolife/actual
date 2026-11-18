@@ -107,11 +107,25 @@ const ynabOverrides: Record<string, string> = {
   toBudgetZero: '#a4c666',
   toBudgetNegative: '#eb8b8b',
 
-  // Buttons
-  buttonPrimaryBackground: '#0099ca',
-  buttonPrimaryBackgroundHover: '#0086b2',
-  buttonPrimaryBorder: '#0086b2',
-  buttonPrimaryText: '#ffffff',
+  // Buttons: YNAB 4's gray beveled buttons, primary ones included
+  buttonNormalBackground: '#e4e4e4',
+  buttonNormalBackgroundHover: '#ededed',
+  buttonNormalBorder: '#9b9b9b',
+  buttonNormalText: '#3a3a3a',
+  buttonNormalTextHover: '#2a2a2a',
+  buttonNormalShadow: 'rgba(0, 0, 0, 0.25)',
+  buttonNormalDisabledBackground: '#ececec',
+  buttonNormalDisabledBorder: '#c4c4c4',
+  buttonNormalDisabledText: '#a8a8a8',
+  buttonPrimaryBackground: '#e4e4e4',
+  buttonPrimaryBackgroundHover: '#ededed',
+  buttonPrimaryBorder: '#8a8a8a',
+  buttonPrimaryText: '#2a2a2a',
+  buttonPrimaryTextHover: '#1a1a1a',
+  buttonPrimaryShadow: 'rgba(0, 0, 0, 0.25)',
+  buttonPrimaryDisabledBackground: '#ececec',
+  buttonPrimaryDisabledBorder: '#c4c4c4',
+  buttonPrimaryDisabledText: '#a8a8a8',
 
   // Window title bar of the installed app (and the mobile status bar)
   mobileViewTheme: '#ececec',
@@ -130,7 +144,7 @@ const ynabTextRendering = `body {
 }
 `;
 
-export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 5px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(#4a5c63, #3d4b52 55%, #323d43);\n  --budget-card-edge: #22292b;\n  --budget-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.3);\n  --budget-card-divider: #2a353b;\n  --budget-card-divider-light: #56636a;\n  --budget-card-icon: #7f8d94;\n  --budget-card-subtext: #c9cfd2;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n  --budget-table-shadow: none;\n${Object.entries(
+export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n  --budget-month-gap: 5px;\n  --sidebar-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);\n  --budget-card-gradient: linear-gradient(#4a5c63, #3d4b52 55%, #323d43);\n  --budget-card-edge: #22292b;\n  --budget-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.3);\n  --budget-card-divider: #2a353b;\n  --budget-card-divider-light: #56636a;\n  --budget-card-icon: #7f8d94;\n  --budget-card-subtext: #c9cfd2;\n  --budget-strip-gradient: linear-gradient(rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.12));\n  --budget-grid-style: dotted;\n  --budget-table-shadow: none;\n  --button-gradient: linear-gradient(#fdfdfd, #d9d9d9);\n  --button-gradient-hover: linear-gradient(#ffffff, #e4e4e4);\n  --button-gradient-active: linear-gradient(#cfcfcf, #e9e9e9);\n  --button-gradient-disabled: linear-gradient(#f6f6f6, #e8e8e8);\n  --button-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.12);\n${Object.entries(
   ynabOverrides,
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)

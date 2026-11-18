@@ -1300,7 +1300,12 @@ const Transaction = memo(function Transaction({
     setEditStart(null);
   }
   const showEditBar =
-    isYnab && editing && !isPreview && !originalTransaction.is_child;
+    isYnab &&
+    editing &&
+    !isPreview &&
+    !originalTransaction.is_child &&
+    // A new transaction has its own Save/Cancel bar
+    !isTemporaryId(originalTransaction.id);
   // The table navigator's onEdit takes null to stop editing
   const stopEditing = () =>
     (onEdit as (id: TransactionEntity['id'] | null, field: string) => void)(
@@ -2769,13 +2774,23 @@ function NewTransaction({
     }
   };
 
+  // YNAB 4: an orange-outlined row with a striped bar of Save buttons
+  const isYnab = useIsYnabRegister();
+
   return (
     <View
-      style={{
-        borderBottom: '1px solid ' + theme.tableBorderHover,
-        paddingBottom: 6,
-        backgroundColor: theme.tableBackground,
-      }}
+      style={
+        isYnab
+          ? {
+              border: `1px solid ${theme.registerEditingBorder}`,
+              backgroundColor: theme.registerEditingStripeAlternate,
+            }
+          : {
+              borderBottom: '1px solid ' + theme.tableBorderHover,
+              paddingBottom: 6,
+              backgroundColor: theme.tableBackground,
+            }
+      }
       data-testid="new-transaction"
       onKeyDown={e => {
         if (e.key === 'Escape') {
@@ -2820,54 +2835,131 @@ function NewTransaction({
           showHiddenCategories={showHiddenCategories}
         />
       ))}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          marginTop: 6,
-          marginRight: 20,
-        }}
-      >
-        <Button
-          style={{ marginRight: 10, padding: '4px 10px' }}
-          onPress={() => onClose()}
-          data-testid="cancel-button"
-          ref={cancelButtonRef}
+      {isYnab ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            gap: 6,
+            padding: '3px 8px',
+            borderTop: `1px solid ${theme.registerEditingBorder}`,
+            background: `repeating-linear-gradient(135deg, ${theme.registerEditingStripe} 0 10px, ${theme.registerEditingStripeAlternate} 10px 20px)`,
+          }}
         >
-          <Trans>Cancel</Trans>
-        </Button>
-        {isFuture && (
+          {isFuture && (
+            <Button
+              style={{ padding: '2px 10px' }}
+              onPress={onSchedule}
+              data-testid="schedule-button"
+              ref={scheduleButtonRef}
+            >
+              <Trans>Schedule</Trans>
+            </Button>
+          )}
+          {error ? (
+            <TransactionError
+              error={error}
+              isDeposit={isDeposit}
+              onAddSplit={() => onAddSplit(transactions[0].id)}
+              onDistributeRemainder={() =>
+                onDistributeRemainder(transactions[0].id)
+              }
+            />
+          ) : (
+            <>
+              <Button
+                style={{ padding: '2px 10px', gap: 5 }}
+                // Ctrl/Cmd+click saves and closes, as before
+                onPress={handleAddClick}
+                data-testid="add-button"
+                ref={addButtonRef}
+              >
+                <SvgCheckCircle1
+                  style={{
+                    width: 13,
+                    height: 13,
+                    color: theme.registerClearedBackground,
+                  }}
+                />
+                <Trans>Save and add another</Trans>
+              </Button>
+              <Button
+                style={{ padding: '2px 10px', gap: 5 }}
+                onPress={() => onAddAndClose()}
+                data-testid="save-button"
+              >
+                <SvgCheckCircle1
+                  style={{
+                    width: 13,
+                    height: 13,
+                    color: theme.registerClearedBackground,
+                  }}
+                />
+                <Trans>Save</Trans>
+              </Button>
+            </>
+          )}
+          <Button
+            style={{ padding: '2px 10px', gap: 5 }}
+            onPress={() => onClose()}
+            data-testid="cancel-button"
+            ref={cancelButtonRef}
+          >
+            <SvgRemove style={{ width: 9, height: 9 }} />
+            <Trans>Cancel</Trans>
+          </Button>
+        </View>
+      ) : (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            marginTop: 6,
+            marginRight: 20,
+          }}
+        >
           <Button
             style={{ marginRight: 10, padding: '4px 10px' }}
-            onPress={onSchedule}
-            data-testid="schedule-button"
-            ref={scheduleButtonRef}
+            onPress={() => onClose()}
+            data-testid="cancel-button"
+            ref={cancelButtonRef}
           >
-            <Trans>Schedule</Trans>
+            <Trans>Cancel</Trans>
           </Button>
-        )}
-        {error ? (
-          <TransactionError
-            error={error}
-            isDeposit={isDeposit}
-            onAddSplit={() => onAddSplit(transactions[0].id)}
-            onDistributeRemainder={() =>
-              onDistributeRemainder(transactions[0].id)
-            }
-          />
-        ) : (
-          <Button
-            variant="primary"
-            style={{ padding: '4px 10px' }}
-            onPress={handleAddClick}
-            data-testid="add-button"
-            ref={addButtonRef}
-          >
-            <Trans>Add</Trans>
-          </Button>
-        )}
-      </View>
+          {isFuture && (
+            <Button
+              style={{ marginRight: 10, padding: '4px 10px' }}
+              onPress={onSchedule}
+              data-testid="schedule-button"
+              ref={scheduleButtonRef}
+            >
+              <Trans>Schedule</Trans>
+            </Button>
+          )}
+          {error ? (
+            <TransactionError
+              error={error}
+              isDeposit={isDeposit}
+              onAddSplit={() => onAddSplit(transactions[0].id)}
+              onDistributeRemainder={() =>
+                onDistributeRemainder(transactions[0].id)
+              }
+            />
+          ) : (
+            <Button
+              variant="primary"
+              style={{ padding: '4px 10px' }}
+              onPress={handleAddClick}
+              data-testid="add-button"
+              ref={addButtonRef}
+            >
+              <Trans>Add</Trans>
+            </Button>
+          )}
+        </View>
+      )}
     </View>
   );
 }

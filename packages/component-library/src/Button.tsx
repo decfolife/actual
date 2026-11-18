@@ -102,8 +102,15 @@ const _getPadding = (variant: ButtonVariant): string => {
   }
 };
 
+// Framed buttons can carry a gradient from the theme (YNAB's gray buttons)
+const isFramed = (variant: ButtonVariant) =>
+  variant === 'normal' || variant === 'primary';
+
 const _getHoveredStyles = (variant: ButtonVariant): CSSProperties => ({
   ...(variant !== 'bare' && styles.shadow),
+  ...(isFramed(variant) && {
+    backgroundImage: 'var(--button-gradient-hover, none)',
+  }),
   backgroundColor: backgroundColorHover[variant],
   color: textColorHover[variant],
   cursor: 'pointer',
@@ -118,6 +125,9 @@ const _getActiveStyles = (
       return { backgroundColor: theme.buttonBareBackgroundActive };
     default:
       return {
+        ...(isFramed(variant) && {
+          backgroundImage: 'var(--button-gradient-active, none)',
+        }),
         transform: bounce ? 'translateY(1px)' : undefined,
         boxShadow: `0 1px 4px 0 ${
           variant === 'primary'
@@ -224,6 +234,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           display: 'flex',
           borderRadius: 4,
           backgroundColor: backgroundColor[variantWithDisabled],
+          ...(isFramed(variant) && {
+            backgroundImage: props.isDisabled
+              ? 'var(--button-gradient-disabled, none)'
+              : 'var(--button-gradient, none)',
+            boxShadow: 'var(--button-shadow, none)',
+          }),
           border: _getBorder(variant, variantWithDisabled),
           color: textColor[variantWithDisabled],
           transition: 'box-shadow .25s',
