@@ -50,10 +50,20 @@ export function TransactionSearch({
   const triggerRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const [highlighted, setHighlighted] = useState(0);
+  const [highlightedKey, setHighlightedKey] = useState<string | null>(null);
   const isClosingWithEscape = useRef(false);
 
-  const text = value.trim();
+  // What's typed; the search only runs on Enter or when a suggestion is
+  // picked, not on every keystroke
+  const [draft, setDraft] = useState(value);
+  const [appliedValue, setAppliedValue] = useState(value);
+  if (value !== appliedValue) {
+    // The search changed elsewhere, e.g. Clear Search or another account
+    setAppliedValue(value);
+    setDraft(value);
+  }
+
+  const text = draft.trim();
   const lower = text.toLowerCase();
   const suggestions: Suggestion[] = [];
 
@@ -156,33 +166,55 @@ export function TransactionSearch({
   }
 
   const isOpen = isFocused && !isDismissed && suggestions.length > 0;
-  const current = Math.min(highlighted, suggestions.length - 1);
+  // Enter searches every field unless another suggestion is highlighted
+  const highlightedIndex = suggestions.findIndex(
+    s => s.key === (highlightedKey ?? 'any'),
+  );
+  const current =
+    highlightedIndex === -1
+      ? suggestions.findIndex(s => s.key === 'any')
+      : highlightedIndex;
+
+  function search(newValue: string) {
+    setAppliedValue(newValue);
+    onChange(newValue);
+  }
 
   function choose(suggestion: Suggestion) {
     setIsDismissed(true);
     if (suggestion.condition) {
       // Apply first: applying a filter re-runs the current search
       onApplyFilter(suggestion.condition);
-      onChange('');
+      setDraft('');
+      if (value !== '') {
+        search('');
+      }
+    } else {
+      search(text);
     }
   }
 
   function onKeyDownCapture(e: KeyboardEvent) {
     if (!isOpen) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        search(text);
+      }
       return;
     }
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       e.stopPropagation();
       const step = e.key === 'ArrowDown' ? 1 : -1;
-      setHighlighted(
-        (current + step + suggestions.length) % suggestions.length,
+      setHighlightedKey(
+        suggestions[(current + step + suggestions.length) % suggestions.length]
+          .key,
       );
     } else if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       choose(suggestions[current]);
-    } else if (e.key === 'Escape' && value !== '') {
+    } else if (e.key === 'Escape' && draft !== '') {
       e.stopPropagation();
       setIsDismissed(true);
       // The search box clears itself on Escape's keyup; this Escape only
@@ -207,12 +239,16 @@ export function TransactionSearch({
       <Search
         ref={ref}
         placeholder={t('Search')}
-        value={value}
+        value={draft}
         width={230}
         onChange={newValue => {
           setIsDismissed(false);
-          setHighlighted(suggestions.length > 0 ? 0 : highlighted);
-          onChange(newValue);
+          setHighlightedKey(null);
+          setDraft(newValue);
+          // Clearing the box (× or Escape) clears the search right away
+          if (newValue === '' && value !== '') {
+            search('');
+          }
         }}
       />
       <Popover
@@ -245,7 +281,7 @@ export function TransactionSearch({
               key={suggestion.key}
               prefix={suggestion.prefix}
               isHighlighted={index === current}
-              onHover={() => setHighlighted(index)}
+              onHover={() => setHighlightedKey(suggestion.key)}
               onChoose={() => choose(suggestion)}
             >
               {suggestion.label}
