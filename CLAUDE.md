@@ -1,2 +1,208 @@
 @AGENTS.md
 @.github/agents/pr-and-commit-rules.md
+
+# The `ynab-style` fork
+
+This repository is a personal fork of Actual Budget. The `ynab-style` branch
+reshapes Actual to look and behave like **YNAB 4** (the classic desktop
+YNAB). Upstream rules in `AGENTS.md` and the PR/commit rules still apply; this
+section adds what is specific to the fork, so work can continue on any
+machine.
+
+## Goal and how changes are requested
+
+- Everything is judged against YNAB 4. The owner sends side-by-side
+  screenshots (YNAB 4 vs this app) and asks for the app to match: spacing,
+  fonts, colors, behavior.
+- Match by **measuring**, not eyeballing. Compare screenshots at the same
+  scale (e.g. row pitch in pixels) and convert to CSS px. Earlier eyeballed
+  changes went the wrong way.
+- YNAB-only look and behavior lives behind the **YNAB theme** (`ynab`), so the
+  other themes and upstream behavior keep working. `ynab` is the default theme
+  in this fork (`useTheme()` in `packages/desktop-client/src/style/theme.tsx`).
+
+## Working rules (agreed with the owner)
+
+- Commit every finished change locally, with the `[AI]` prefix and the
+  attribution trailer. **Push only when the owner says "push".**
+- Ask before deleting anything.
+- Never modify the original data from the Actual Mac app
+  (`~/Library/Application Support/Actual/actual-server`). The server runs on a
+  copy (see Deployment).
+- Test against the **demo budget** in a browser ("Try the demo" on the
+  welcome screen), never the owner's real budget.
+- After each change: typecheck, lint, run the relevant vitest suites, check it
+  in the browser, build, restart the server, then commit.
+- The repo on GitHub is public: keep personal details (names, emails,
+  machine/Tailscale addresses, budget contents) out of commits and this file.
+
+## Deployment (how the owner runs it)
+
+The owner self-hosts this branch; there is no separate hosting.
+
+- **Server:** the sync server built from this checkout serves the web app and
+  syncs budgets. On the Mac it runs from a LaunchAgent,
+  `~/Library/LaunchAgents/com.decfolife.actual-server.plist`:
+  - `node packages/sync-server/build/app.js`, working directory = this
+    checkout (`~/developer/actual`)
+  - env: `ACTUAL_PORT=5007`, `ACTUAL_HOSTNAME=127.0.0.1`,
+    `ACTUAL_DATA_DIR=~/developer/actual-data` (with `server-files/` and
+    `user-files/` inside), log at `~/developer/actual-data/server.log`
+  - `RunAtLoad` and `KeepAlive` are on.
+- **The web UI** comes from `packages/desktop-client/build`
+  (`@actual-app/web` is linked to the local `desktop-client`), so a frontend
+  change only shows after a build.
+- **Other devices** (iPhone, Windows) reach the Mac through **Tailscale**:
+  `tailscale serve` maps the Mac's tailnet HTTPS address to
+  `http://127.0.0.1:5007`. Check it with `tailscale serve status`. Every
+  device needs Tailscale running. The app is local-first: devices keep working
+  offline and sync when they reach the server again (the sync button in the
+  sidebar forces it).
+- **Installed apps:** the owner uses it as an installed Chrome app on the Mac
+  (localhost:5007) and from the Tailscale address on other devices. After a
+  deploy, clients need a reload (Cmd+Shift+R) for the service worker to pick
+  up the new build. Disable "new version" notices in Settings if they nag.
+
+### Deploy a change
+
+```bash
+yarn build:server
+launchctl kickstart -k gui/$(id -u)/com.decfolife.actual-server
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
+```
+
+### Setting up on another machine
+
+1. Prerequisites: git, Node >= 22 (repo's `.nvmrc`), Yarn 4 via corepack
+   (`corepack enable`; if `/usr/local/bin` isn't writable use
+   `corepack enable --install-directory ~/.local/bin` and put that on PATH).
+2. `git clone -b ynab-style https://github.com/decfolife/actual`, then from
+   the repo root `yarn install` and `yarn build:server`.
+3. Pick a data directory (e.g. `~/developer/actual-data`). If moving an
+   existing server, **copy** its data there (back it up first, never move or
+   edit the original).
+4. Run `node packages/sync-server/build/app.js` with the env vars above (or
+   create an equivalent LaunchAgent / systemd unit / Windows service).
+5. For other devices, set up `tailscale serve` to the server's port.
+6. Only one server should own a budget's sync data; don't run two against the
+   same files.
+
+## Development and verification
+
+- Dev server (frontend only, with the demo budget): from the repo root
+  `yarn start:browser-frontend`, port 3001. In Claude Code desktop this is the
+  `actual-dev` preview config (`.claude/launch.json` in the parent folder).
+- After `yarn build:server` the dev server can go blank (stale HMR): restart
+  it.
+- Browser checks have been scripted with Playwright from
+  `packages/desktop-client` (`require('playwright')`, `channel: 'chrome'`,
+  a persistent profile so the demo budget survives). Useful patterns:
+  screenshots at the same `deviceScaleFactor` as the owner's screenshots,
+  per-frame `requestAnimationFrame` logs to catch layout jumps, CDP CPU
+  throttling to imitate a phone, and `sharp` (in the repo) to measure pixels.
+- To measure real performance, serve `packages/desktop-client/build` locally
+  with COOP/COEP headers and use "Try the demo"; the dev build is several
+  times slower.
+- Tests: `yarn typecheck`, `yarn lint` (oxlint + oxfmt), and vitest per
+  workspace, e.g.
+  `yarn workspace @actual-app/web vitest --run src/components/transactions`.
+  Component-library tests need their config: `yarn workspace
+  @actual-app/components run test`.
+- `TransactionsTable.test.tsx` mocks the theme to `light`: it covers the
+  standard register, while the YNAB theme changes clicking and labels.
+- e2e/VRT suites were not updated for the fork (e.g. oldest-first registers,
+  header balance moved to the footer) and are expected to fail in places.
+
+## What the fork changes, and where
+
+### Theme
+
+- `packages/component-library/src/themes/ynab.ts`: the YNAB theme = light
+  theme + overrides (`ynabOverrides` color tokens) + CSS variables in
+  `ynabOverridesCss` (`--button-gradient*`, `--checkbox-*`,
+  `--autocomplete-*`, `--budget-*`, font stack). Most YNAB styling is a token
+  or CSS variable here, with a neutral default elsewhere, so other themes are
+  unaffected.
+- New tokens are declared in
+  `packages/component-library/src/themes/source/colors.ts` (with a
+  `description`); give them defaults that match the existing look.
+- Font: Myriad Pro if installed, else bundled Source Sans 3
+  (`fonts.scss`).
+- Buttons (`component-library/src/Button.tsx`): normal/primary/menu buttons
+  take `--button-gradient*` from the theme (YNAB gray bevel).
+
+### Budget screen (`packages/desktop-client/src/components/budget/`)
+
+- Compact dark month cards (`BudgetSummary.tsx`, `ToBudgetAmount.tsx`),
+  calendar-year month strip (`MonthPicker.tsx`), totals header boxes and
+  dotted teal grid (`envelope/EnvelopeBudgetComponents.tsx`,
+  `BudgetTotals.tsx`, `BudgetCategories.tsx`).
+- Budget cell ▼ menu (`envelope/QuickBudgetMenu.tsx`) with last month,
+  averages, scheduled amounts and a calculator (`envelope/BudgetCalculator.tsx`);
+  server side `loot-core/src/server/budget/quick-budget.ts`.
+- Month count: −/+ control (`MonthCountSelector.tsx`); `DynamicBudgetTable.tsx`
+  fits up to 12 months and scales the whole budget down (CSS `zoom`, to 75%)
+  when they don't fit at YNAB's 230px per month. The count is a per-device
+  global pref (`maxMonths`).
+
+### Sidebar (`components/sidebar/`)
+
+- Nav box (Budget/Reports/All Accounts), collapsible account group boxes
+  (`Accounts.tsx`, pref `ui.collapsedAccountGroups`), less-used items moved to
+  the bottom, which scrolls with the accounts on short screens.
+- Account rows: right-click menu = Adjust Balance (`AdjustBalancePopover.tsx`,
+  creates a reconciliation transaction) and Note; yellow hover tooltip with
+  balance and notes (no graph).
+
+### Account register (`components/accounts/`, `components/transactions/`)
+
+- **Oldest first, newest at the bottom.** `Account.tsx` orders by date asc
+  when no column sort is chosen, loads the whole list at once
+  (`pageCount` 1,000,000) and opens scrolled to the bottom with no visible
+  scrolling; searches, filters and a date-ascending sort do the same.
+  `FixedSizeList.tsx` clamps scroll offsets and can keep the bottom in view
+  when the list shrinks; `table.tsx` has `scrollToBottom` and stays pinned to
+  the bottom when rows are added there.
+- Scheduled transactions are listed after the newest transaction
+  (`previewAtBottom`). Their status icon opens Enter now / Enter on its date /
+  Skip / Edit schedule.
+- The grid is hidden behind a skeleton (`AccountSkeleton.tsx`) only on an
+  account's first load, then appears once, in its final layout.
+- Header (`Header.tsx`): one compact row; Edit Transactions ▼ (always shown,
+  disabled with nothing selected), Import, Filter, date range dropdown
+  (`DateRangeButton.tsx`) and search with YNAB-style suggestions
+  (`TransactionSearch.tsx`; searches on Enter or a picked suggestion, not
+  while typing). Green "Showing N results" bar with Clear Search
+  (`SearchBanner.tsx`).
+- Footer: Add a new transaction / Make a transfer strip
+  (`AddTransactionBar.tsx`; new rows open at the bottom) and the bottom bar
+  (`AccountFooter.tsx`): Scheduled Transactions, Cleared + Uncleared = Working
+  Balance (Search Total / Selected Total when relevant), Reconcile Account.
+- Grid (`TransactionsTable.tsx`, all gated on `useIsYnabRegister()`):
+  - slate header bar, YNAB column names (Memo, Outflow, Inflow) and order
+    (enforced in `hooks/useTransactionTableColumns.ts`, running balance always
+    shown), "Group: Category", striped rows without grid lines, 25px rows /
+    28px header, fixed widths with Memo flexing;
+  - resizable columns: drag a header edge, double-click to reset; widths in
+    the local pref `ui.transactionColumnWidths`;
+  - green "C" clearing badges; gray beveled checkboxes on every row;
+  - click a row to select it, click again to edit; Shift+click selects a
+    range, Cmd/Ctrl+click toggles one row; checkbox and C act at once;
+  - editing shows an orange outline and a striped Done/Cancel bar (Cancel
+    restores the transaction as it was); new transactions get Save and add
+    another / Save / Cancel.
+  - Performance: rows are memoized, so props passed to `Transaction` must stay
+    stable (memoized callbacks, `useAmountColumnWidths` memoized). A new
+    function or object per render re-renders every row on each click.
+- Dropdowns (`components/autocomplete/`): white list with blue highlight,
+  bold "Group:" headings, "Budget Categories" title, taller lists
+  (`--autocomplete-list-height`).
+
+## Known gaps / ideas not done yet
+
+- No flag column, check numbers, or "Add Category" button in the category
+  dropdown; the category dropdown highlights Split first rather than the
+  current category.
+- The iPhone in its narrow layout uses Actual's mobile UI, which this fork
+  hasn't restyled.
+- Balance adjustments are uncategorized (could default to "To be Budgeted").
