@@ -4,7 +4,6 @@ import React, { useEffect, useEffectEvent, useMemo, useState } from 'react';
 
 import { styles } from '@actual-app/components/styles';
 import { theme } from '@actual-app/components/theme';
-import { tokens } from '@actual-app/components/tokens';
 import { View } from '@actual-app/components/view';
 import * as monthUtils from '@actual-app/core/shared/months';
 import type {
@@ -24,7 +23,6 @@ import {
   useSaveCategoryMutation,
   useSortCategoriesMutation,
 } from '#budget';
-import { useIsTitlebarHidden } from '#components/Titlebar';
 import { useCategories } from '#hooks/useCategories';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 import { useLocalPref } from '#hooks/useLocalPref';
@@ -42,7 +40,6 @@ import { TrackingBudgetProvider } from './tracking/TrackingBudgetContext';
 import { prewarmAllMonths, prewarmMonth } from './util';
 
 export function Budget() {
-  const isTitlebarHidden = useIsTitlebarHidden();
   const currentMonth = monthUtils.currentMonth();
   const spreadsheet = useSpreadsheet();
   const navigate = useNavigate();
@@ -254,12 +251,6 @@ export function Budget() {
           paddingLeft: 8,
           paddingRight: 8,
           paddingBottom: 8,
-          ...(isTitlebarHidden && {
-            paddingTop: 8,
-            [`@media (min-width: ${tokens.breakpoint_small})`]: {
-              paddingTop: 8,
-            },
-          }),
           overflow: 'hidden',
           backgroundColor: theme.budgetPageFrame,
         }}

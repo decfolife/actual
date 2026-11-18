@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Trans, useTranslation } from 'react-i18next';
-import { Route, Routes, useLocation } from 'react-router';
+import { matchPath, Route, Routes, useLocation } from 'react-router';
 
 import { Button } from '@actual-app/components/button';
 import { useResponsive } from '@actual-app/components/hooks/useResponsive';
@@ -23,8 +23,10 @@ import { isDevelopmentEnvironment } from '@actual-app/core/shared/environment';
 import * as Platform from '@actual-app/core/shared/platform';
 import { css } from '@emotion/css';
 
+import { isAccountFailedSync } from '#accounts/syncStatus';
 import { sync } from '#app/appSlice';
 import { SharedArrayBufferWarning } from '#components/SharedArrayBufferWarning';
+import { useAccounts } from '#hooks/useAccounts';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useNavigate } from '#hooks/useNavigate';
@@ -340,17 +342,23 @@ export function Titlebar({ style }: TitlebarProps) {
 }
 
 /**
- * The budget page has no title bar, like YNAB 4. It still needs one while the
- * sidebar floats, since the title bar holds the button that shows it.
+ * Like YNAB 4, pages have no title bar. It is still shown when it has
+ * something in it: the button that shows a floating sidebar, a Back button,
+ * or the open account's bank sync error.
  */
 export function useIsTitlebarHidden() {
   const location = useLocation();
   const sidebar = useSidebar();
   const [floatingSidebar] = useGlobalPref('floatingSidebar');
+  const { data: accounts = [] } = useAccounts();
 
-  return (
-    location.pathname === '/budget' && !floatingSidebar && !sidebar.alwaysFloats
-  );
+  if (floatingSidebar || sidebar.alwaysFloats || location.state?.goBack) {
+    return false;
+  }
+
+  const accountId = matchPath('/accounts/:id', location.pathname)?.params.id;
+  const account = accountId && accounts.find(a => a.id === accountId);
+  return !(account && isAccountFailedSync(account));
 }
 
 type TitlebarActionsProps = {

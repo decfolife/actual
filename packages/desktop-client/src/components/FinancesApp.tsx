@@ -50,7 +50,7 @@ import { FloatableSidebar } from './sidebar';
 import { SidebarMenuRoute } from './sidebar/SidebarMenuRoute';
 import { useSidebar } from './sidebar/SidebarProvider';
 import { StartPageRedirect } from './StartPageRedirect';
-import { Titlebar } from './Titlebar';
+import { Titlebar, useIsTitlebarHidden } from './Titlebar';
 import { Tour } from './tour/Tour';
 import { TourAutoOffer } from './tour/TourAutoOffer';
 import { TourProvider } from './tour/TourProvider';
@@ -102,6 +102,7 @@ function RouterBehaviors() {
 export function FinancesApp() {
   const { isNarrowWidth } = useResponsive();
   const sidebar = useSidebar();
+  const isTitlebarHidden = useIsTitlebarHidden();
   useMetaThemeColor(theme.mobileViewTheme);
 
   const location = useLocation();
@@ -258,6 +259,8 @@ export function FinancesApp() {
                     flex: 1,
                     overflow: 'auto',
                     position: 'relative',
+                    // Pages leave room for the title bar only when it shows
+                    '--titlebar-height': isTitlebarHidden ? '8px' : '36px',
                   }}
                 >
                   <Titlebar

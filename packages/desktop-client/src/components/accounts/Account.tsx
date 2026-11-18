@@ -499,6 +499,16 @@ class AccountInternal extends PureComponent<
       query = query.filter({ reconciled: { $eq: false } });
     }
 
+    // Like YNAB 4, the account lists the oldest transactions first and the
+    // newest at the bottom, unless a column sort is chosen. (The reverse of
+    // the server's default transaction order.)
+    if (query.state.orderExpressions.length === 0) {
+      query = query
+        .orderBy({ date: 'asc' })
+        .orderBy({ starting_balance_flag: 'desc' })
+        .orderBy({ sort_order: 'asc' });
+    }
+
     const paged = pagedQuery<TransactionEntity>(query.select('*'), {
       onData: async (groupedData, prevData) => {
         const data = ungroupTransactions([...groupedData]);
@@ -559,7 +569,16 @@ class AccountInternal extends PureComponent<
             if (firstLoad) {
               this.table.current?.scrollToTop();
               if (paged === this.paged) {
-                void this.showPendingFocus(paged);
+                if (
+                  this.pendingFocusId == null &&
+                  this.state.sort === null &&
+                  !isFiltered &&
+                  this.state.search === ''
+                ) {
+                  void this.showNewest(paged);
+                } else {
+                  void this.showPendingFocus(paged);
+                }
               }
             }
 
@@ -600,6 +619,31 @@ class AccountInternal extends PureComponent<
     }
   }
 
+  // Loads the account down to its newest transaction and scrolls there, so
+  // it opens at the bottom like a YNAB 4 register
+  showNewest = async (paged: PagedQuery<TransactionEntity>) => {
+    const { data } = await aqlQuery(paged.query.select('id'));
+    const newest: TransactionEntity | undefined = data[data.length - 1];
+    if (newest == null || !paged.isRunning) {
+      return;
+    }
+    if (!this.state.transactions.some(t => t.id === newest.id)) {
+      await paged.refetchUpToRow(newest.id, { field: 'date', order: 'asc' });
+    }
+    // The rows render after the data arrives, so wait for the newest one
+    const scrollWhenListed = (triesLeft: number) => {
+      if (paged !== this.paged || !paged.isRunning) {
+        return;
+      }
+      if (this.state.transactions.some(t => t.id === newest.id)) {
+        requestAnimationFrame(() => this.table.current?.scrollTo(newest.id));
+      } else if (triesLeft > 0) {
+        setTimeout(() => scrollWhenListed(triesLeft - 1), 100);
+      }
+    };
+    scrollWhenListed(30);
+  };
+
   // Brings the pending transaction into view, loading the account up to it
   // if needed. Leaves the account at the top when the query doesn't have it,
   // e.g. while reconciled transactions are hidden.
@@ -611,7 +655,7 @@ class AccountInternal extends PureComponent<
       return;
     }
     if (!this.state.transactions.some(t => t.id === id)) {
-      await paged.refetchUpToRow(id, { field: 'date', order: 'desc' });
+      await paged.refetchUpToRow(id, { field: 'date', order: 'asc' });
     }
 
     const transaction = ungroupTransactions(paged.data).find(t => t.id === id);
@@ -776,6 +820,7 @@ class AccountInternal extends PureComponent<
 
     // `$sumOver` sums from each row to the last one in the sort order, which
     // is the running balance only when the newest transaction comes first.
+    // With no column sort chosen the account lists the oldest first.
     const { data }: { data: { id: string; amount: number; sum: number }[] } =
       await aqlQuery(
         this.paged.query
@@ -783,7 +828,7 @@ class AccountInternal extends PureComponent<
           .select(['amount', { sum: { $sumOver: '$amount' } }]),
       );
     const total = data[0]?.sum ?? 0;
-    const isOldestFirst = this.state.sort?.ascDesc === 'asc';
+    const isOldestFirst = (this.state.sort?.ascDesc ?? 'asc') === 'asc';
 
     const balances = data.reduce((acc: Record<string, number>, row) => {
       acc[row.id] = isOldestFirst ? total - row.sum + row.amount : row.sum;

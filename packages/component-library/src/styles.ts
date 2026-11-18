@@ -68,7 +68,8 @@ export const styles: CSSProperties = {
     },
     paddingTop: 8, // height of the titlebar
     [`@media (min-width: ${tokens.breakpoint_small})`]: {
-      paddingTop: 36,
+      // 36px when the title bar shows; pages set --titlebar-height otherwise
+      paddingTop: 'var(--titlebar-height, 36px)',
     },
   },
   pageContent: {
