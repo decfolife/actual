@@ -749,7 +749,8 @@ type ColumnResizeHandleProps = {
   onReset?: () => void;
 };
 
-// The grab area on a column header's right edge. Double-click resets it.
+// The grab area on a column header's right edge, straddling the divider
+// line between it and the next column. Double-click resets it.
 function ColumnResizeHandle({
   columnId,
   onResize,
@@ -800,8 +801,8 @@ function ColumnResizeHandle({
         position: 'absolute',
         top: 0,
         bottom: 0,
-        right: 0,
-        width: 7,
+        right: -4,
+        width: 8,
         cursor: 'col-resize',
         zIndex: 2,
         touchAction: 'none',
@@ -936,6 +937,9 @@ function HeaderCell({
       name={id}
       alignItems={alignItems}
       value={value}
+      // The resize handle sits on the cell's edge (the divider line), not
+      // next to the label, which is only as wide as its text
+      valueStyle={onResize ? { position: 'static' } : undefined}
       style={{
         borderTopWidth: 0,
         borderBottomWidth: 0,
