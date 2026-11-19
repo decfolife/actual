@@ -153,6 +153,14 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   opens a "Click a category to unhide it" list. Clicking a group unhides all
   of its categories. The "Show hidden categories" option is ignored in the
   YNAB theme (`BudgetCategories.tsx`).
+- YNAB 4 imports: the importer (`loot-core/src/server/importers/ynab4.ts`)
+  puts YNAB's hidden categories, unflagged, into a regular group named
+  "Hidden Categories" and names each one "Group/Category". The YNAB theme
+  treats that group as hidden (`isImportedHiddenGroup`): it's left out of the
+  grid and its categories are listed under their original group. Unhiding one
+  renames it back to "Category" and moves it to the end of that group. The
+  group is created if it no longer exists, and the full name is kept if the
+  short one is already taken there. The empty imported group is never deleted.
 
 ### Sidebar (`components/sidebar/`)
 

@@ -14,6 +14,8 @@ import type {
 } from '@actual-app/core/types/models';
 
 import {
+  useCreateCategoryGroupMutation,
+  useMoveCategoryMutation,
   useUpdateCategoryGroupMutation,
   useUpdateCategoryMutation,
 } from '#budget/mutations';
@@ -26,28 +28,84 @@ import { envelopeBudget } from '#spreadsheet/bindings';
 import { RenderMonths } from './RenderMonths';
 import { BUDGET_ROW_HEIGHT, CATEGORY_COLUMN_WIDTH } from './util';
 
+/**
+ * A YNAB 4 import puts hidden categories in a regular group named "Hidden
+ * Categories", naming each "Group/Category" after where it came from. The
+ * YNAB theme treats that group as the hidden list.
+ */
+export const IMPORTED_HIDDEN_GROUP_NAME = 'Hidden Categories';
+
+export function isImportedHiddenGroup(group: CategoryGroupEntity) {
+  return !group.is_income && group.name === IMPORTED_HIDDEN_GROUP_NAME;
+}
+
+export type HiddenCategory = {
+  category: CategoryEntity;
+  /** Shown in the unhide list */
+  name: string;
+  /** For a category in the imported group: where unhiding moves it back to */
+  restoreTo?: { groupName: string; name: string };
+};
+
 export type HiddenGroup = {
-  group: CategoryGroupEntity;
-  categories: CategoryEntity[];
+  key: string;
+  name: string;
+  /** Absent for an imported category whose original group no longer exists */
+  group?: CategoryGroupEntity;
+  categories: HiddenCategory[];
 };
 
 /** The expense categories that are hidden (themselves or by their group) */
 export function getHiddenGroups(
   categoryGroups: CategoryGroupEntity[],
 ): HiddenGroup[] {
-  return categoryGroups
-    .filter(group => !group.is_income)
+  const expenseGroups = categoryGroups.filter(group => !group.is_income);
+  const hiddenGroups: HiddenGroup[] = expenseGroups
+    .filter(group => !isImportedHiddenGroup(group))
     .map(group => ({
+      key: group.id,
+      name: group.name,
       group,
-      categories: (group.categories ?? []).filter(
-        category => group.hidden || category.hidden,
-      ),
-    }))
-    .filter(({ group, categories }) => group.hidden || categories.length > 0);
+      categories: (group.categories ?? [])
+        .filter(category => group.hidden || category.hidden)
+        .map(category => ({ category, name: category.name })),
+    }));
+
+  // List the imported hidden categories under the group they came from
+  for (const imported of expenseGroups.filter(isImportedHiddenGroup)) {
+    for (const category of imported.categories ?? []) {
+      const slash = category.name.indexOf('/');
+      const groupName =
+        slash > 0 ? category.name.slice(0, slash).trim() : category.name;
+      const name =
+        slash > 0 ? category.name.slice(slash + 1).trim() : category.name;
+      let entry = hiddenGroups.find(
+        hidden => hidden.name.toUpperCase() === groupName.toUpperCase(),
+      );
+      if (!entry) {
+        entry = {
+          key: `imported:${groupName}`,
+          name: groupName,
+          categories: [],
+        };
+        hiddenGroups.push(entry);
+      }
+      entry.categories.push({
+        category,
+        name,
+        restoreTo: { groupName, name },
+      });
+    }
+  }
+
+  return hiddenGroups.filter(
+    hidden => hidden.group?.hidden || hidden.categories.length > 0,
+  );
 }
 
 type HiddenCategoriesRowProps = {
   hiddenGroups: HiddenGroup[];
+  categoryGroups: CategoryGroupEntity[];
 };
 
 /**
@@ -57,6 +115,7 @@ type HiddenCategoriesRowProps = {
  */
 export function HiddenCategoriesRow({
   hiddenGroups,
+  categoryGroups,
 }: HiddenCategoriesRowProps) {
   const { t } = useTranslation();
   const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
@@ -65,29 +124,72 @@ export function HiddenCategoriesRow({
   const [isOpen, setIsOpen] = useState(false);
   const updateCategory = useUpdateCategoryMutation();
   const updateGroup = useUpdateCategoryGroupMutation();
+  const moveCategory = useMoveCategoryMutation();
+  const createGroup = useCreateCategoryGroupMutation();
 
   const categoryIds = hiddenGroups.flatMap(({ categories }) =>
-    categories.map(category => category.id),
+    categories.map(({ category }) => category.id),
   );
 
-  function unhideCategory(
-    group: CategoryGroupEntity,
-    category: CategoryEntity,
+  // Move an imported hidden category back to its group (making the group if
+  // it's gone), under its own name unless that's taken there
+  async function restoreImported(
+    { category, restoreTo }: HiddenCategory,
+    groupIds: Map<string, string>,
   ) {
-    updateCategory.mutate({ category: { ...category, hidden: false } });
-    if (group.hidden) {
-      updateGroup.mutate({ group: { ...group, hidden: false } });
+    if (!restoreTo) {
+      return;
     }
+    const key = restoreTo.groupName.toUpperCase();
+    let groupId = groupIds.get(key);
+    if (!groupId) {
+      groupId = await createGroup.mutateAsync({ name: restoreTo.groupName });
+      groupIds.set(key, groupId);
+    }
+    const target = categoryGroups.find(group => group.id === groupId);
+    const isNameTaken = (target?.categories ?? []).some(
+      other => other.name.toUpperCase() === restoreTo.name.toUpperCase(),
+    );
+    await updateCategory.mutateAsync({
+      category: {
+        ...category,
+        name: isNameTaken ? category.name : restoreTo.name,
+        hidden: false,
+      },
+    });
+    await moveCategory.mutateAsync({
+      id: category.id,
+      groupId,
+      targetId: null,
+    });
   }
 
-  function unhideGroup({ group, categories }: HiddenGroup) {
-    for (const category of categories) {
-      if (category.hidden) {
-        updateCategory.mutate({ category: { ...category, hidden: false } });
+  function existingGroupIds() {
+    return new Map(
+      categoryGroups
+        .filter(group => !group.is_income && !isImportedHiddenGroup(group))
+        .map(group => [group.name.toUpperCase(), group.id]),
+    );
+  }
+
+  async function unhideCategories(
+    hiddenGroup: HiddenGroup,
+    categories: HiddenCategory[],
+  ) {
+    const groupIds = existingGroupIds();
+    for (const hidden of categories) {
+      if (hidden.restoreTo) {
+        await restoreImported(hidden, groupIds);
+      } else if (hidden.category.hidden) {
+        await updateCategory.mutateAsync({
+          category: { ...hidden.category, hidden: false },
+        });
       }
     }
-    if (group.hidden) {
-      updateGroup.mutate({ group: { ...group, hidden: false } });
+    // Unhiding a group's category shows the group too, so it's visible
+    const group = hiddenGroup.group;
+    if (group?.hidden) {
+      await updateGroup.mutateAsync({ group: { ...group, hidden: false } });
     }
   }
 
@@ -145,9 +247,9 @@ export function HiddenCategoriesRow({
             <Trans>Click a category to unhide it</Trans>
           </View>
           <View style={{ maxHeight: 360, overflowY: 'auto', padding: '8px 0' }}>
-            {hiddenGroups.map((hidden, index) => (
+            {hiddenGroups.map((hiddenGroup, index) => (
               <View
-                key={hidden.group.id}
+                key={hiddenGroup.key}
                 style={{
                   padding: '6px 14px',
                   borderTop:
@@ -157,25 +259,25 @@ export function HiddenCategoriesRow({
                 <UnhideLink
                   bold
                   onPress={() => {
-                    unhideGroup(hidden);
                     if (hiddenGroups.length === 1) {
                       setIsOpen(false);
                     }
+                    void unhideCategories(hiddenGroup, hiddenGroup.categories);
                   }}
                 >
-                  {hidden.group.name}:
+                  {hiddenGroup.name}:
                 </UnhideLink>
-                {hidden.categories.map(category => (
-                  <View key={category.id} style={{ paddingLeft: 18 }}>
+                {hiddenGroup.categories.map(hidden => (
+                  <View key={hidden.category.id} style={{ paddingLeft: 18 }}>
                     <UnhideLink
                       onPress={() => {
-                        unhideCategory(hidden.group, category);
                         if (categoryIds.length === 1) {
                           setIsOpen(false);
                         }
+                        void unhideCategories(hiddenGroup, [hidden]);
                       }}
                     >
-                      {category.name}
+                      {hidden.name}
                     </UnhideLink>
                   </View>
                 ))}

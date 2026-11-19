@@ -21,7 +21,11 @@ import { useTheme } from '#style';
 
 import { ExpenseCategory } from './ExpenseCategory';
 import { ExpenseGroup } from './ExpenseGroup';
-import { getHiddenGroups, HiddenCategoriesRow } from './HiddenCategoriesRow';
+import {
+  getHiddenGroups,
+  HiddenCategoriesRow,
+  isImportedHiddenGroup,
+} from './HiddenCategoriesRow';
 import type { HiddenGroup } from './HiddenCategoriesRow';
 import { IncomeCategory } from './IncomeCategory';
 import { IncomeGroup } from './IncomeGroup';
@@ -118,7 +122,10 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
       let items: BudgetItem[] = Array.prototype.concat.apply(
         [],
         expenseGroups.map(group => {
-          if (group.hidden && !showHiddenCategories) {
+          if (
+            (group.hidden && !showHiddenCategories) ||
+            (isYnab && isImportedHiddenGroup(group))
+          ) {
             return [];
           }
 
@@ -435,7 +442,10 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
               break;
             case 'hidden-categories':
               content = (
-                <HiddenCategoriesRow hiddenGroups={item.hiddenGroups} />
+                <HiddenCategoriesRow
+                  hiddenGroups={item.hiddenGroups}
+                  categoryGroups={categoryGroups}
+                />
               );
               break;
             default:
