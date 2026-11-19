@@ -232,12 +232,12 @@ export function HiddenCategoriesRow({
           placement="top start"
           isOpen={isOpen}
           onOpenChange={() => setIsOpen(false)}
-          style={{ width: 360, padding: 0 }}
+          style={{ width: 300, padding: 0 }}
         >
           <View
             style={{
-              padding: '10px 14px',
-              fontSize: 17,
+              padding: '6px 10px',
+              fontSize: 14,
               color: theme.pageText,
               backgroundColor: theme.buttonNormalBackground,
               backgroundImage: 'var(--button-gradient, none)',
@@ -250,17 +250,15 @@ export function HiddenCategoriesRow({
             style={{
               maxHeight: 'min(480px, 60vh)',
               overflowY: 'auto',
-              padding: '8px 0',
+              padding: '4px 0 6px',
             }}
           >
             {hiddenGroups.map((hiddenGroup, index) => (
               <View
                 key={hiddenGroup.key}
                 style={{
-                  padding: '6px 14px',
+                  padding: index > 0 ? '6px 10px 0' : '0 10px',
                   flexShrink: 0,
-                  borderTop:
-                    index > 0 ? `1px solid ${theme.tableBorder}` : undefined,
                 }}
               >
                 <UnhideLink
@@ -277,7 +275,7 @@ export function HiddenCategoriesRow({
                 {hiddenGroup.categories.map(hidden => (
                   <View
                     key={hidden.category.id}
-                    style={{ paddingLeft: 18, flexShrink: 0 }}
+                    style={{ paddingLeft: 14, flexShrink: 0 }}
                   >
                     <UnhideLink
                       onPress={() => {
@@ -318,13 +316,17 @@ function UnhideLink({ children, bold = false, onPress }: UnhideLinkProps) {
       onPress={onPress}
       style={{
         justifyContent: 'flex-start',
+        alignSelf: 'flex-start',
         flexShrink: 0,
         textAlign: 'left',
-        padding: '3px 0',
+        padding: '1px 0',
+        minHeight: 0,
+        lineHeight: '16px',
+        borderRadius: 0,
         color: theme.pageTextLink,
         textDecoration: 'underline',
         fontWeight: bold ? 700 : 400,
-        fontSize: 15,
+        fontSize: 12,
         backgroundColor: 'transparent',
       }}
     >
