@@ -183,6 +183,9 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
     (enforced in `hooks/useTransactionTableColumns.ts`, running balance always
     shown), "Group: Category", striped rows without grid lines, 25px rows /
     28px header, fixed widths with Memo flexing;
+  - where an account balance can't be shown (All Accounts, a filter or a
+    search) the balance column becomes a "Running Total" of the listed rows
+    (`canShowRunningTotal` in `Account.tsx`); not on touch devices.
   - resizable columns: drag a header edge, double-click to reset; widths in
     the local pref `ui.transactionColumnWidths`;
   - green "C" clearing badges; gray beveled checkboxes on every row;

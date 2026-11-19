@@ -833,10 +833,18 @@ class AccountInternal extends PureComponent<
     }
   };
 
+  // Where an account balance can't be shown (All Accounts, a filter or a
+  // search), a running total of the listed transactions is, in the date
+  // order. Not on phones/tablets, where the column doesn't fit.
+  canShowRunningTotal = () =>
+    !this.canCalculateBalance() &&
+    !isTouchDevice() &&
+    (this.state.sort === null || this.state.sort.field === 'date');
+
   async calculateBalances() {
     if (
       !this.state.showBalances ||
-      !this.canCalculateBalance() ||
+      !(this.canCalculateBalance() || this.canShowRunningTotal()) ||
       !this.paged
     ) {
       return { balances: null, balancesTotal: null };
@@ -2118,8 +2126,15 @@ class AccountInternal extends PureComponent<
                       balances={allBalances}
                       // Set from the start (the values fill in when ready) so
                       // the columns don't resize when the balances arrive
+                      balanceLabel={
+                        this.canShowRunningTotal()
+                          ? t('Running Total')
+                          : undefined
+                      }
                       showBalances={
-                        !!this.state.showBalances && this.canCalculateBalance()
+                        !!this.state.showBalances &&
+                        (this.canCalculateBalance() ||
+                          this.canShowRunningTotal())
                       }
                       showReconciled={showReconciled}
                       showCleared={!!showCleared}

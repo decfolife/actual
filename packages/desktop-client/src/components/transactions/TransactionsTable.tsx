@@ -249,6 +249,7 @@ type TransactionHeaderProps = {
   onResizeColumn?: (columnId: TransactionTableColumnId, width: number) => void;
   onResizeColumnEnd?: () => void;
   onResetColumnWidth?: (columnId: TransactionTableColumnId) => void;
+  balanceLabel?: string;
 };
 
 const TransactionHeader = memo(
@@ -264,6 +265,7 @@ const TransactionHeader = memo(
     onResizeColumn,
     onResizeColumnEnd,
     onResetColumnWidth,
+    balanceLabel,
   }: TransactionHeaderProps) => {
     const dispatchSelected = useSelectedDispatch();
     const { t } = useTranslation();
@@ -352,7 +354,7 @@ const TransactionHeader = memo(
         sortDirection: 'desc',
       },
       balance: {
-        value: t('Balance'),
+        value: balanceLabel ?? t('Balance'),
         width: amountColumnWidths.balance,
         alignItems: 'flex-end',
         marginRight: -5,
@@ -3322,6 +3324,7 @@ type TransactionTableInnerProps = {
   transactionsByParent: {
     [parentId: TransactionEntity['id']]: TransactionEntity[];
   };
+  balanceLabel?: string;
   newTransactionKind?: 'transfer' | null;
   transferAccountsByTransaction: {
     [id: TransactionEntity['id']]: AccountEntity | null;
@@ -3703,6 +3706,7 @@ function TransactionTableInner({
           field={props.sortField}
           showSelection={props.showSelection}
           amountColumnWidths={amountColumnWidths}
+          balanceLabel={props.balanceLabel}
           onResizeColumn={(columnId, width) => {
             const next = {
               ...(latestDragWidths.current ?? columnWidths),
@@ -3783,6 +3787,8 @@ export type TransactionTableProps = {
   categoryGroups: CategoryGroupEntity[];
   payees: PayeeEntity[];
   balances: Record<TransactionEntity['id'], IntegerAmount> | null;
+  // Header of the balance column (e.g. "Running Total" in filtered views)
+  balanceLabel?: string;
   showBalances: boolean;
   showReconciled: boolean;
   showCleared: boolean;

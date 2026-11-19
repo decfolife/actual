@@ -113,6 +113,7 @@ type TransactionListProps = Pick<
   | 'renderEmpty'
   | 'showAccount'
   | 'showBalances'
+  | 'balanceLabel'
   | 'showCleared'
   | 'showGroup'
   | 'showReconciled'
@@ -149,6 +150,7 @@ export function TransactionList({
   payees,
   balances,
   showBalances,
+  balanceLabel,
   showReconciled,
   showCleared,
   showGroup,
@@ -517,6 +519,7 @@ export function TransactionList({
         payees={payees}
         balances={balances}
         showBalances={showBalances}
+        balanceLabel={balanceLabel}
         showReconciled={showReconciled}
         showCleared={showCleared}
         showAccount={showAccount}
