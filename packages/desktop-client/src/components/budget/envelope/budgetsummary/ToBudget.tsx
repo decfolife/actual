@@ -20,6 +20,8 @@ type ToBudgetProps = {
   prevMonthName: string;
   style?: CSSProperties;
   amountStyle?: CSSProperties;
+  // Color only an overbudgeted (negative) amount
+  isOnlyNegativeColored?: boolean;
   isCollapsed?: boolean;
   labelPosition?: 'above' | 'below';
 };
@@ -29,6 +31,7 @@ export function ToBudget({
   onBudgetAction,
   style,
   amountStyle,
+  isOnlyNegativeColored,
   isCollapsed = false,
   labelPosition,
 }: ToBudgetProps) {
@@ -85,6 +88,7 @@ export function ToBudget({
           prevMonthName={prevMonthName}
           style={style}
           amountStyle={amountStyle}
+          isOnlyNegativeColored={isOnlyNegativeColored}
           labelPosition={labelPosition}
           isTotalsListTooltipDisabled={!isCollapsed || menuOpen}
           onContextMenu={handleContextMenu}

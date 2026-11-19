@@ -144,6 +144,15 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   fits up to 12 months and scales the whole budget down (CSS `zoom`, to 75%)
   when they don't fit at YNAB's 230px per month. The count is a per-device
   global pref (`maxMonths`).
+- Card "To be Budgeted" colors (`BudgetSummary.tsx`): the current month is
+  green or red; next month is white unless overbudgeted (red,
+  `isOnlyNegativeColored`); other months are white.
+- Hidden categories (YNAB theme only): they're not shown in the grid. A
+  "Hidden Categories" row at the bottom (`HiddenCategoriesRow.tsx`) shows
+  their totals per month, plus an Unhide button that appears on hover and
+  opens a "Click a category to unhide it" list. Clicking a group unhides all
+  of its categories. The "Show hidden categories" option is ignored in the
+  YNAB theme (`BudgetCategories.tsx`).
 
 ### Sidebar (`components/sidebar/`)
 

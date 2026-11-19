@@ -29,6 +29,8 @@ type ToBudgetAmountProps = {
   onContextMenu?: MouseEventHandler;
   isTotalsListTooltipDisabled?: boolean;
   labelPosition?: 'above' | 'below';
+  // Color only an overbudgeted (negative) amount
+  isOnlyNegativeColored?: boolean;
 };
 
 export function ToBudgetAmount({
@@ -39,6 +41,7 @@ export function ToBudgetAmount({
   isTotalsListTooltipDisabled = false,
   onContextMenu,
   labelPosition = 'above',
+  isOnlyNegativeColored = false,
 }: ToBudgetAmountProps) {
   const { t } = useTranslation();
   const sheetName = useEnvelopeSheetName(envelopeBudget.toBudget);
@@ -107,6 +110,11 @@ export function ToBudgetAmount({
                   },
                 },
                 amountStyle,
+                isOnlyNegativeColored &&
+                  !isNegative && {
+                    color: theme.budgetSummaryText,
+                    ':hover': { borderColor: theme.budgetSummaryText },
+                  },
               ])}
             >
               <FinancialText>

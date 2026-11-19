@@ -70,8 +70,10 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
 
   const displayMonth = monthUtils.format(month, "MMMM ''yy", locale);
   const thisMonth = monthUtils.currentMonth();
-  const isColoredMonth =
-    month === thisMonth || month === monthUtils.nextMonth(thisMonth);
+  // Like YNAB 4: this month is green or red, next month white unless
+  // overbudgeted (red), and the rest white
+  const isNextMonth = month === monthUtils.nextMonth(thisMonth);
+  const isColoredMonth = month === thisMonth || isNextMonth;
   const { t } = useTranslation();
 
   const toggleButton = (
@@ -307,6 +309,7 @@ export const BudgetSummary = memo(({ month }: BudgetSummaryProps) => {
                 onBudgetAction={onBudgetAction}
                 isCollapsed
                 labelPosition="below"
+                isOnlyNegativeColored={isNextMonth}
                 amountStyle={{
                   fontSize: 23.75,
                   fontWeight: 700,

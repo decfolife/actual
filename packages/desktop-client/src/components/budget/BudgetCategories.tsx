@@ -17,9 +17,12 @@ import type { DragState, OnDropCallback } from '#components/sort';
 import { Row } from '#components/table';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 import { useLocalPref } from '#hooks/useLocalPref';
+import { useTheme } from '#style';
 
 import { ExpenseCategory } from './ExpenseCategory';
 import { ExpenseGroup } from './ExpenseGroup';
+import { getHiddenGroups, HiddenCategoriesRow } from './HiddenCategoriesRow';
+import type { HiddenGroup } from './HiddenCategoriesRow';
 import { IncomeCategory } from './IncomeCategory';
 import { IncomeGroup } from './IncomeGroup';
 import { IncomeHeader } from './IncomeHeader';
@@ -39,7 +42,8 @@ type BudgetItem =
     }
   | { type: 'income-separator' }
   | { type: 'income-group'; value: CategoryGroupEntity }
-  | { type: 'income-category'; value: CategoryEntity };
+  | { type: 'income-category'; value: CategoryEntity }
+  | { type: 'hidden-categories'; hiddenGroups: HiddenGroup[] };
 
 type LocalDragState =
   | DragState<CategoryEntity>
@@ -91,7 +95,14 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
   }) => {
     const [collapsedGroupIds = [], setCollapsedGroupIdsPref] =
       useLocalPref('budget.collapsed');
-    const [showHiddenCategories] = useLocalPref('budget.showHiddenCategories');
+    const [showHiddenCategoriesPref] = useLocalPref(
+      'budget.showHiddenCategories',
+    );
+    // YNAB 4 keeps hidden categories out of the grid, totalled in a "Hidden
+    // Categories" row at the bottom that can unhide them
+    const [themeName] = useTheme();
+    const isYnab = themeName === 'ynab';
+    const showHiddenCategories = !isYnab && showHiddenCategoriesPref;
     const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
     const categoryExpandedState = categoryExpandedStatePref ?? 0;
     function onCollapse(value: Array<CategoryGroupEntity['id']>) {
@@ -141,6 +152,13 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
         items.push({ type: 'new-group' });
       }
 
+      if (isYnab) {
+        const hiddenGroups = getHiddenGroups(categoryGroups);
+        if (hiddenGroups.length > 0) {
+          items.push({ type: 'hidden-categories', hiddenGroups });
+        }
+      }
+
       if (incomeGroup && showIncome) {
         const incomeCategoryItems: BudgetItem[] = [
           { type: 'income-separator' },
@@ -174,6 +192,7 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
       newCategoryForGroup,
       isAddingGroup,
       showHiddenCategories,
+      isYnab,
     ]);
 
     const [dragState, setDragState] = useState<LocalDragState>(null);
@@ -414,6 +433,11 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
                 />
               );
               break;
+            case 'hidden-categories':
+              content = (
+                <HiddenCategoriesRow hiddenGroups={item.hiddenGroups} />
+              );
+              break;
             default:
               // @ts-expect-error Error is expected here because "item.type" is "never"
               throw new Error('Unknown item type: ' + item.type);
@@ -429,7 +453,9 @@ export const BudgetCategories = memo<BudgetCategoriesProps>(
                   ? item.value.id
                   : item.type === 'income-separator'
                     ? 'separator'
-                    : idx
+                    : item.type === 'hidden-categories'
+                      ? 'hidden-categories'
+                      : idx
               }
               value={pos}
             >

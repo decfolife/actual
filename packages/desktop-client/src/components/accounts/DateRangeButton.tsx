@@ -124,7 +124,7 @@ function conditionForRange(range: DateRange, today: Date): RuleConditionEntity {
     case 'last-year':
       return yearCondition(today.getFullYear() - 1);
     default:
-      throw new Error(`Unknown date range: ${range satisfies never}`);
+      throw new Error(`Unknown date range: ${String(range satisfies never)}`);
   }
 }
 
