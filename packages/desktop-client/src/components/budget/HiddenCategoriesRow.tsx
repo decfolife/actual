@@ -246,12 +246,19 @@ export function HiddenCategoriesRow({
           >
             <Trans>Click a category to unhide it</Trans>
           </View>
-          <View style={{ maxHeight: 360, overflowY: 'auto', padding: '8px 0' }}>
+          <View
+            style={{
+              maxHeight: 'min(480px, 60vh)',
+              overflowY: 'auto',
+              padding: '8px 0',
+            }}
+          >
             {hiddenGroups.map((hiddenGroup, index) => (
               <View
                 key={hiddenGroup.key}
                 style={{
                   padding: '6px 14px',
+                  flexShrink: 0,
                   borderTop:
                     index > 0 ? `1px solid ${theme.tableBorder}` : undefined,
                 }}
@@ -268,7 +275,10 @@ export function HiddenCategoriesRow({
                   {hiddenGroup.name}:
                 </UnhideLink>
                 {hiddenGroup.categories.map(hidden => (
-                  <View key={hidden.category.id} style={{ paddingLeft: 18 }}>
+                  <View
+                    key={hidden.category.id}
+                    style={{ paddingLeft: 18, flexShrink: 0 }}
+                  >
                     <UnhideLink
                       onPress={() => {
                         if (categoryIds.length === 1) {
@@ -308,6 +318,8 @@ function UnhideLink({ children, bold = false, onPress }: UnhideLinkProps) {
       onPress={onPress}
       style={{
         justifyContent: 'flex-start',
+        flexShrink: 0,
+        textAlign: 'left',
         padding: '3px 0',
         color: theme.pageTextLink,
         textDecoration: 'underline',
