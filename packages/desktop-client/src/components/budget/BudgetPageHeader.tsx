@@ -41,11 +41,19 @@ export const BudgetPageHeader = memo<BudgetPageHeaderProps>(
             paddingLeft: 12,
             paddingTop: 5,
             justifyContent: 'flex-start',
+            // The month count and the buttons under it sit in the empty space
+            // beside the month cards, so they must not add to the header's height.
+            height: 0,
+            overflow: 'visible',
+            zIndex: 1,
           }}
         >
-          <BudgetMonthCountSelector />
+          <View style={{ flexShrink: 0 }}>
+            <BudgetMonthCountSelector />
+          </View>
           <View
             style={{
+              flexShrink: 0,
               flexDirection: 'row',
               alignItems: 'center',
               gap: 4,
