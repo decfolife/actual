@@ -136,6 +136,16 @@ export function Input({
           ? renderProps => cx(baseClassName, className(renderProps))
           : cx(baseClassName, className)
       }
+      // Keep password managers (LastPass, 1Password) from offering to fill
+      // ordinary fields; password inputs opt back in via their own props.
+      {...(props.type === 'password'
+        ? {}
+        : {
+            autoComplete: 'off',
+            'data-lpignore': 'true',
+            'data-1p-ignore': true,
+            'data-form-type': 'other',
+          })}
       {...props}
       onKeyUp={e => {
         props.onKeyUp?.(e);
