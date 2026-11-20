@@ -4,16 +4,19 @@ import { Button } from '@actual-app/components/button';
 import { SvgMoonStars, SvgSun } from '@actual-app/components/icons/v2';
 import { Tooltip } from '@actual-app/components/tooltip';
 
+import { useGlobalPref } from '#hooks/useGlobalPref';
 import { useTheme } from '#style';
 
 /**
- * One-click switch between the default (YNAB) look and dark mode. The full
- * list of themes stays in Settings.
+ * One-click switch between light and dark colors for the YNAB theme. The
+ * full list of themes stays in Settings.
  */
 export function DarkModeToggle() {
   const { t } = useTranslation();
   const [theme, setTheme] = useTheme();
-  const isDark = theme === 'dark' || theme === 'midnight';
+  const [ynabDark = false, setYnabDark] = useGlobalPref('ynabDark');
+  const isDark =
+    theme === 'ynab' ? ynabDark : theme === 'dark' || theme === 'midnight';
   const label = isDark ? t('Switch to light mode') : t('Switch to dark mode');
   const Icon = isDark ? SvgSun : SvgMoonStars;
 
@@ -22,7 +25,12 @@ export function DarkModeToggle() {
       <Button
         variant="bare"
         aria-label={label}
-        onPress={() => setTheme(isDark ? 'ynab' : 'dark')}
+        onPress={() => {
+          // Always end up on the YNAB theme (it holds the fork's behavior);
+          // dark mode only changes its colors.
+          if (theme !== 'ynab') setTheme('ynab');
+          setYnabDark(!isDark);
+        }}
         style={{
           minWidth: 36,
           minHeight: 32,

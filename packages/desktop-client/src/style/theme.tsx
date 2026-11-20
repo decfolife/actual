@@ -5,6 +5,7 @@ import {
   lightThemeCss,
   midnightThemeCss,
   paletteCss,
+  ynabDarkThemeCss,
   ynabThemeCss,
 } from '@actual-app/components/themes';
 import sidebarRedesignLightCss from '@actual-app/components/themes/sidebar-redesign-light.css?inline';
@@ -111,6 +112,7 @@ export function ThemeStyle() {
   );
 
   const [customCssOverride] = useGlobalPref('customCssOverride');
+  const [ynabDark] = useGlobalPref('ynabDark');
 
   // Rendered rather than injected from an effect so the CSS variables exist
   // in the same commit as any consumer effect that reads them.
@@ -120,6 +122,17 @@ export function ThemeStyle() {
     getBaseThemeColors(activeTheme === 'auto' ? 'light' : activeTheme);
 
   if (!themeColors) return null;
+
+  // The YNAB theme keeps all of its behavior in dark mode: only the colors
+  // change, so it is a switch on the theme and not a different theme.
+  if (activeTheme === 'ynab' && ynabDark) {
+    return (
+      <>
+        <style>{paletteCss}</style>
+        <style>{ynabDarkThemeCss}</style>
+      </>
+    );
+  }
 
   const sidebarRedesignCss =
     themeColors === themes.light.colors &&

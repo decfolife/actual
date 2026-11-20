@@ -84,6 +84,9 @@ async function saveGlobalPrefs(prefs: GlobalPrefs) {
   if (prefs.maxMonths !== undefined) {
     await asyncStorage.setItem('max-months', '' + prefs.maxMonths);
   }
+  if (prefs.ynabDark !== undefined) {
+    await asyncStorage.setItem('ynab-dark', '' + prefs.ynabDark);
+  }
   if (prefs.categoryExpandedState !== undefined) {
     await asyncStorage.setItem(
       'category-expanded-state',
@@ -153,6 +156,7 @@ async function loadGlobalPrefs(): Promise<GlobalPrefs> {
     'floating-sidebar': floatingSidebar,
     'category-expanded-state': categoryExpandedState,
     'max-months': maxMonths,
+    'ynab-dark': ynabDark,
     'document-dir': documentDir,
     'encrypt-key': encryptKey,
     language,
@@ -170,6 +174,7 @@ async function loadGlobalPrefs(): Promise<GlobalPrefs> {
     'floating-sidebar',
     'category-expanded-state',
     'max-months',
+    'ynab-dark',
     'document-dir',
     'encrypt-key',
     'language',
@@ -188,6 +193,7 @@ async function loadGlobalPrefs(): Promise<GlobalPrefs> {
     floatingSidebar: floatingSidebar === 'true',
     categoryExpandedState: stringToInteger(categoryExpandedState || '') || 0,
     maxMonths: stringToInteger(maxMonths || '') || 1,
+    ynabDark: ynabDark === 'true',
     documentDir: documentDir || getDefaultDocumentDir(),
     keyId: encryptKey && JSON.parse(encryptKey).id,
     language,

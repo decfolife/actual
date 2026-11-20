@@ -183,3 +183,37 @@ export const ynabOverridesCss = `:root {\n  --font-family: ${ynabFontFamily};\n 
 )
   .map(([name, value]) => `  --color-${name}: ${value};`)
   .join('\n')}\n}\n${ynabTextRendering}`;
+
+// Dark variant of the YNAB theme. It sits on the generated Dark theme and
+// keeps what is already dark or colored in the YNAB look (the blue sidebar and
+// frame, month strip and cards, register header, cleared marks); the light
+// surfaces (page, grid, tables, menus, buttons) come from the Dark theme.
+const ynabDarkKeep =
+  /^(sidebar|budgetPageFrame|budgetMonthStrip|budgetSummary|toBudget|registerHeader|registerCleared|registerUncleared|touchViewTheme|mobileViewTheme)/;
+
+const ynabDarkOverrides: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.entries(ynabOverrides).filter(([name]) => ynabDarkKeep.test(name)),
+  ),
+  mobileViewTheme: '#0b0f14',
+  budgetCellBorder: '#1f6f8a',
+  tableBorder: '#2d4452',
+};
+
+// Structural variables (font, dotted grid, card gradients) carry over; the
+// light-only button and checkbox gradients do not.
+const ynabStructuralCss = ynabOverridesCss
+  .split('\n')
+  .filter(
+    line =>
+      !/^\s+--(button|checkbox)-/.test(line) &&
+      !/^\s+--color-/.test(line) &&
+      !/--autocomplete-/.test(line),
+  )
+  .join('\n');
+
+export const ynabDarkOverridesCss =
+  ynabStructuralCss +
+  `:root {\n${Object.entries(ynabDarkOverrides)
+    .map(([name, value]) => `  --color-${name}: ${value};`)
+    .join('\n')}\n}\n`;

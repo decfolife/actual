@@ -130,6 +130,8 @@ export type DarkTheme = 'dark' | 'midnight' | 'ynab';
 export type GlobalPrefs = Partial<{
   floatingSidebar: boolean;
   maxMonths: number;
+  /** Dark colors for the YNAB theme (its layout and behavior stay). */
+  ynabDark: boolean;
   categoryExpandedState: number;
   keyId?: string;
   language: string;
@@ -173,6 +175,7 @@ export type GlobalPrefsJson = Partial<{
   'user-token'?: string;
   'floating-sidebar'?: string; // "true" or "false"
   'max-months'?: string; // e.g. "2" or "3"
+  'ynab-dark'?: string; // "true" or "false"
   'category-expanded-state'?: string; // "0" or "1" or "2"
   'document-dir'?: GlobalPrefs['documentDir'];
   'encrypt-key'?: string;
