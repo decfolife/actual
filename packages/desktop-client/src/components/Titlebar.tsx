@@ -125,8 +125,34 @@ function PrivacyButton({ style }: PrivacyButtonProps) {
 type ServerSyncButtonProps = {
   style?: CSSProperties;
   isMobile?: boolean;
+  /** A larger icon and click target (used in the budget header). */
+  large?: boolean;
 };
-function ServerSyncButton({ style, isMobile = false }: ServerSyncButtonProps) {
+
+/** Cmd/Ctrl+S syncs, wherever the sync button happens to be shown. */
+function SyncHotkey() {
+  const dispatch = useDispatch();
+  const onSync = () => dispatch(sync());
+
+  useHotkeys(
+    'ctrl+s, cmd+s, meta+s',
+    onSync,
+    {
+      enableOnFormTags: true,
+      preventDefault: true,
+      scopes: ['app'],
+    },
+    [onSync],
+  );
+
+  return null;
+}
+
+export function ServerSyncButton({
+  style,
+  isMobile = false,
+  large = false,
+}: ServerSyncButtonProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   // Give the layout some time to apply the starting animation so we
@@ -182,17 +208,6 @@ function ServerSyncButton({ style, isMobile = false }: ServerSyncButtonProps) {
 
   const onSync = () => dispatch(sync());
 
-  useHotkeys(
-    'ctrl+s, cmd+s, meta+s',
-    onSync,
-    {
-      enableOnFormTags: true,
-      preventDefault: true,
-      scopes: ['app'],
-    },
-    [onSync],
-  );
-
   const tooltipContent =
     syncState === 'error' ? (
       <Trans>Sync error — click to retry</Trans>
@@ -225,6 +240,7 @@ function ServerSyncButton({ style, isMobile = false }: ServerSyncButtonProps) {
                 ...style,
                 WebkitAppRegion: 'none',
                 color: desktopColor,
+                ...(large && { minWidth: 36, minHeight: 32, padding: '0 8px' }),
               }),
           '&[data-hovered]': hoveredStyle,
           '&[data-pressed]': activeStyle,
@@ -240,9 +256,12 @@ function ServerSyncButton({ style, isMobile = false }: ServerSyncButtonProps) {
             <AnimatedRefresh width={18} height={18} animating={syncing} />
           )
         ) : syncState === 'error' ? (
-          <SvgAlertTriangle width={13} />
+          <SvgAlertTriangle width={large ? 20 : 13} />
         ) : (
-          <AnimatedRefresh animating={syncing} />
+          <AnimatedRefresh
+            animating={syncing}
+            {...(large && { width: 20, height: 20 })}
+          />
         )}
         <Text style={isMobile ? { ...mobileTextStyle } : null}>
           {syncState === 'disabled' ? ` ${t('Disabled')}` : null}
@@ -376,7 +395,7 @@ export function TitlebarActions({ style }: TitlebarActionsProps) {
       {isDevelopmentEnvironment() && !isTestEnv && <ThemeSelector />}
       <PrivacyButton />
       <NotificationsButton />
-      {serverURL ? <ServerSyncButton /> : null}
+      {serverURL ? <SyncHotkey /> : null}
       <SharedArrayBufferWarning />
       <LoggedInUser />
       <HelpMenu />

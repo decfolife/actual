@@ -4,9 +4,14 @@ import type { ComponentProps } from 'react';
 
 import { View } from '@actual-app/components/view';
 
-import { BudgetMonthCountSelector } from '#components/Titlebar';
+import { useServerURL } from '#components/ServerContext';
+import {
+  BudgetMonthCountSelector,
+  ServerSyncButton,
+} from '#components/Titlebar';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
+import { DarkModeToggle } from './DarkModeToggle';
 import { MonthPicker } from './MonthPicker';
 import { CATEGORY_COLUMN_WIDTH, getScrollbarWidth } from './util';
 
@@ -21,6 +26,7 @@ export const BudgetPageHeader = memo<BudgetPageHeaderProps>(
   ({ startMonth, onMonthSelect, numMonths, monthBounds }) => {
     const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
     const categoryExpandedState = categoryExpandedStatePref ?? 0;
+    const serverURL = useServerURL();
     const offsetMultipleMonths = numMonths === 1 ? 4 : 0;
 
     return (
@@ -34,10 +40,21 @@ export const BudgetPageHeader = memo<BudgetPageHeaderProps>(
               offsetMultipleMonths,
             paddingLeft: 12,
             paddingTop: 5,
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
           }}
         >
           <BudgetMonthCountSelector />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              marginTop: 4,
+            }}
+          >
+            <DarkModeToggle />
+            {serverURL ? <ServerSyncButton large /> : null}
+          </View>
         </View>
         <View
           style={{
