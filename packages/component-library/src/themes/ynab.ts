@@ -197,7 +197,23 @@ const ynabDarkOverrides: Record<string, string> = {
   ),
   mobileViewTheme: '#0b0f14',
   budgetCellBorder: '#1f6f8a',
-  tableBorder: '#2d4452',
+  tableBorder: '#3d3d3d',
+};
+
+// The Dark theme builds its surfaces from the blue-tinted "navy" palette;
+// the YNAB dark variant uses neutral charcoal in its place.
+const ynabDarkNeutralPalette: Record<string, string> = {
+  navy50: '#f5f5f5',
+  navy100: '#e8e8e8',
+  navy150: '#dcdcdc',
+  navy200: '#c4c4c4',
+  navy300: '#a8a8a8',
+  navy400: '#8f8f8f',
+  navy500: '#767676',
+  navy600: '#4a4a4a',
+  navy700: '#383838',
+  navy800: '#2b2b2b',
+  navy900: '#1c1c1c',
 };
 
 // Structural variables (font, dotted grid, card gradients) carry over; the
@@ -214,6 +230,9 @@ const ynabStructuralCss = ynabOverridesCss
 
 export const ynabDarkOverridesCss =
   ynabStructuralCss +
+  `:root {\n${Object.entries(ynabDarkNeutralPalette)
+    .map(([name, value]) => `  --palette-${name}: ${value};`)
+    .join('\n')}\n}\n` +
   `:root {\n${Object.entries(ynabDarkOverrides)
     .map(([name, value]) => `  --color-${name}: ${value};`)
     .join('\n')}\n}\n`;
