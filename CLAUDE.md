@@ -202,9 +202,12 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   their content (`useAmountColumnWidths`), and the budget header leaves room
   for the menu button (`BudgetPageHeader.tsx`). The tour is skipped under
   512px.
-- Known gap: register rows are still one line, so payee and category are
-  truncated on the outer display. A two-line row (payee over category) like
-  YNAB 4's iPhone app would fix it.
+- Phone-wide register rows have two lines, like YNAB 4's iPhone app: payee
+  over category, date on the left, Outflow/Inflow/C on the right. The row is a
+  CSS grid (`ynabPhoneRow` / `ynabPhoneHeader` in `TransactionsTable.tsx`,
+  46px rows, `isPhoneRegister()`); memo, running balance and group are hidden
+  and the account name sits under the date in multi-account views. The table
+  is re-keyed when the screen is rotated across the 520px line.
 
 ### Sidebar (`components/sidebar/`)
 

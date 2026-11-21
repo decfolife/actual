@@ -380,7 +380,7 @@ const TransactionHeader = memo(
           borderTopWidth: 1,
           borderBottomWidth: 1,
           borderColor: theme.registerHeaderDivider,
-          ...(isYnab && { fontSize: 14, ...getYnabColumnWidths() }),
+          ...(isYnab && { fontSize: 14, ...getYnabColumnWidths('header') }),
         }}
         height={isYnab ? YNAB_HEADER_HEIGHT : undefined}
         data-testid="transaction-table-header"
@@ -825,7 +825,62 @@ const ynabTouchColumnWidths = {
   '& > [data-testid="group"]': { flex: '2 1 0', minWidth: 0 },
 };
 
-function getYnabColumnWidths() {
+// On a phone-wide screen (the iPhone Duo's outer display) rows have two lines
+// like YNAB 4's iPhone app: payee over category, with the date and amounts
+// beside them. The row is a grid so the existing cells can be placed in it.
+const YNAB_PHONE_ROW_HEIGHT = 46;
+const PHONE_COLUMNS = '24px 78px minmax(0, 1fr) 60px 60px 32px';
+
+const ynabPhoneRow = {
+  display: 'grid',
+  gridTemplateColumns: PHONE_COLUMNS,
+  gridTemplateRows: '1fr 1fr',
+  '& > *': { minWidth: 0, width: 'auto', flex: 'none', gridColumn: 'auto' },
+  '& > div:first-of-type': { gridColumn: 1, gridRow: '1 / span 2' },
+  '& > [data-testid="date"]': { gridColumn: 2, gridRow: '1 / span 2' },
+  '&:has(> [data-testid="account"]) > [data-testid="date"]': { gridRow: 1 },
+  '& > [data-testid="account"]': {
+    gridColumn: 2,
+    gridRow: 2,
+    fontSize: 11,
+    color: theme.tableTextSubdued,
+  },
+  '& > [data-testid="payee"]': { gridColumn: 3, gridRow: 1 },
+  '& > [data-testid="category"]': {
+    gridColumn: 3,
+    gridRow: 2,
+    fontSize: 12,
+    color: theme.tableTextSubdued,
+  },
+  '& > [data-testid="group"], & > [data-testid="notes"], & > [data-testid="balance"]':
+    { display: 'none' },
+  '& > [data-testid="debit"]': { gridColumn: 4, gridRow: '1 / span 2' },
+  '& > [data-testid="credit"]': { gridColumn: 5, gridRow: '1 / span 2' },
+  '& > [data-testid="cleared"]': { gridColumn: 6, gridRow: '1 / span 2' },
+};
+
+const ynabPhoneHeader = {
+  display: 'grid',
+  gridTemplateColumns: PHONE_COLUMNS,
+  '& > *': { minWidth: 0, width: 'auto', flex: 'none', gridColumn: 'auto' },
+  '& > div:first-of-type': { gridColumn: 1 },
+  '& > [data-testid="date"]': { gridColumn: 2 },
+  '& > [data-testid="payee"]': { gridColumn: 3 },
+  '& > [data-testid="account"], & > [data-testid="category"], & > [data-testid="group"], & > [data-testid="notes"], & > [data-testid="balance"]':
+    { display: 'none' },
+  '& > [data-testid="debit"]': { gridColumn: 4 },
+  '& > [data-testid="credit"]': { gridColumn: 5 },
+  '& > [data-testid="cleared"]': { gridColumn: 6 },
+};
+
+function isPhoneRegister() {
+  return window.innerWidth < 520 && isTouchDevice();
+}
+
+function getYnabColumnWidths(kind: 'row' | 'header' = 'row') {
+  if (isPhoneRegister()) {
+    return kind === 'row' ? ynabPhoneRow : ynabPhoneHeader;
+  }
   return isTouchDevice() ? ynabTouchColumnWidths : ynabColumnWidths;
 }
 
@@ -2660,7 +2715,13 @@ const Transaction = memo(function Transaction({
       <DropHighlight pos={showDropHighlight ? dropPos : null} />
       <Row
         ref={rowRef}
-        height={isYnab ? YNAB_ROW_HEIGHT : undefined}
+        height={
+          isYnab
+            ? isPhoneRegister()
+              ? YNAB_PHONE_ROW_HEIGHT
+              : YNAB_ROW_HEIGHT
+            : undefined
+        }
         onMouseDownCapture={(e: MouseEvent) => {
           clickModifiers.current = {
             shift: e.shiftKey,
@@ -3638,6 +3699,9 @@ function TransactionTableInner({
 
   // YNAB 4 adds transactions at the bottom of the register
   const isYnab = useIsYnabRegister();
+  // Re-render (and rebuild the rows) when the screen is rotated
+  const { width: viewportWidth } = useResponsive();
+  const isPhone = isYnab && viewportWidth < 520 && isTouchDevice();
 
   // Column widths dragged in the header, remembered on this device
   const [savedWidths, setSavedWidths] = useLocalPref(
@@ -3743,6 +3807,7 @@ function TransactionTableInner({
         data-testid="transaction-table"
       >
         <Table
+          key={isPhone ? 'phone' : 'wide'}
           navigator={tableNavigator}
           ref={tableRef}
           listContainerRef={listContainerRef}
@@ -3755,7 +3820,13 @@ function TransactionTableInner({
           saveScrollWidth={saveScrollWidth}
           // Newest rows stay in view above a new transaction
           keepBottomOnShrink={isYnab}
-          rowHeight={isYnab ? YNAB_ROW_HEIGHT : undefined}
+          rowHeight={
+            isYnab
+              ? isPhone
+                ? YNAB_PHONE_ROW_HEIGHT
+                : YNAB_ROW_HEIGHT
+              : undefined
+          }
         />
 
         {props.isAdding && !isYnab && (
