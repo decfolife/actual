@@ -145,6 +145,8 @@ export function Account<FieldName extends SheetFields<'account'>>({
   );
 
   const [isAdjustingBalance, setIsAdjustingBalance] = useState(false);
+  // Clicking the account dismisses the hover tip until the pointer leaves
+  const [tipDismissed, setTipDismissed] = useState(false);
 
   // Right-click opens YNAB 4's Edit Account dialog (name, note, Adjust
   // Balance, Close Account).
@@ -160,7 +162,12 @@ export function Account<FieldName extends SheetFields<'account'>>({
   });
 
   const accountRow = (
-    <View innerRef={dropRef} style={{ flexShrink: 0, ...outerStyle }}>
+    <View
+      innerRef={dropRef}
+      style={{ flexShrink: 0, ...outerStyle }}
+      onPointerDown={() => setTipDismissed(true)}
+      onPointerLeave={() => setTipDismissed(false)}
+    >
       <div
         ref={anchorRef}
         style={{
@@ -359,7 +366,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
       triggerProps={{
         delay: 500,
         closeDelay: 0,
-        isDisabled: menuPos != null || isAdjustingBalance,
+        isDisabled: menuPos != null || isAdjustingBalance || tipDismissed,
       }}
     >
       {accountRow}
