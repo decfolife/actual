@@ -232,9 +232,9 @@ export function Account<FieldName extends SheetFields<'account'>>({
             resize: 'vertical',
             font: 'inherit',
             fontSize: 13,
-            color: theme.menuItemText,
-            background: theme.tableBackground,
-            border: `1px solid ${theme.tableBorder}`,
+            color: theme.accountTooltipText,
+            background: theme.accountTooltipBackground,
+            border: `1px solid ${theme.accountTooltipBorder}`,
             borderRadius: 3,
           }}
         />
