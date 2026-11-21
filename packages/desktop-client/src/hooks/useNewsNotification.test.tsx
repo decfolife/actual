@@ -29,7 +29,8 @@ vi.mock('@actual-app/core/shared/platform', async () => {
   return { ...actual, isPlaywright: false };
 });
 
-describe('useNewsNotification', () => {
+// Skipped in this fork: the news feed is hard-disabled (see useNewsFeed.ts).
+describe.skip('useNewsNotification', () => {
   const fetchMock = vi.fn();
   let store: ReturnType<typeof createTestAppStore>;
 

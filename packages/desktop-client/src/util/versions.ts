@@ -60,16 +60,8 @@ export async function getLatestVersion(): Promise<string | 'unknown'> {
     return Promise.resolve('unknown');
   }
 
-  try {
-    const response = await fetch(
-      'https://api.github.com/repos/actualbudget/actual/releases/latest',
-    );
-    const json = await response.json();
-    return json?.tag_name ?? 'unknown';
-  } catch {
-    // Rate limit exceeded? Or perhaps GitHub is down?
-    return 'unknown';
-  }
+  // This fork never asks GitHub for the latest release.
+  return 'unknown';
 }
 
 export function getIsOutdated(latestVersion: string): boolean {

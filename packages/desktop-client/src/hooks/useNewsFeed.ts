@@ -25,10 +25,9 @@ function getErrorKind(error: Error | null): NewsFeedErrorKind | undefined {
 }
 
 export function useNewsFeed() {
-  // The setting (on by default) lets the user opt out of the feed and of the
-  // request it makes to GitHub.
-  const [showNewsFeed] = useGlobalPref('showNewsFeed');
-  const isEnabled = Boolean(showNewsFeed);
+  // This fork never downloads the news feed from GitHub: nothing leaves the
+  // user's own server and devices.
+  const isEnabled = false;
   const [lastSeenNewsDate, setLastSeenNewsDate] =
     useGlobalPref('lastSeenNewsDate');
 

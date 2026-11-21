@@ -47,7 +47,8 @@ describe('useNewsFeed', () => {
     vi.unstubAllGlobals();
   });
 
-  it('fetches the feed and reports unseen entries when enabled', async () => {
+  // Skipped in this fork: the news feed is hard-disabled (see useNewsFeed.ts).
+  it.skip('fetches the feed and reports unseen entries when enabled', async () => {
     mockLastSeenNewsDate = '2025-12-15';
 
     const { result } = renderHook(() => useNewsFeed(), {
@@ -78,7 +79,8 @@ describe('useNewsFeed', () => {
   // The feed query retries once before reporting a failure.
   const afterRetry = { timeout: 5000 };
 
-  it('reports an unavailable feed when it cannot be downloaded', async () => {
+  // Skipped in this fork: the news feed is hard-disabled (see useNewsFeed.ts).
+  it.skip('reports an unavailable feed when it cannot be downloaded', async () => {
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
 
     const { result } = renderHook(() => useNewsFeed(), {
@@ -102,7 +104,8 @@ describe('useNewsFeed', () => {
     expect(result.current.errorKind).toBeUndefined();
   });
 
-  it('reports an unsupported feed when the format is not understood', async () => {
+  // Skipped in this fork: the news feed is hard-disabled (see useNewsFeed.ts).
+  it.skip('reports an unsupported feed when the format is not understood', async () => {
     fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
