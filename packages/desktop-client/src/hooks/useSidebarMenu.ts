@@ -12,9 +12,7 @@ import type {
   SidebarMenuItem,
   SidebarMenuItemId,
 } from '#components/sidebar/sidebarMenu';
-import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useSyncedPref } from '#hooks/useSyncedPref';
-import { useSyncServerStatus } from '#hooks/useSyncServerStatus';
 import { mergeSyncedPrefs, saveSyncedPrefs } from '#prefs/prefsSlice';
 import { useDispatch } from '#redux';
 
@@ -22,12 +20,9 @@ export function useSidebarMenu() {
   const dispatch = useDispatch();
   const [itemsPref] = useSyncedPref('sidebar-menu-items');
   const [startPagePref] = useSyncedPref('sidebar-start-page');
-  const syncServerStatus = useSyncServerStatus();
-  const isTestEnv = useIsTestEnv();
-  const isUsingServer = syncServerStatus !== 'no-server' || isTestEnv;
 
-  const isItemAvailable = (id: SidebarMenuItemId) =>
-    id !== 'bank-sync' || isUsingServer;
+  // Bank sync providers are switched off in this fork.
+  const isItemAvailable = (id: SidebarMenuItemId) => id !== 'bank-sync';
 
   const items = parseSidebarMenuItems(itemsPref);
   const availableItems = items.filter(item => isItemAvailable(item.id));

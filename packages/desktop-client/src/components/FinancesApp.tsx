@@ -11,7 +11,6 @@ import * as undo from '@actual-app/core/platform/client/undo';
 import { sync } from '#app/appSlice';
 import { ProtectedRoute } from '#auth/ProtectedRoute';
 import { Permissions } from '#auth/types';
-import { useAutomaticBankSync } from '#hooks/useAutomaticBankSync';
 import { useMetaThemeColor } from '#hooks/useMetaThemeColor';
 import { useNavigate } from '#hooks/useNavigate';
 import { ScrollProvider } from '#hooks/useScrollListener';
@@ -110,8 +109,6 @@ export function FinancesApp() {
   const dispatch = useDispatch();
 
   const multiuserEnabled = useMultiuserEnabled();
-
-  useAutomaticBankSync();
 
   const init = useEffectEvent(() => {
     // Wait a little bit to make sure the sync button will get the

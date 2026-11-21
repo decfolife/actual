@@ -80,14 +80,9 @@ export function fetchThemeCss(repo: string): Promise<string> {
 /**
  * Fetch CSS from a direct URL (not a GitHub repo).
  */
-export async function fetchDirectCss(url: string): Promise<string> {
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) {
-    throw new Error(
-      `Failed to fetch CSS from ${url}: ${response.status} ${response.statusText}`,
-    );
-  }
-  return response.text();
+export function fetchDirectCss(url: string): Promise<string> {
+  // Disabled in this fork: no requests leave the app.
+  return Promise.reject(new Error(`Fetching themes is disabled (${url})`));
 }
 
 /** Strip surrounding single or double quotes from a string. */

@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 
 import { Button } from '@actual-app/components/button';
 import { SvgCode } from '@actual-app/components/icons/v1';
-import { Menu } from '@actual-app/components/menu';
+import type { Menu } from '@actual-app/components/menu';
 import { Select } from '@actual-app/components/select';
 import { theme as themeStyle } from '@actual-app/components/theme';
 import { spacing } from '@actual-app/components/tokens';
@@ -71,11 +71,9 @@ export function ThemeSettings() {
         installedCustomLightTheme.name,
       ] as const);
     }
-    options.push(Menu.line);
-    options.push([INSTALL_NEW_VALUE, t('Custom theme')] as const);
 
     return options;
-  }, [installedCustomLightTheme, theme, t]);
+  }, [installedCustomLightTheme, theme]);
 
   const buildLightOptions = useCallback(() => {
     const options: Array<readonly [string, string] | typeof Menu.line> = [
@@ -87,8 +85,6 @@ export function ThemeSettings() {
         installedCustomLightTheme.name,
       ] as const);
     }
-    options.push(Menu.line);
-    options.push([INSTALL_CUSTOM_LIGHT, t('Custom theme')] as const);
     return options;
   }, [installedCustomLightTheme, t]);
 
@@ -102,10 +98,8 @@ export function ThemeSettings() {
         installedCustomDarkTheme.name,
       ] as const);
     }
-    options.push(Menu.line);
-    options.push([INSTALL_CUSTOM_DARK, t('Custom theme')] as const);
     return options;
-  }, [installedCustomDarkTheme, t]);
+  }, [installedCustomDarkTheme]);
 
   const getCurrentValue = useCallback(() => {
     if (installedCustomLightTheme && theme !== 'auto') {

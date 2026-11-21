@@ -53,7 +53,6 @@ describe('SettingsNav', () => {
       '/settings/payees',
       '/settings/tags',
       '/settings/rules',
-      '/settings/bank-sync',
       '/settings/advanced',
       '/settings/experimental',
     ]);
@@ -75,7 +74,6 @@ describe('SettingsNav', () => {
       '/settings/schedules',
       '/settings/tags',
       '/settings/rules',
-      '/settings/bank-sync',
       '/settings/advanced',
       '/settings/experimental',
     ]);
@@ -89,9 +87,7 @@ describe('SettingsNav', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('hides bank sync without a server', () => {
-    vi.mocked(useSyncServerStatus).mockReturnValue('no-server');
-
+  it('hides bank sync (switched off in this fork)', () => {
     renderNav('/settings');
 
     expect(

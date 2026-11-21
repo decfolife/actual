@@ -756,7 +756,6 @@ function AccountMenu({
   onMenuSelect,
 }: AccountMenuProps) {
   const { t } = useTranslation();
-  const syncServerStatus = useSyncServerStatus();
   const newSidebarUIEnabled = useFeatureFlag('newSidebarUI');
 
   return (
@@ -807,14 +806,7 @@ function AccountMenu({
                   text: t('Unlink account'),
                 } as const,
               ]
-            : syncServerStatus === 'online'
-              ? [
-                  {
-                    name: 'link',
-                    text: t('Link account'),
-                  } as const,
-                ]
-              : []
+            : []
           : []),
 
         ...(account.closed

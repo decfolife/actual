@@ -162,6 +162,32 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   group is created if it no longer exists, and the full name is kept if the
   short one is already taken there. The empty imported group is never deleted.
 
+### Header controls, dark mode, and what is switched off
+
+- Budget header: a dark-mode toggle (`budget/DarkModeToggle.tsx`) and a large
+  sync button (`ServerSyncButton` in `Titlebar.tsx`, `large` prop) sit under
+  the −/+ month count (`BudgetPageHeader.tsx`). The sync button shows on the
+  budget page only, and only with a server; `SyncHotkey` keeps Cmd+S working
+  everywhere.
+- YNAB dark mode is a variant of the `ynab` theme, not Actual's Dark theme, so
+  YNAB behavior (hidden categories etc.) stays. Global pref `ynabDark`
+  (`loot-core/src/types/prefs.ts`, `server/preferences/app.ts`);
+  `ynabDarkThemeCss` in `component-library/src/themes/ynab.ts`; selected in
+  `desktop-client/src/style/theme.tsx`.
+- Password managers: the shared `Input` sets `autocomplete=off` and the
+  `data-lpignore` / `data-1p-ignore` / `data-form-type` attributes.
+- **No outbound traffic.** Update toasts, the upstream release check
+  (`util/versions.ts` returns `'unknown'`) and the news feed
+  (`hooks/useNewsFeed.ts`, `isEnabled = false`) are off; their tests are
+  skipped. The online theme catalog and theme downloads
+  (`hooks/useThemeCatalog.ts`, `style/customThemes.ts`) are disabled and the
+  "Custom theme" entries are removed from Settings → Themes.
+- **Bank sync is hidden.** The Bank Sync sidebar/settings entry
+  (`hooks/useSidebarMenu.ts`), automatic bank sync (`FinancesApp.tsx`), the
+  "Set up bank sync" button and "Link account" menu item are gone. The code
+  stays so upstream merges are easy. Check for leaks with a Playwright run
+  over the main pages and list non-local requests; it should be empty.
+
 ### Sidebar (`components/sidebar/`)
 
 - Nav box (Budget/Reports/All Accounts), collapsible account group boxes
