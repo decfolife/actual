@@ -29,7 +29,7 @@ import { useDragRef } from '#hooks/useDragRef';
 import { useFormat } from '#hooks/useFormat';
 import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useNotes } from '#hooks/useNotes';
-import { pushModal } from '#modals/modalsSlice';
+import { openAccountCloseModal, pushModal } from '#modals/modalsSlice';
 import { useDispatch, useSelector } from '#redux';
 import type { Binding, SheetFields } from '#spreadsheet';
 import { isTouchDevice } from '#util/isTouchDevice';
@@ -182,8 +182,8 @@ export function Account<FieldName extends SheetFields<'account'>>({
   useContextMenu({
     triggerRef,
     enabled: account != null && needsTooltip,
-    // Like YNAB 4: adjust the balance or add a note. Rename and Close are on
-    // the account page.
+    // Like YNAB 4: adjust the balance, add a note, or close the account (it
+    // then moves to Closed Accounts). Rename is on the account page.
     items: account?.closed
       ? [
           {
@@ -207,6 +207,12 @@ export function Account<FieldName extends SheetFields<'account'>>({
             name: 'account-notes',
             text: t('Note…'),
             onClick: onEditNotes,
+          },
+          {
+            name: 'account-close',
+            text: t('Close Account…'),
+            onClick: () =>
+              dispatch(openAccountCloseModal({ accountId: account.id })),
           },
         ],
   });
