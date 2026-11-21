@@ -216,6 +216,10 @@ export function useAmountColumnWidths(
   // Memoized: formats every transaction, and a new object would re-render
   // every row
   return useMemo(() => {
+    // On a phone-wide screen the amount columns shrink to their content so
+    // payee and category keep some room
+    const isPhoneWide = window.innerWidth < 520 && isTouchDevice();
+    const minAmount = isPhoneWide ? 64 : DEFAULT_AMOUNT_COLUMN_WIDTHS.amount;
     const debitCreditValues = transactions.map(t =>
       integerToCurrency(Math.abs(t.amount ?? 0)),
     );
@@ -224,10 +228,7 @@ export function useAmountColumnWidths(
       : [];
 
     return {
-      amount: measureAmountColumnWidth(
-        debitCreditValues,
-        DEFAULT_AMOUNT_COLUMN_WIDTHS.amount,
-      ),
+      amount: measureAmountColumnWidth(debitCreditValues, minAmount),
       balance: measureAmountColumnWidth(
         balanceValues,
         DEFAULT_AMOUNT_COLUMN_WIDTHS.balance,

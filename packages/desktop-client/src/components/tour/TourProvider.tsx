@@ -2,6 +2,7 @@ import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { useResponsive } from '@actual-app/components/hooks/useResponsive';
+import { breakpoints } from '@actual-app/components/tokens';
 
 export type TourId = 'budget-tour';
 
@@ -20,7 +21,9 @@ type TourProviderProps = {
 };
 
 export function TourProvider({ children }: TourProviderProps) {
-  const { isNarrowWidth } = useResponsive();
+  // The tour points at desktop-sized UI, so it is skipped on phone widths
+  const { width } = useResponsive();
+  const isNarrowWidth = width < breakpoints.small;
   const [activeTourId, setActiveTourId] = useState<TourId | null>(null);
 
   const startTour = (tourId: TourId = 'budget-tour') => {

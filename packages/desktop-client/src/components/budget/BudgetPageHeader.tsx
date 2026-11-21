@@ -5,6 +5,7 @@ import type { ComponentProps } from 'react';
 import { View } from '@actual-app/components/view';
 
 import { useServerURL } from '#components/ServerContext';
+import { useSidebar } from '#components/sidebar/SidebarProvider';
 import {
   BudgetMonthCountSelector,
   ServerSyncButton,
@@ -27,6 +28,7 @@ export const BudgetPageHeader = memo<BudgetPageHeaderProps>(
     const [categoryExpandedStatePref] = useGlobalPref('categoryExpandedState');
     const categoryExpandedState = categoryExpandedStatePref ?? 0;
     const serverURL = useServerURL();
+    const { floating } = useSidebar();
     const offsetMultipleMonths = numMonths === 1 ? 4 : 0;
 
     return (
@@ -38,7 +40,8 @@ export const BudgetPageHeader = memo<BudgetPageHeaderProps>(
               100 * categoryExpandedState +
               5 -
               offsetMultipleMonths,
-            paddingLeft: 12,
+            // A floating sidebar has its menu button in the top-left corner
+            paddingLeft: floating ? 56 : 12,
             paddingTop: 5,
             justifyContent: 'flex-start',
             // The month count and the buttons under it sit in the empty space

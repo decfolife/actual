@@ -188,6 +188,24 @@ curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:5007/   # expect 200
   stays so upstream merges are easy. Check for leaks with a Playwright run
   over the main pages and list non-local requests; it should be empty.
 
+### One layout for every screen (no Actual mobile UI)
+
+- `useResponsive().isNarrowWidth` (component-library) is always `false`, so
+  the YNAB layout is used at every width, including the iPhone Duo's outer
+  display. Actual's mobile pages (`components/mobile/`, mobile nav tabs) are
+  unreachable but not deleted, to keep upstream merges simple.
+- On narrow screens the sidebar floats (menu button top-left). On touch
+  devices it opens by tapping the button (no hover), and closes after
+  navigating or tapping outside it (`sidebar/index.tsx`).
+- Phone-wide (< 520px, touch) tweaks: the account page shows the account name
+  beside the menu button (`accounts/Header.tsx`), amount columns shrink to
+  their content (`useAmountColumnWidths`), and the budget header leaves room
+  for the menu button (`BudgetPageHeader.tsx`). The tour is skipped under
+  512px.
+- Known gap: register rows are still one line, so payee and category are
+  truncated on the outer display. A two-line row (payee over category) like
+  YNAB 4's iPhone app would fix it.
+
 ### Sidebar (`components/sidebar/`)
 
 - Nav box (Budget/Reports/All Accounts), collapsible account group boxes

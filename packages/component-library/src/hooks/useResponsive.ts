@@ -12,8 +12,10 @@ export function useResponsive() {
   return {
     // atLeastMediumWidth is provided to avoid checking (isMediumWidth || isWideWidth)
     atLeastMediumWidth: width >= breakpoints.medium,
-    isNarrowWidth: width < breakpoints.small,
-    isSmallWidth: width >= breakpoints.small && width < breakpoints.medium,
+    // This fork has no separate phone UI: the YNAB layout is used at every
+    // width, so the narrow (Actual mobile) layout is never selected.
+    isNarrowWidth: false,
+    isSmallWidth: width < breakpoints.medium,
     isMediumWidth: width >= breakpoints.medium && width < breakpoints.wide,
     // No atLeastWideWidth because that's identical to isWideWidth
     isWideWidth: width >= breakpoints.wide,

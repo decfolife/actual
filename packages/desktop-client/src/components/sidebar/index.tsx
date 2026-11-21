@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useLocation } from 'react-router';
 
 import { useResponsive } from '@actual-app/components/hooks/useResponsive';
 import { View } from '@actual-app/components/view';
@@ -6,6 +7,7 @@ import { useDebounceCallback } from 'usehooks-ts';
 
 import { useFeatureFlag } from '#hooks/useFeatureFlag';
 import { useGlobalPref } from '#hooks/useGlobalPref';
+import { isTouchDevice } from '#util/isTouchDevice';
 
 import { SidebarRedesign } from './redesign/SidebarRedesign';
 import { Sidebar } from './Sidebar';
@@ -19,15 +21,44 @@ export function FloatableSidebar() {
   const { isNarrowWidth } = useResponsive();
 
   const sidebarShouldFloat = floatingSidebar || sidebar.alwaysFloats;
+  // Touch devices open the sidebar with the menu button, not by hovering
+  const hoverToOpen = sidebarShouldFloat && !isTouchDevice();
   const debouncedHideSidebar = useDebounceCallback(
     () => sidebar.setHidden(true),
     350,
   );
 
+  // Touch has no mouse-leave, so a floating sidebar closes after navigating
+  // and when tapping outside it.
+  const location = useLocation();
+  const ref = useRef<HTMLDivElement>(null);
+  const { setHidden } = sidebar;
+  useEffect(() => {
+    if (sidebarShouldFloat) {
+      setHidden(true);
+    }
+  }, [location.pathname, sidebarShouldFloat, setHidden]);
+  useEffect(() => {
+    if (!sidebarShouldFloat || sidebar.hidden) {
+      return;
+    }
+    const onDown = (e: PointerEvent) => {
+      if (
+        e.pointerType !== 'mouse' &&
+        !ref.current?.contains(e.target as Node)
+      ) {
+        setHidden(true);
+      }
+    };
+    document.addEventListener('pointerdown', onDown, true);
+    return () => document.removeEventListener('pointerdown', onDown, true);
+  }, [sidebarShouldFloat, sidebar.hidden, setHidden]);
+
   return isNarrowWidth ? null : (
     <View
+      innerRef={ref}
       onMouseOver={
-        sidebarShouldFloat
+        hoverToOpen
           ? e => {
               debouncedHideSidebar.cancel();
               e.stopPropagation();
@@ -35,9 +66,7 @@ export function FloatableSidebar() {
             }
           : undefined
       }
-      onMouseLeave={
-        sidebarShouldFloat ? () => debouncedHideSidebar() : undefined
-      }
+      onMouseLeave={hoverToOpen ? () => debouncedHideSidebar() : undefined}
       style={{
         position: sidebarShouldFloat ? 'absolute' : undefined,
         top: 8,

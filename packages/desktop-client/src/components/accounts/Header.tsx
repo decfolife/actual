@@ -20,6 +20,7 @@ import { Menu } from '@actual-app/components/menu';
 import { Popover } from '@actual-app/components/popover';
 import { SpaceBetween } from '@actual-app/components/space-between';
 import { styles } from '@actual-app/components/styles';
+import { Text } from '@actual-app/components/text';
 import { theme } from '@actual-app/components/theme';
 import { Tooltip } from '@actual-app/components/tooltip';
 import { View } from '@actual-app/components/view';
@@ -266,6 +267,25 @@ export function AccountHeader({
           flexShrink: 0,
         }}
       >
+        {/* Touch devices: the sidebar menu button sits top-left, so the account
+            name takes the row beside it */}
+        {isTouch && (
+          <View
+            style={{
+              height: 36,
+              flexShrink: 0,
+              justifyContent: 'center',
+              paddingLeft: 44,
+              fontWeight: 600,
+              fontSize: 15,
+              color: theme.pageText,
+            }}
+          >
+            <Text style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {accountName}
+            </Text>
+          </View>
+        )}
         {/* Like YNAB 4, a compact header: the name, balance and toolbar share
             one row (wrapping on narrow screens). Phones and tablets skip it:
             the account is highlighted in the sidebar */}
