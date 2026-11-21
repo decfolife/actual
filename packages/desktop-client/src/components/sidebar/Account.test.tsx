@@ -101,7 +101,7 @@ describe('sidebar Account context menu', () => {
     expect(contextMenuItemNames()).toEqual([]);
   });
 
-  it('opens adjust balance/close with an editable note on an account row', async () => {
+  it('opens the Edit Account dialog on an account row', async () => {
     const account = generateAccount('Bank of America');
 
     await renderRow(
@@ -115,9 +115,9 @@ describe('sidebar Account context menu', () => {
 
     fireEvent.contextMenu(screen.getByText('Bank of America'));
 
-    expect(await screen.findByText('Adjust Balance…')).toBeTruthy();
-    expect(screen.getByText('Close Account…')).toBeTruthy();
+    expect(await screen.findByText('Edit Account')).toBeTruthy();
+    expect(screen.getByText('Adjust Balance')).toBeTruthy();
+    expect(screen.getByText('Close Account')).toBeTruthy();
     expect(screen.getByLabelText('Account note')).toBeTruthy();
-    expect(screen.queryByText('Note…')).toBeNull();
   });
 });
