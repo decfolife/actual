@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { CSSProperties, RefObject } from 'react';
+import { OverlayArrow } from 'react-aria-components';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { InitialFocus } from '@actual-app/components/initial-focus';
@@ -90,9 +91,27 @@ export function EditAccountPopover({
         background: '#ececec',
         border: '1px solid #9a9a9a',
         borderRadius: 6,
-        overflow: 'hidden',
+        overflow: 'visible',
+        boxShadow: '0 6px 22px rgba(0,0,0,0.45)',
       }}
+      offset={10}
     >
+      <OverlayArrow>
+        <svg
+          width="28"
+          height="14"
+          viewBox="0 0 28 14"
+          style={{ display: 'block', marginLeft: 20, marginTop: -13 }}
+        >
+          <path
+            d="M0 14 L14 1 L28 14"
+            fill="#e8e8e8"
+            stroke="#9a9a9a"
+            strokeWidth="1"
+          />
+          <rect x="1" y="13" width="26" height="2" fill="#e8e8e8" />
+        </svg>
+      </OverlayArrow>
       {isOpen && (
         <EditAccountForm
           account={account}
@@ -129,7 +148,7 @@ function EditAccountForm({
   }
 
   return (
-    <View style={{ color: '#555' }}>
+    <View style={{ color: '#555', borderRadius: 6, overflow: 'hidden' }}>
       <View
         style={{
           padding: '10px 16px',
@@ -168,14 +187,13 @@ function EditAccountForm({
             aria-label={t('Account note')}
             value={noteDraft}
             onChange={e => setNoteDraft(e.target.value)}
-            rows={Math.min(14, Math.max(4, noteDraft.split('\n').length + 1))}
+            rows={Math.min(14, Math.max(5, noteDraft.split('\n').length + 1))}
             style={{
               ...FIELD,
               fontSize: 15,
               resize: 'vertical',
-              color: '#2a2a2a',
-              background: '#ffffcc',
-              border: '1px solid #d6d68a',
+              color: '#555',
+              background: 'linear-gradient(#e9e9e9, #fbfbfb 25%)',
             }}
           />
         </View>

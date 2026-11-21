@@ -12,10 +12,7 @@ import {
   SvgArrowsShrink3,
   SvgDownloadThickBottom,
   SvgLockClosed,
-  SvgPencil1,
 } from '@actual-app/components/icons/v2';
-import { InitialFocus } from '@actual-app/components/initial-focus';
-import { Input } from '@actual-app/components/input';
 import { Menu } from '@actual-app/components/menu';
 import { Popover } from '@actual-app/components/popover';
 import { SpaceBetween } from '@actual-app/components/space-between';
@@ -33,12 +30,10 @@ import type {
 } from '@actual-app/core/types/models';
 import { format as formatDate } from 'date-fns';
 
-import { isAccountFailedSync } from '#accounts/syncStatus';
 import { AnimatedRefresh } from '#components/AnimatedRefresh';
 import { FilterButton } from '#components/filters/FiltersMenu';
 import { FiltersStack } from '#components/filters/FiltersStack';
 import type { SavedFilter } from '#components/filters/SavedFilterMenuButton';
-import { NotesButton } from '#components/NotesButton';
 import { SelectedTransactionsButton } from '#components/transactions/SelectedTransactionsButton';
 import { useDateFormat } from '#hooks/useDateFormat';
 import { useFeatureFlag } from '#hooks/useFeatureFlag';
@@ -122,7 +117,6 @@ type AccountHeaderProps = {
 
 export function AccountHeader({
   tableRef,
-  isNameEditable,
   workingHard,
   accountName,
   accountId,
@@ -144,8 +138,6 @@ export function AccountHeader({
   onShowTransactions,
   onDoneReconciling,
   onCreateReconciliationTransaction,
-  onSaveName,
-  saveNameError,
   onSync,
   onImport,
   onMenuSelect,
@@ -299,38 +291,6 @@ export function AccountHeader({
             ...(isTouch && { display: 'none' }),
           }}
         >
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12,
-            }}
-          >
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 3,
-              }}
-            >
-              {!!account?.bank && (
-                <AccountSyncSidebar
-                  account={account}
-                  accountsSyncing={accountsSyncing}
-                />
-              )}
-              <AccountNameField
-                account={account}
-                accountName={accountName}
-                isNameEditable={isNameEditable}
-                saveNameError={saveNameError}
-                onSaveName={onSaveName}
-              />
-            </View>
-
-            {/* The balances (selected total too) are in the bar at the
-                bottom, like YNAB 4 */}
-          </View>
           <SpaceBetween
             gap={10}
             style={{
@@ -402,18 +362,6 @@ export function AccountHeader({
             </View>
             <View style={{ flex: 1 }} />
 
-            <DateRangeButton
-              filterConditions={filterConditions}
-              onApplyFilter={onApplyFilter}
-              onUpdateFilter={onUpdateFilter}
-              onDeleteFilter={onDeleteFilter}
-            />
-            <TransactionSearch
-              ref={searchInput}
-              value={search}
-              onChange={onSearch}
-              onApplyFilter={onApplyFilter}
-            />
             <View style={{ flex: '0 0 auto' }}>
               {account && (
                 <Tooltip
@@ -573,6 +521,23 @@ export function AccountHeader({
                 </DialogTrigger>
               </View>
             )}
+            <DateRangeButton
+              filterConditions={filterConditions}
+              onApplyFilter={onApplyFilter}
+              onUpdateFilter={onUpdateFilter}
+              onDeleteFilter={onDeleteFilter}
+            />
+            <TransactionSearch
+              ref={searchInput}
+              value={search}
+              onChange={onSearch}
+              placeholder={
+                accountName
+                  ? t('Search {{ accountName }}', { accountName })
+                  : undefined
+              }
+              onApplyFilter={onApplyFilter}
+            />
           </SpaceBetween>
         </View>
 
@@ -611,32 +576,6 @@ export function AccountHeader({
   );
 }
 
-type AccountSyncSidebarProps = {
-  account: AccountEntity;
-  accountsSyncing: string[];
-};
-
-function AccountSyncSidebar({
-  account,
-  accountsSyncing,
-}: AccountSyncSidebarProps) {
-  return (
-    <View
-      style={{
-        backgroundColor: accountsSyncing.includes(account.id)
-          ? theme.sidebarItemBackgroundPending
-          : isAccountFailedSync(account)
-            ? theme.sidebarItemBackgroundFailed
-            : theme.sidebarItemBackgroundPositive,
-        marginRight: '4px',
-        width: 8,
-        height: 8,
-        borderRadius: 8,
-      }}
-    />
-  );
-}
-
 type AccountNameFieldProps = {
   account?: AccountEntity;
   accountName: string;
@@ -644,107 +583,6 @@ type AccountNameFieldProps = {
   saveNameError?: ReactNode;
   onSaveName: (newName: string) => void;
 };
-
-function AccountNameField({
-  account,
-  accountName,
-  isNameEditable,
-  saveNameError,
-  onSaveName,
-}: AccountNameFieldProps) {
-  const { t } = useTranslation();
-  const [editingName, setEditingName] = useState(false);
-
-  const handleSave = (newName: string) => {
-    onSaveName(newName);
-    setEditingName(false);
-  };
-
-  return (
-    <View style={{ flexShrink: 0, alignItems: 'center' }}>
-      {editingName ? (
-        <>
-          <InitialFocus>
-            <Input
-              defaultValue={accountName}
-              onEnter={handleSave}
-              onUpdate={handleSave}
-              onEscape={() => setEditingName(false)}
-              style={{
-                fontSize: 21,
-                fontWeight: 600,
-                marginTop: -3,
-                marginBottom: -4,
-                marginLeft: -6,
-                paddingTop: 2,
-                paddingBottom: 2,
-                width: Math.max(20, accountName.length) + 'ch',
-              }}
-            />
-          </InitialFocus>
-          {saveNameError && (
-            <View style={{ color: theme.warningText }}>{saveNameError}</View>
-          )}
-        </>
-      ) : (
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            whiteSpace: 'nowrap',
-            gap: 3,
-            '& .hover-visible': {
-              opacity: 0,
-              transition: 'opacity .25s',
-            },
-            '&:hover .hover-visible': {
-              opacity: 1,
-            },
-          }}
-        >
-          <View
-            style={{
-              fontSize: 21,
-              fontWeight: 600,
-              marginRight: 5,
-              marginBottom: -1,
-            }}
-            data-testid="account-name"
-          >
-            {account && account.closed
-              ? t('Closed: {{ accountName }}', { accountName })
-              : accountName}
-          </View>
-
-          <View style={{ flexDirection: 'row', width: 50 }}>
-            {isNameEditable && account && (
-              <NotesButton
-                id={`account-${account.id}`}
-                defaultColor={theme.pageTextSubdued}
-              />
-            )}
-            {isNameEditable && (
-              <Button
-                variant="bare"
-                aria-label={t('Edit account name')}
-                className="hover-visible"
-                onPress={() => setEditingName(true)}
-              >
-                <SvgPencil1
-                  style={{
-                    width: 11,
-                    height: 11,
-                    color: theme.pageTextSubdued,
-                  }}
-                />
-              </Button>
-            )}
-          </View>
-        </View>
-      )}
-    </View>
-  );
-}
 
 type AccountMenuProps = {
   account: AccountEntity;

@@ -28,6 +28,7 @@ type TransactionSearchProps = {
   value: string;
   onChange: (value: string) => void;
   onApplyFilter: (condition: RuleConditionEntity) => void;
+  placeholder?: string;
 };
 
 const MAX_NAME_MATCHES = 4;
@@ -42,6 +43,7 @@ export function TransactionSearch({
   value,
   onChange,
   onApplyFilter,
+  placeholder,
 }: TransactionSearchProps) {
   const { t } = useTranslation();
   const dateFormat = useDateFormat() || 'MM/dd/yyyy';
@@ -238,7 +240,7 @@ export function TransactionSearch({
     >
       <Search
         ref={ref}
-        placeholder={t('Search')}
+        placeholder={placeholder ?? t('Search')}
         value={draft}
         width={230}
         onChange={newValue => {
