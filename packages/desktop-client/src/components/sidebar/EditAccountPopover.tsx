@@ -29,10 +29,10 @@ const GRAY_BUTTON = YNAB_GRAY_BUTTON;
 const GREEN_BUTTON = YNAB_GREEN_BUTTON;
 
 const LABEL: CSSProperties = {
-  width: 56,
+  width: 44,
   flexShrink: 0,
   fontWeight: 700,
-  fontSize: 14,
+  fontSize: 12,
   color: '#555',
 };
 
@@ -40,9 +40,9 @@ const FIELD: CSSProperties = {
   flex: 1,
   boxSizing: 'border-box',
   font: 'inherit',
-  fontSize: 16,
+  fontSize: 13,
   color: '#555',
-  padding: '7px 10px',
+  padding: '4px 7px',
   border: '1px solid #9a9a9a',
   borderRadius: 6,
   background: '#fff',
@@ -66,7 +66,7 @@ export function EditAccountPopover({
       triggerRef={triggerRef}
       isOpen={isOpen}
       onClose={onClose}
-      width={440}
+      width={320}
     >
       <EditAccountForm
         account={account}
@@ -105,8 +105,8 @@ function EditAccountForm({
     <View style={{ color: '#555', borderRadius: 6, overflow: 'hidden' }}>
       <View
         style={{
-          padding: '10px 16px',
-          fontSize: 28,
+          padding: '6px 12px',
+          fontSize: 18,
           background: 'linear-gradient(#f2f2f2, #dcdcdc)',
           borderBottom: '1px solid #b5b5b5',
         }}
@@ -114,7 +114,7 @@ function EditAccountForm({
         <Trans>Edit Account</Trans>
       </View>
 
-      <View style={{ padding: '18px 16px 14px', gap: 16 }}>
+      <View style={{ padding: '12px 12px 10px', gap: 10 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={LABEL}>
             <Trans>Name:</Trans>
@@ -144,7 +144,7 @@ function EditAccountForm({
             rows={Math.min(14, Math.max(5, noteDraft.split('\n').length + 1))}
             style={{
               ...FIELD,
-              fontSize: 15,
+              fontSize: 12,
               resize: 'vertical',
               color: '#555',
               background: 'linear-gradient(#e9e9e9, #fbfbfb 25%)',
@@ -157,7 +157,7 @@ function EditAccountForm({
         <View
           style={{
             flexDirection: 'row',
-            padding: '14px 16px',
+            padding: '8px 12px',
             borderTop: '1px solid #c8c8c8',
           }}
         >
@@ -179,7 +179,7 @@ function EditAccountForm({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '12px 16px',
+          padding: '8px 12px',
           background: 'linear-gradient(#e6e6e6, #d6d6d6)',
           borderTop: '1px solid #b5b5b5',
         }}
@@ -202,23 +202,23 @@ function EditAccountForm({
             background: 'none',
             cursor: 'pointer',
             font: 'inherit',
-            fontSize: 15,
+            fontSize: 12,
             color: '#d0312d',
             padding: 0,
           }}
         >
           <span
             style={{
-              width: 24,
-              height: 24,
-              borderRadius: 12,
+              width: 18,
+              height: 18,
+              borderRadius: 9,
               background: '#d0312d',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <span style={{ width: 12, height: 3, background: '#fff' }} />
+            <span style={{ width: 8, height: 2, background: '#fff' }} />
           </span>
           {account.closed ? (
             <Trans>Reopen Account</Trans>

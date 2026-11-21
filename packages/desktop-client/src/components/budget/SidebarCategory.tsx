@@ -3,8 +3,6 @@ import React, { useRef, useState } from 'react';
 import type { CSSProperties, Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@actual-app/components/button';
-import { SvgCheveronDown } from '@actual-app/components/icons/v1';
 import { TextOneLine } from '@actual-app/components/text-one-line';
 import { theme } from '@actual-app/components/theme';
 import { View } from '@actual-app/components/view';
@@ -67,7 +65,7 @@ export function SidebarCategory({
   const temporary = category.id === 'new';
   const triggerRef = useRef(null);
   const [isPopoutOpen, setIsPopoutOpen] = useState(false);
-  const { handleContextMenu } = useContextMenu({
+  useContextMenu({
     triggerRef,
     items: [
       {
@@ -108,20 +106,6 @@ export function SidebarCategory({
       >
         {category.name}
       </TextOneLine>
-      <View style={{ flexShrink: 0, marginLeft: 5 }}>
-        <Button
-          variant="bare"
-          className="hover-visible"
-          style={{ color: 'currentColor', padding: 3 }}
-          onPress={handleContextMenu}
-        >
-          <SvgCheveronDown
-            width={14}
-            height={14}
-            style={{ color: 'currentColor' }}
-          />
-        </Button>
-      </View>
       <SidebarCategoryButtons
         category={category}
         dragging={dragging}

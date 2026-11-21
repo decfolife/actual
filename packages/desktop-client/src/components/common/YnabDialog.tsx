@@ -10,9 +10,9 @@ import { View } from '@actual-app/components/view';
 export const YNAB_GRAY_BUTTON: CSSProperties = {
   font: 'inherit',
   fontWeight: 700,
-  fontSize: 15,
+  fontSize: 12,
   color: '#3a3a3a',
-  padding: '7px 18px',
+  padding: '4px 12px',
   border: '1px solid #8a8a8a',
   borderRadius: 5,
   background: 'linear-gradient(#f4f4f4, #cfcfcf)',
@@ -76,7 +76,7 @@ export function YnabPopover({
           width="28"
           height="14"
           viewBox="0 0 28 14"
-          style={{ display: 'block', marginLeft: 20, marginTop: -13 }}
+          style={{ display: 'block', marginLeft: 14, marginTop: -13 }}
         >
           <path
             d="M0 14 L14 1 L28 14"
@@ -111,8 +111,8 @@ export function YnabDialog({
     <View style={{ color: '#555', borderRadius: 6, overflow: 'hidden' }}>
       <View
         style={{
-          padding: '10px 16px',
-          fontSize: 28,
+          padding: '6px 12px',
+          fontSize: 18,
           background: 'linear-gradient(#f2f2f2, #dcdcdc)',
           borderBottom: '1px solid #b5b5b5',
         }}
@@ -125,7 +125,7 @@ export function YnabDialog({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '12px 16px',
+          padding: '8px 12px',
           background: 'linear-gradient(#e6e6e6, #d6d6d6)',
           borderTop: '1px solid #b5b5b5',
         }}

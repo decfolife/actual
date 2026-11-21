@@ -27,12 +27,12 @@ type EditCategoryPopoverProps = {
 const LINK = {
   display: 'flex',
   alignItems: 'center',
-  gap: 10,
+  gap: 8,
   border: 'none',
   background: 'none',
   cursor: 'pointer',
   font: 'inherit',
-  fontSize: 17,
+  fontSize: 12,
   textDecoration: 'underline',
   padding: 0,
 } as const;
@@ -41,9 +41,9 @@ function Dot({ color, children }: { color: string; children: ReactNode }) {
   return (
     <span
       style={{
-        width: 26,
-        height: 26,
-        borderRadius: 13,
+        width: 18,
+        height: 18,
+        borderRadius: 9,
         background: color,
         display: 'inline-flex',
         alignItems: 'center',
@@ -71,7 +71,7 @@ export function EditCategoryPopover({
       triggerRef={triggerRef}
       isOpen={isOpen}
       onClose={onClose}
-      width={420}
+      width={290}
     >
       <EditCategoryForm
         category={category}
@@ -116,7 +116,7 @@ function EditCategoryForm({
         </>
       }
     >
-      <View style={{ padding: '24px 16px 20px', gap: 16, color: '#555' }}>
+      <View style={{ padding: '14px 12px 12px', gap: 10, color: '#555' }}>
         <InitialFocus>
           <input
             aria-label={t('Category name')}
@@ -129,10 +129,10 @@ function EditCategoryForm({
             style={{
               boxSizing: 'border-box',
               font: 'inherit',
-              fontSize: 22,
+              fontSize: 14,
               fontWeight: 700,
               color: '#222',
-              padding: '7px 10px',
+              padding: '4px 7px',
               border: '2px solid #8fcbee',
               borderRadius: 6,
               background: '#fff',
@@ -149,7 +149,7 @@ function EditCategoryForm({
             }}
           >
             <Dot color="#3b97d3">
-              <SvgViewShow width={14} height={14} />
+              <SvgViewShow width={10} height={10} />
             </Dot>
             {category.hidden ? (
               <Trans>Show this category</Trans>
@@ -167,7 +167,7 @@ function EditCategoryForm({
           }}
         >
           <Dot color="#d0312d">
-            <span style={{ width: 12, height: 3, background: '#fff' }} />
+            <span style={{ width: 8, height: 2, background: '#fff' }} />
           </Dot>
           <Trans>Delete this category</Trans>
         </button>
