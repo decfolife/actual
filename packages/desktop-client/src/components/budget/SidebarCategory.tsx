@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import type { CSSProperties, Ref } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,6 +18,7 @@ import { InputCell } from '#components/table';
 import { useContextMenu } from '#hooks/useContextMenu';
 import { useGlobalPref } from '#hooks/useGlobalPref';
 
+import { EditCategoryPopover } from './EditCategoryPopover';
 import { SidebarCategoryButtons } from './SidebarCategoryButtons';
 
 type SidebarCategoryProps = {
@@ -65,6 +66,7 @@ export function SidebarCategory({
 
   const temporary = category.id === 'new';
   const triggerRef = useRef(null);
+  const [isPopoutOpen, setIsPopoutOpen] = useState(false);
   const { handleContextMenu } = useContextMenu({
     triggerRef,
     items: [
@@ -99,7 +101,13 @@ export function SidebarCategory({
       }}
       ref={triggerRef}
     >
-      <TextOneLine data-testid="category-name">{category.name}</TextOneLine>
+      <TextOneLine
+        data-testid="category-name"
+        style={{ cursor: 'pointer' }}
+        onClick={() => !temporary && onDelete && setIsPopoutOpen(true)}
+      >
+        {category.name}
+      </TextOneLine>
       <View style={{ flexShrink: 0, marginLeft: 5 }}>
         <Button
           variant="bare"
@@ -155,6 +163,17 @@ export function SidebarCategory({
         }
       }}
     >
+      {onDelete && (
+        <EditCategoryPopover
+          category={category}
+          triggerRef={triggerRef}
+          isOpen={isPopoutOpen}
+          canHide={!categoryGroup?.hidden}
+          onClose={() => setIsPopoutOpen(false)}
+          onSave={onSave}
+          onDelete={onDelete}
+        />
+      )}
       <InputCell
         value={category.name}
         formatter={() => displayed}

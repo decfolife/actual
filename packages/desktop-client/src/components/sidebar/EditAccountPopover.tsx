@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import type { CSSProperties, RefObject } from 'react';
-import { OverlayArrow } from 'react-aria-components';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { InitialFocus } from '@actual-app/components/initial-focus';
-import { Popover } from '@actual-app/components/popover';
 import { View } from '@actual-app/components/view';
 import { send } from '@actual-app/core/platform/client/connection';
 import type { AccountEntity } from '@actual-app/core/types/models';
 
 import { useReopenAccountMutation, useUpdateAccountMutation } from '#accounts';
+import {
+  YNAB_GRAY_BUTTON,
+  YNAB_GREEN_BUTTON,
+  YnabPopover,
+} from '#components/common/YnabDialog';
 import { openAccountCloseModal } from '#modals/modalsSlice';
 import { useDispatch } from '#redux';
 
@@ -22,25 +25,8 @@ type EditAccountPopoverProps = {
   onAdjustBalance: () => void;
 };
 
-const GRAY_BUTTON: CSSProperties = {
-  font: 'inherit',
-  fontWeight: 700,
-  fontSize: 15,
-  color: '#3a3a3a',
-  padding: '7px 18px',
-  border: '1px solid #8a8a8a',
-  borderRadius: 5,
-  background: 'linear-gradient(#f4f4f4, #cfcfcf)',
-  cursor: 'pointer',
-  textShadow: '0 1px 0 rgba(255,255,255,0.7)',
-  boxShadow: '0 1px 1px rgba(0,0,0,0.2)',
-};
-
-const GREEN_BUTTON: CSSProperties = {
-  ...GRAY_BUTTON,
-  border: '1px solid #5f8f2d',
-  background: 'linear-gradient(#d9f0a8, #8cc63f)',
-};
+const GRAY_BUTTON = YNAB_GRAY_BUTTON;
+const GREEN_BUTTON = YNAB_GREEN_BUTTON;
 
 const LABEL: CSSProperties = {
   width: 56,
@@ -76,51 +62,19 @@ export function EditAccountPopover({
   onAdjustBalance,
 }: EditAccountPopoverProps) {
   return (
-    <Popover
+    <YnabPopover
       triggerRef={triggerRef}
-      placement="bottom start"
       isOpen={isOpen}
-      onOpenChange={open => {
-        if (!open) {
-          onClose();
-        }
-      }}
-      style={{
-        width: 440,
-        padding: 0,
-        background: '#ececec',
-        border: '1px solid #9a9a9a',
-        borderRadius: 6,
-        overflow: 'visible',
-        boxShadow: '0 6px 22px rgba(0,0,0,0.45)',
-      }}
-      offset={10}
+      onClose={onClose}
+      width={440}
     >
-      <OverlayArrow>
-        <svg
-          width="28"
-          height="14"
-          viewBox="0 0 28 14"
-          style={{ display: 'block', marginLeft: 20, marginTop: -13 }}
-        >
-          <path
-            d="M0 14 L14 1 L28 14"
-            fill="#e8e8e8"
-            stroke="#9a9a9a"
-            strokeWidth="1"
-          />
-          <rect x="1" y="13" width="26" height="2" fill="#e8e8e8" />
-        </svg>
-      </OverlayArrow>
-      {isOpen && (
-        <EditAccountForm
-          account={account}
-          note={note}
-          onClose={onClose}
-          onAdjustBalance={onAdjustBalance}
-        />
-      )}
-    </Popover>
+      <EditAccountForm
+        account={account}
+        note={note}
+        onClose={onClose}
+        onAdjustBalance={onAdjustBalance}
+      />
+    </YnabPopover>
   );
 }
 
