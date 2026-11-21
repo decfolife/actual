@@ -319,7 +319,7 @@ export function Account<FieldName extends SheetFields<'account'>>({
   return (
     <Tooltip
       content={
-        <View style={{ padding: 10 }}>
+        <View style={{ padding: 0 }}>
           <SpaceBetween gap={5} style={{ justifyContent: 'space-between' }}>
             <Text>{name}</Text>
             <View style={{ flex: 1 }} />
@@ -330,14 +330,14 @@ export function Account<FieldName extends SheetFields<'account'>>({
                   formatter={(value, valueType) =>
                     withTotalSymbol(format(value, valueType), format.currency)
                   }
-                  style={{ marginLeft: 20 }}
+                  style={{ marginLeft: 16 }}
                 />
               )}
             </CellValue>
           </SpaceBetween>
           {accountNote && (
             <Notes
-              getStyle={() => ({ padding: 0, marginTop: '0.75rem' })}
+              getStyle={() => ({ padding: 0, marginTop: 4 })}
               notes={accountNote}
             />
           )}
@@ -348,7 +348,11 @@ export function Account<FieldName extends SheetFields<'account'>>({
         backgroundColor: theme.accountTooltipBackground,
         borderColor: theme.accountTooltipBorder,
         color: theme.accountTooltipText,
-        borderRadius: '0px 5px 5px 0px',
+        borderRadius: 5,
+        padding: '3px 8px',
+        borderWidth: 1,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.35)',
+        fontSize: 13,
         maxWidth: 380,
       }}
       placement="right top"
