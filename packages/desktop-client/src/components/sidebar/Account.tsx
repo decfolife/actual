@@ -6,12 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { AlignedText } from '@actual-app/components/aligned-text';
 import { InitialFocus } from '@actual-app/components/initial-focus';
 import { Input } from '@actual-app/components/input';
-import { SpaceBetween } from '@actual-app/components/space-between';
-import { styles } from '@actual-app/components/styles';
+import { Menu } from '@actual-app/components/menu';
+import type { MenuItem } from '@actual-app/components/menu';
+import { Popover } from '@actual-app/components/popover';
 import type { CSSProperties as StyleProperties } from '@actual-app/components/styles';
-import { Text } from '@actual-app/components/text';
 import { theme } from '@actual-app/components/theme';
-import { Tooltip } from '@actual-app/components/tooltip';
 import { View } from '@actual-app/components/view';
 import { send } from '@actual-app/core/platform/client/connection';
 import type { AccountEntity } from '@actual-app/core/types/models';
@@ -20,17 +19,15 @@ import { css, cx } from '@emotion/css';
 import { useReopenAccountMutation, useUpdateAccountMutation } from '#accounts';
 import { withTotalSymbol } from '#components/budget/util';
 import { Link } from '#components/common/Link';
-import { Notes } from '#components/Notes';
 import { DropHighlight, useDraggable, useDroppable } from '#components/sort';
 import type { OnDragChangeCallback, OnDropCallback } from '#components/sort';
 import { CellValue, CellValueText } from '#components/spreadsheet/CellValue';
-import { useContextMenu } from '#hooks/useContextMenu';
 import { useDragRef } from '#hooks/useDragRef';
 import { useFormat } from '#hooks/useFormat';
-import { useIsTestEnv } from '#hooks/useIsTestEnv';
 import { useNotes } from '#hooks/useNotes';
-import { openAccountCloseModal, pushModal } from '#modals/modalsSlice';
-import { useDispatch, useSelector } from '#redux';
+import { useRefEventListener } from '#hooks/useRefEventListener';
+import { openAccountCloseModal } from '#modals/modalsSlice';
+import { useDispatch } from '#redux';
 import type { Binding, SheetFields } from '#spreadsheet';
 import { isTouchDevice } from '#util/isTouchDevice';
 
@@ -93,7 +90,6 @@ export function Account<FieldName extends SheetFields<'account'>>({
   isExactPathMatch,
   balanceTestId,
 }: AccountProps<FieldName>) {
-  const isTestEnv = useIsTestEnv();
   const { t } = useTranslation();
   const type = account
     ? account.closed
@@ -151,74 +147,98 @@ export function Account<FieldName extends SheetFields<'account'>>({
     </CellValue>
   );
 
-  const isContextMenuOpen = useSelector(state =>
-    state.contextMenu.items.some(
-      i =>
-        typeof i === 'object' && 'name' in i && i.name.startsWith('account-'),
-    ),
-  );
   const [isAdjustingBalance, setIsAdjustingBalance] = useState(false);
 
-  const onEditNotes = () => {
+  // Right-click: a small menu (Adjust Balance, Close/Reopen) with the full
+  // account note underneath, editable in place. Nothing happens on hover.
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const [noteDraft, setNoteDraft] = useState('');
+
+  useRefEventListener(triggerRef, 'contextmenu', (e: MouseEvent) => {
+    if (account == null || !needsTooltip) {
+      return;
+    }
+    e.preventDefault();
+    setNoteDraft(accountNote ?? '');
+    setMenuPos({ x: e.clientX, y: e.clientY });
+  });
+
+  const closeMenu = () => {
+    if (account && menuPos && noteDraft !== (accountNote ?? '')) {
+      void send('notes-save', { id: `account-${account.id}`, note: noteDraft });
+    }
+    setMenuPos(null);
+  };
+
+  const menuItems: MenuItem[] = account?.closed
+    ? [{ name: 'account-reopen', text: t('Reopen') }]
+    : [
+        { name: 'account-adjust-balance', text: t('Adjust Balance…') },
+        { name: 'account-close', text: t('Close Account…') },
+      ];
+
+  const onMenuSelect = (name: string) => {
     if (!account) {
       return;
     }
-    dispatch(
-      pushModal({
-        modal: {
-          name: 'notes',
-          options: {
-            id: `account-${account.id}`,
-            name: account.name,
-            onSave: (id, contents) => {
-              void send('notes-save', { id, note: contents });
-            },
-          },
-        },
-      }),
-    );
+    closeMenu();
+    if (name === 'account-reopen') {
+      reopenAccount.mutate({ id: account.id });
+    } else if (name === 'account-adjust-balance') {
+      setIsAdjustingBalance(true);
+    } else if (name === 'account-close') {
+      void dispatch(openAccountCloseModal({ accountId: account.id }));
+    }
   };
-
-  useContextMenu({
-    triggerRef,
-    enabled: account != null && needsTooltip,
-    // Like YNAB 4: adjust the balance, add a note, or close the account (it
-    // then moves to Closed Accounts). Rename is on the account page.
-    items: account?.closed
-      ? [
-          {
-            name: 'account-notes',
-            text: t('Note…'),
-            onClick: onEditNotes,
-          },
-          {
-            name: 'account-reopen',
-            text: t('Reopen'),
-            onClick: () => reopenAccount.mutate({ id: account.id }),
-          },
-        ]
-      : [
-          {
-            name: 'account-adjust-balance',
-            text: t('Adjust Balance…'),
-            onClick: () => setIsAdjustingBalance(true),
-          },
-          {
-            name: 'account-notes',
-            text: t('Note…'),
-            onClick: onEditNotes,
-          },
-          {
-            name: 'account-close',
-            text: t('Close Account…'),
-            onClick: () =>
-              dispatch(openAccountCloseModal({ accountId: account.id })),
-          },
-        ],
-  });
 
   const accountRow = (
     <View innerRef={dropRef} style={{ flexShrink: 0, ...outerStyle }}>
+      <div
+        ref={anchorRef}
+        style={{
+          position: 'fixed',
+          left: menuPos?.x ?? 0,
+          top: menuPos?.y ?? 0,
+          width: 0,
+          height: 0,
+          pointerEvents: 'none',
+        }}
+      />
+      <Popover
+        triggerRef={anchorRef}
+        isOpen={menuPos != null}
+        onOpenChange={open => {
+          if (!open) {
+            closeMenu();
+          }
+        }}
+        placement="bottom start"
+        style={{ width: 260 }}
+      >
+        <Menu items={menuItems} onMenuSelect={onMenuSelect} />
+        <textarea
+          aria-label={t('Account note')}
+          placeholder={t('Add a note…')}
+          value={noteDraft}
+          onChange={e => setNoteDraft(e.target.value)}
+          rows={Math.min(14, Math.max(4, noteDraft.split('\n').length + 1))}
+          style={{
+            display: 'block',
+            boxSizing: 'border-box',
+            width: 'calc(100% - 16px)',
+            margin: '4px 8px 8px',
+            padding: 6,
+            resize: 'vertical',
+            font: 'inherit',
+            fontSize: 13,
+            color: theme.menuItemText,
+            background: theme.tableBackground,
+            border: `1px solid ${theme.tableBorder}`,
+            borderRadius: 3,
+          }}
+        />
+      </Popover>
       {account && (
         <AdjustBalancePopover
           account={account}
@@ -349,60 +369,5 @@ export function Account<FieldName extends SheetFields<'account'>>({
     </View>
   );
 
-  if (!needsTooltip || isTestEnv) {
-    return accountRow;
-  }
-
-  return (
-    <Tooltip
-      content={
-        <View
-          style={{
-            padding: 10,
-          }}
-        >
-          <SpaceBetween gap={5} style={{ justifyContent: 'space-between' }}>
-            <Text>{name}</Text>
-            <View style={{ flex: 1 }} />
-            <CellValue<'account', FieldName> binding={query} type="financial">
-              {props => (
-                <CellValueText<'account', FieldName>
-                  {...props}
-                  formatter={(value, valueType) =>
-                    withTotalSymbol(format(value, valueType), format.currency)
-                  }
-                  style={{ marginLeft: 20 }}
-                />
-              )}
-            </CellValue>
-          </SpaceBetween>
-          {accountNote && (
-            <Notes
-              getStyle={() => ({
-                padding: 0,
-                marginTop: '0.75rem',
-              })}
-              notes={accountNote}
-            />
-          )}
-        </View>
-      }
-      style={{
-        ...styles.tooltip,
-        backgroundColor: theme.accountTooltipBackground,
-        borderColor: theme.accountTooltipBorder,
-        color: theme.accountTooltipText,
-        borderRadius: '0px 5px 5px 0px',
-        maxWidth: 380,
-      }}
-      placement="right top"
-      triggerProps={{
-        delay: 500,
-        closeDelay: 250,
-        isDisabled: isContextMenuOpen,
-      }}
-    >
-      {accountRow}
-    </Tooltip>
-  );
+  return accountRow;
 }
